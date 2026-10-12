@@ -50,6 +50,7 @@ func wire(ctx: BootstrapContext) -> void:
 	soothing.camera = ctx.camera
 	soothing.interaction_controller = ctx.interaction
 	soothing.trivial_object = ctx.trivial_object
+	soothing.apartment_root = ctx.apartment
 
 	# Ticket-08 Task 2: the walk.
 	var park := ctx.park

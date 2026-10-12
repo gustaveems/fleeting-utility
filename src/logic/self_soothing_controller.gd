@@ -22,6 +22,13 @@ extends Node
 ## The controller saves the camera's previous target and restores it on exit. If the
 ## trivial_object is null or the player is already locked (e.g., mid-dreamscape fade),
 ## the trigger is suppressed to avoid stacking locks.
+##
+## The compulsion belongs to the apartment, where the fidget object lives. It cannot
+## start while the apartment WorldRoot is inactive, and it ends the moment the apartment
+## deactivates. Otherwise an unsoothed compulsion (overload still climbing to the
+## collapse at 100) followed the player into the dream, kept the interaction lock and
+## pointed the camera at an object in a hidden world, so the memory anchors stopped
+## responding.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
@@ -35,6 +42,7 @@ signal compulsion_ended
 @export var camera: WorkspaceCamera
 @export var interaction_controller: InteractionController
 @export var trivial_object: TrivialObject
+@export var apartment_root: WorldRoot
 
 ## --- TUNING --------------------------------------------------------------------------
 
@@ -63,6 +71,11 @@ var _time_since_last_soothe: float = 0.0
 var _previous_camera_target: Node3D = null
 
 
+func _ready() -> void:
+	if apartment_root != null:
+		apartment_root.activation_changed.connect(_on_apartment_activation_changed)
+
+
 func _process(delta: float) -> void:
 	if state_machine == null or state_machine.state_data == null:
 		return
@@ -71,7 +84,9 @@ func _process(delta: float) -> void:
 
 	if not _in_compulsion:
 		# Check trigger: fully withdrawn AND overwhelmed.
-		if data.sensory_overload >= compulsion_threshold and data.chemical_level <= 0.0:
+		var apartment_active := apartment_root == null or apartment_root.is_active
+		var overwhelmed := data.sensory_overload >= compulsion_threshold
+		if apartment_active and overwhelmed and data.chemical_level <= 0.0:
 			_enter_compulsion()
 	else:
 		# In compulsion: handle input and check exit.
@@ -102,6 +117,11 @@ func _enter_compulsion() -> void:
 	camera.set_target(trivial_object)
 
 	compulsion_started.emit()
+
+
+func _on_apartment_activation_changed(active: bool) -> void:
+	if not active and _in_compulsion:
+		_exit_compulsion()
 
 
 func _exit_compulsion() -> void:

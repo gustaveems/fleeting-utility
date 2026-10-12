@@ -37,6 +37,23 @@ func _run() -> void:
 	check("interactions STILL locked by climax", ic.is_locked)
 	ic.unlock(&"climax")
 
+	section("a compulsion never follows the player out of the apartment")
+	var apartment := node("Apartment") as WorldRoot
+	soothing._enter_compulsion()
+	check("compulsion holds the interaction lock", ic.is_locked)
+	apartment.set_active(false)
+	check("leaving the apartment releases the compulsion lock", not ic.is_locked)
+	check("camera back on the player", camera.target_node == player)
+	soothing._process(0.016)
+	var data := (node("PlayerStateMachine") as PlayerStateMachine).state_data
+	data.chemical_level = 0.0
+	data.sensory_overload = 90.0
+	soothing._process(0.016)
+	check("no compulsion starts while the apartment is inactive", not ic.is_locked)
+	apartment.set_active(true)
+	data.chemical_level = 0.5
+	data.sensory_overload = 0.0
+
 	section("overlapping input locks")
 	player.lock_input(&"dream_transition")
 	player.lock_input(&"hesitation")
