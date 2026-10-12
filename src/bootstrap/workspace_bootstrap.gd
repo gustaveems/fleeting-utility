@@ -381,6 +381,8 @@ func _build_dreamscape() -> void:
 	endgame.crafting_bench = _bench
 	endgame.spatial_grid = _spatial_grid
 	endgame.apartment_root = _apartment_root
+	endgame.screen_effects = _screen_effects
+	endgame.camera = _camera
 	add_child(endgame)
 	# Wire the flavor-text signal to the core HUD.
 	core_hud.endgame_loop_manager = endgame
@@ -459,10 +461,6 @@ func _build_dreamscape() -> void:
 		narrative.camera = _camera
 		statue.add_child(narrative)
 
-	# Ticket-06: the violent forced return flips the apartment into clinical mode AND
-	# locks all interactions AND puts the player into withdrawal.
-	_dreamscape_manager.forced_return_completed.connect(_on_forced_return)
-
 
 ## ----- DEMO SEED + DEV RIG -------------------------------------------------------------
 
@@ -497,16 +495,3 @@ func _drive_edge_proximity() -> void:
 		_boundary.set_edge_proximity(0.0)
 		return
 	_boundary.set_edge_proximity(_grid.edge_closeness(cell))
-
-
-## Ticket-06: the post-climax state. Clinical lighting, locked interactions, withdrawal
-## movement, meters pinned (chemical 0, overload 100), but screen effects capped so the
-## player remains lucid.
-func _on_forced_return() -> void:
-	_atmosphere.set_clinical_mode(true)
-	_interaction_controller.is_locked = true
-	_player.is_in_withdrawal = true
-	_state_data.chemical_level = 0.0
-	_state_data.sensory_overload = 100.0
-	_screen_effects.lucid_cap = 0.5
-	_camera.withdrawal_shake = 0.02

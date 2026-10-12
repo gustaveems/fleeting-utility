@@ -272,5 +272,9 @@ func _on_auto_return_timeout() -> void:
 
 
 func _lock_player(locked: bool) -> void:
-	if player != null:
-		player.input_locked = locked
+	if player == null:
+		return
+	if locked:
+		player.lock_input(&"park_transition")
+	else:
+		player.unlock_input(&"park_transition")

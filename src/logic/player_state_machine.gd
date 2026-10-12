@@ -144,6 +144,15 @@ func on_dreamscape_entered() -> void:
 	state_data.state_changed.emit(state_data)
 
 
+## Ticket-06: latch the climax explicitly. Called by EndgameLoopManager at the forced
+## return, BEFORE it pins the meters at the knockout condition. Latching only inside
+## the collapse trigger missed dreams entered any other way (dev key, tests), and the
+## post-climax pin then re-triggered a second dream and a second ambulance.
+func latch_climax() -> void:
+	_climax_fired = true
+	_dreamscape_fired = true
+
+
 ## The violent return: lucid, unmedicated, crashed — but below the knockout pin.
 func on_dreamscape_returned() -> void:
 	if state_data == null:

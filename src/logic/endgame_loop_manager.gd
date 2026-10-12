@@ -9,8 +9,12 @@ extends Node
 ##
 ## BEAT SEQUENCE
 ## -------------
-##   1. Clinical pause (5.0 s): player is locked in the Ticket-06 clinical state, a
-##      "SYSTEM RECALIBRATING..." message displays.
+##   0. Post-climax state (Ticket-06), applied the instant the forced return lands:
+##      clinical lighting, interactions locked for good, withdrawal movement, meters
+##      pinned (chemical 0, overload 100), screen effects capped so the player stays
+##      lucid, residual camera tremor. This used to be a second forced_return handler
+##      in the bootstrap; it lives here so the whole post-climax beat has one owner.
+##   1. Clinical pause (5.0 s): a "SYSTEM RECALIBRATING..." message displays.
 ##   2. Scarred reset: meters are partially restored, movement unlocks, the crafting
 ##      bench and grid are permanently hidden, entropy growth accelerates 50%.
 ##   3. Atmosphere transitions from clinical to SUBDUED (dim, flat, defeated silence).
@@ -39,6 +43,9 @@ signal loop_reset(flavor_text: String)
 ## Flavor text displayed on the HUD after the reset.
 const FLAVOR_TEXT := "The utility is fleeting. The lease renews."
 
+## Interaction lock owner held from the climax onward. Never released this cycle.
+const CLIMAX_LOCK := &"climax"
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var dreamscape_manager: DreamscapeManager
@@ -47,6 +54,8 @@ const FLAVOR_TEXT := "The utility is fleeting. The lease renews."
 @export var interaction_controller: InteractionController
 @export var atmosphere_controller: AtmosphereController
 @export var entropy_data: WorkspaceEntropyData
+@export var screen_effects: ScreenEffects
+@export var camera: WorkspaceCamera
 
 ## The apartment world. The scarred reset suppresses the bench and grid inside it.
 @export var apartment_root: WorldRoot
@@ -70,6 +79,10 @@ const FLAVOR_TEXT := "The utility is fleeting. The lease renews."
 ## Entropy rate multiplier per cycle (1.5 = 50% faster decay).
 @export var entropy_rate_multiplier: float = 1.5
 
+## Post-climax lucidity: screen-effect intensity cap and residual camera tremor.
+@export var post_climax_lucid_cap: float = 0.5
+@export var post_climax_shake: float = 0.02
+
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
 var _timer: Timer
@@ -91,6 +104,7 @@ func _on_forced_return() -> void:
 		return
 	_loop_armed = true
 
+	_apply_post_climax_state()
 	_show_message("SYSTEM RECALIBRATING...")
 	_timer = Timer.new()
 	_timer.name = "EndgameTimer"
@@ -101,6 +115,25 @@ func _on_forced_return() -> void:
 	_timer.start()
 
 
+func _apply_post_climax_state() -> void:
+	# Latch first: the meter pin below satisfies the collapse condition.
+	if state_machine != null:
+		state_machine.latch_climax()
+	if atmosphere_controller != null:
+		atmosphere_controller.set_clinical_mode(true)
+	if interaction_controller != null:
+		interaction_controller.lock(CLIMAX_LOCK)
+	if player != null:
+		player.is_in_withdrawal = true
+	if state_machine != null and state_machine.state_data != null:
+		state_machine.state_data.chemical_level = 0.0
+		state_machine.state_data.sensory_overload = 100.0
+	if screen_effects != null:
+		screen_effects.lucid_cap = post_climax_lucid_cap
+	if camera != null:
+		camera.withdrawal_shake = post_climax_shake
+
+
 func _execute_scarred_reset() -> void:
 	# 1. Reset the protagonist's chemistry: they're functional again but the room has
 	#    been permanently scarred.
@@ -109,14 +142,12 @@ func _execute_scarred_reset() -> void:
 		state_machine.state_data.sensory_overload = reset_overload
 		state_machine.state_data.state_changed.emit(state_machine.state_data)
 
-	# 2. Unlock movement: the withdrawal jitter ends, normal locomotion resumes.
+	# 2. The withdrawal jitter ends; normal locomotion resumes.
 	if player != null:
 		player.is_in_withdrawal = false
-		player.input_locked = false
 
-	# 3. Lock interactions permanently — no bench, no crafting.
-	if interaction_controller != null:
-		interaction_controller.is_locked = true
+	# 3. Interactions stay locked: CLIMAX_LOCK, taken at the forced return, is never
+	#    released this cycle. No bench, no crafting.
 
 	# 4. Remove the crafting station: suppressed in the apartment WorldRoot, so it is
 	#    hidden AND non-solid (Rule 2) and stays gone through later world swaps. The node

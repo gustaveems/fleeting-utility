@@ -38,9 +38,12 @@ func _run() -> void:
 	await _manager.transition_to_dreamscape()
 	check("entered dream", _manager.in_dreamscape())
 
-	# Wait past interception (2 s) + escalation (1 s) + forced-return fades (~0.5 s).
-	# Generous slack: the headless scheduler can drift.
-	await create_timer(10.0).timeout
+	# Wait for the forced return itself (~3.1 s), then check the post-climax state at
+	# once. A fixed 10 s wait overshoots the 5 s clinical pause, and by then the scarred
+	# reset (T07) has already moved the apartment to SUBDUED. It used to pass only
+	# because a bug re-ran the whole climax a second time.
+	await _manager.forced_return_completed
+	await wait(0.1)
 
 	check("interception fired", _intercepted)
 	check("defibrillation fired", _defib)

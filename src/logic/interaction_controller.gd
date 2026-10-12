@@ -2,7 +2,8 @@ class_name InteractionController
 extends Node
 ## LOGIC — a lock gate for all player interactions (Ticket-06 Task 3).
 ##
-## When `is_locked` is true, any call to `try_interact()` emits `interaction_locked`
+## While any system holds a lock (lock/unlock with a named owner, see LockSet),
+## `is_locked` is true and any call to `try_interact()` emits `interaction_locked`
 ## and returns false. The UI can listen to the signal to show a "LOCKED" prompt.
 ## When false, `try_interact()` returns true and the caller proceeds with the interaction.
 ##
@@ -20,8 +21,21 @@ signal interaction_locked
 signal target_detected(prompt_text: String)
 signal target_lost
 
-var is_locked: bool = false
+## Read-only: take a named lock with lock()/unlock().
+var is_locked: bool:
+	get:
+		return _locks.is_locked()
+
+var _locks := LockSet.new()
 var _current_target: String = ""
+
+
+func lock(lock_owner: StringName) -> void:
+	_locks.acquire(lock_owner)
+
+
+func unlock(lock_owner: StringName) -> void:
+	_locks.release(lock_owner)
 
 
 func try_interact() -> bool:

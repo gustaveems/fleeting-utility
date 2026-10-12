@@ -93,9 +93,9 @@ func _enter_compulsion() -> void:
 	_time_since_last_soothe = 0.0
 
 	# Lock normal movement and interactions.
-	player.input_locked = true
+	player.lock_input(&"compulsion")
 	if interaction_controller != null:
-		interaction_controller.is_locked = true
+		interaction_controller.lock(&"compulsion")
 
 	# Repoint camera at the trivial object.
 	_previous_camera_target = camera.target_node
@@ -108,10 +108,11 @@ func _exit_compulsion() -> void:
 	_in_compulsion = false
 
 	# Unlock movement and interactions.
+	# Release only our own locks: the post-climax interaction lock must survive.
 	if player != null:
-		player.input_locked = false
+		player.unlock_input(&"compulsion")
 	if interaction_controller != null:
-		interaction_controller.is_locked = false
+		interaction_controller.unlock(&"compulsion")
 
 	# Restore camera target.
 	if camera != null and _previous_camera_target != null:

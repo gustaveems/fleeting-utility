@@ -84,9 +84,13 @@ const _STOP_SPEED := 0.08
 ## normal handling.
 @export var state_machine: PlayerStateMachine
 
-## Set true by DreamscapeManager during fade transitions: input is ignored but the
-## body still decelerates to a stop, so the player never teleports mid-fade.
-var input_locked: bool = false
+## True while any system holds an input lock (lock_input/unlock_input). Input is
+## ignored but the body still decelerates to a stop, so the player never teleports
+## mid-fade. Read-only: writers must use a named lock so they cannot release each
+## other's (see LockSet).
+var input_locked: bool:
+	get:
+		return _input_locks.is_locked()
 
 ## Ticket-06: post-climax withdrawal state. When true, movement becomes fast, jittery,
 ## and uncontrollable — the protagonist is lucid but panicked.
@@ -94,6 +98,7 @@ var is_in_withdrawal: bool = false
 
 ## --- INTERNAL STATE --------------------------------------------------------------
 
+var _input_locks := LockSet.new()
 var _is_moving: bool = false
 var _heading_yaw: float = 0.0
 
@@ -111,6 +116,14 @@ func _ready() -> void:
 	_heading_yaw = 0.0  # default-facing NORTH (up-right on screen)
 
 	_setup_placeholder_body()
+
+
+func lock_input(lock_owner: StringName) -> void:
+	_input_locks.acquire(lock_owner)
+
+
+func unlock_input(lock_owner: StringName) -> void:
+	_input_locks.release(lock_owner)
 
 
 ## Build or locate the placeholder capsule + collision + facing wedge.

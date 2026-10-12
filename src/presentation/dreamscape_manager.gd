@@ -317,8 +317,12 @@ func return_to_workspace() -> void:
 
 
 func _lock_player(locked: bool) -> void:
-	if player != null:
-		player.input_locked = locked
+	if player == null:
+		return
+	if locked:
+		player.lock_input(&"dream_transition")
+	else:
+		player.unlock_input(&"dream_transition")
 
 
 ## One WorldEnvironment, two resources — see class doc.

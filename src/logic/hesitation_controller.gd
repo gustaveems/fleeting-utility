@@ -31,6 +31,10 @@ signal hesitation_rumble
 
 var _hesitated_in_this_cycle: bool = false
 
+## Camera shake in effect before the hesitation (e.g. the post-climax tremor), restored
+## afterwards rather than zeroed.
+var _shake_before: float = 0.0
+
 
 func _ready() -> void:
 	if apartment_door != null:
@@ -51,8 +55,9 @@ func initiate_hesitation() -> void:
 	_hesitated_in_this_cycle = true
 
 	if player != null:
-		player.input_locked = true
+		player.lock_input(&"hesitation")
 	if camera != null:
+		_shake_before = camera.withdrawal_shake
 		camera.withdrawal_shake = hesitation_shake_intensity
 
 	hesitation_rumble.emit()
@@ -64,8 +69,8 @@ func initiate_hesitation() -> void:
 
 func _on_visions_ended() -> void:
 	if player != null:
-		player.input_locked = false
+		player.unlock_input(&"hesitation")
 	if camera != null:
-		camera.withdrawal_shake = 0.0
+		camera.withdrawal_shake = _shake_before
 	if dual_vision_controller != null:
 		dual_vision_controller.visions_ended.disconnect(_on_visions_ended)
