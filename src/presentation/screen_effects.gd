@@ -185,7 +185,7 @@ func _build_shader_layer() -> void:
 	_color_rect.name = "ScreenEffectsRect"
 	_color_rect.material = _material
 	_color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_color_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_color_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_color_rect)
 
 
@@ -285,6 +285,6 @@ func _push_shader_params() -> void:
 
 
 func _is_crashed() -> bool:
-	if state_machine == null:
+	if state_machine == null or state_machine.state_data == null:
 		return false
 	return state_machine.state_data.is_crashed()

@@ -191,7 +191,7 @@ func _show_message(text: String) -> void:
 
 	var container := CenterContainer.new()
 	container.name = "MessageContainer"
-	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	container.add_child(_message_label)
 	_message_layer.add_child(container)
 

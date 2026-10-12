@@ -140,6 +140,12 @@ func _test_interaction_prompt():
 	var pl: Label = _ui.get_node_or_null("PromptContainer/InteractionPrompt")
 	var pl_text := pl.text if pl != null else "?"
 	check("prompt text is '[E] Return' (got %s)" % pl_text, pl != null and pl.text == "[E] Return")
+	if pc != null:
+		var vr := _ui.get_viewport_rect()
+		var r := pc.get_global_rect()
+		check("prompt on screen (%s in %s)" % [r, vr], vr.encloses(r))
+		check("prompt in the bottom band", r.position.y > vr.size.y * 0.6)
+		check("prompt centred", absf(r.get_center().x - vr.size.x * 0.5) < 4.0)
 
 	_ic.clear_target()
 	await create_timer(0.1).timeout

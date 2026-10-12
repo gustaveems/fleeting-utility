@@ -30,6 +30,9 @@ extends Node
 ## Emitted after the ransacked state is fully applied.
 signal ransacked_applied
 
+## Relayed from the runtime-spawned LuxuryShoes so listeners can wire at boot.
+signal betrayal_realized(text: String)
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var corporate_park_manager: CorporateParkManager
@@ -156,4 +159,7 @@ func _place_luxury_shoes() -> void:
 	_luxury_shoes.position = shoes_position
 	_luxury_shoes.player = player
 	_luxury_shoes.interaction_controller = interaction_controller
+	_luxury_shoes.betrayal_realized.connect(
+		func(): betrayal_realized.emit(LuxuryShoes.NARRATIVE_TEXT)
+	)
 	apartment_root.add_child(_luxury_shoes)

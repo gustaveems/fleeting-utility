@@ -56,3 +56,4 @@ func post_attach(ctx: BootstrapContext) -> void:
 		narrative.dual_vision_controller = ctx.dual_vision
 		narrative.camera = ctx.camera
 		ctx.valley.statues[i].add_child(narrative)
+		ctx.statue_narratives.append(narrative)

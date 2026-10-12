@@ -138,7 +138,7 @@ func _build_fade_layer() -> void:
 	_fade_rect.color = Color(1.0, 1.0, 1.0, 1.0)
 	_fade_rect.modulate.a = 0.0
 	_fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_fade_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_fade_layer.add_child(_fade_rect)
 
 

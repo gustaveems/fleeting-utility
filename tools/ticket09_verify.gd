@@ -157,6 +157,14 @@ func _test_statue_look():
 	_camera.rotation_degrees = cam_rot_home
 	_camera.target_node = _player
 
+	# The reveal must reach the player's eyes, not just stdout.
+	_narrative0.statue_truth_revealed.emit(StatueNarrative.NARRATIVE_TEXT)
+	var hud := _ws.get_node_or_null("CoreHud/HudUI") as HudUI
+	check(
+		"HUD shows the statue reveal",
+		hud != null and hud.displayed_line() == StatueNarrative.NARRATIVE_TEXT
+	)
+
 
 func _title() -> String:
 	return "TICKET-09 VERIFY"

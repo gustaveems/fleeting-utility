@@ -101,10 +101,9 @@ var is_in_withdrawal: bool = false
 var _input_locks := LockSet.new()
 var _is_moving: bool = false
 var _heading_yaw: float = 0.0
-
-@onready var _body_pivot: Node3D
-@onready var _collision_shape: CollisionShape3D
-@onready var _mesh: MeshInstance3D
+var _body_pivot: Node3D
+var _collision_shape: CollisionShape3D
+var _mesh: MeshInstance3D
 
 ## ----- LIFECYCLE -----------------------------------------------------------------
 
@@ -126,55 +125,48 @@ func unlock_input(lock_owner: StringName) -> void:
 	_input_locks.release(lock_owner)
 
 
-## Build or locate the placeholder capsule + collision + facing wedge.
+## Build the placeholder capsule + collision + facing wedge. Nothing is authored in a
+## scene, so there is nothing to look up (no find_child by name, Ironclad Rule 3).
 func _setup_placeholder_body() -> void:
-	_collision_shape = find_child("CollisionShape3D") as CollisionShape3D
-	if _collision_shape == null:
-		_collision_shape = CollisionShape3D.new()
-		_collision_shape.name = "CollisionShape3D"
-		add_child(_collision_shape)
+	_collision_shape = CollisionShape3D.new()
+	_collision_shape.name = "CollisionShape3D"
+	add_child(_collision_shape)
 	var capsule_shape := CapsuleShape3D.new()
 	capsule_shape.radius = 0.28
 	capsule_shape.height = 0.80
 	_collision_shape.shape = capsule_shape
 	_collision_shape.position = Vector3(0.0, 0.50, 0.0)
 
-	_body_pivot = find_child("BodyPivot") as Node3D
-	if _body_pivot == null:
-		_body_pivot = Node3D.new()
-		_body_pivot.name = "BodyPivot"
-		add_child(_body_pivot)
+	_body_pivot = Node3D.new()
+	_body_pivot.name = "BodyPivot"
+	add_child(_body_pivot)
 
-	_mesh = find_child("MeshCapsule") as MeshInstance3D
-	if _mesh == null:
-		_mesh = MeshInstance3D.new()
-		_mesh.name = "MeshCapsule"
-		var capsule_mesh := CapsuleMesh.new()
-		capsule_mesh.radius = 0.26
-		capsule_mesh.height = 0.74
-		_mesh.mesh = capsule_mesh
-		_mesh.position = Vector3(0.0, 0.48, 0.0)
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color(0.82, 0.76, 0.66)
-		material.roughness = 0.75
-		_mesh.material_override = material
-		_body_pivot.add_child(_mesh)
+	_mesh = MeshInstance3D.new()
+	_mesh.name = "MeshCapsule"
+	var capsule_mesh := CapsuleMesh.new()
+	capsule_mesh.radius = 0.26
+	capsule_mesh.height = 0.74
+	_mesh.mesh = capsule_mesh
+	_mesh.position = Vector3(0.0, 0.48, 0.0)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.82, 0.76, 0.66)
+	material.roughness = 0.75
+	_mesh.material_override = material
+	_body_pivot.add_child(_mesh)
 
-	var wedge := find_child("FacingWedge") as MeshInstance3D
-	if wedge == null:
-		wedge = MeshInstance3D.new()
-		wedge.name = "FacingWedge"
-		var wedge_mesh := BoxMesh.new()
-		wedge_mesh.size = Vector3(0.12, 0.10, 0.22)
-		wedge.mesh = wedge_mesh
-		# PrimitiveMesh has no `position` in Godot 4 (Godot 3 API): the -0.22 z
-		# protrusion has to live on the MeshInstance3D transform, not the mesh.
-		wedge.position = Vector3(0.0, 0.72, -0.22)
-		var wedge_mat := StandardMaterial3D.new()
-		wedge_mat.albedo_color = Color(0.85, 0.30, 0.24)
-		wedge_mat.roughness = 0.75
-		wedge.material_override = wedge_mat
-		_body_pivot.add_child(wedge)
+	var wedge := MeshInstance3D.new()
+	wedge.name = "FacingWedge"
+	var wedge_mesh := BoxMesh.new()
+	wedge_mesh.size = Vector3(0.12, 0.10, 0.22)
+	wedge.mesh = wedge_mesh
+	# PrimitiveMesh has no `position` in Godot 4 (Godot 3 API): the -0.22 z
+	# protrusion has to live on the MeshInstance3D transform, not the mesh.
+	wedge.position = Vector3(0.0, 0.72, -0.22)
+	var wedge_mat := StandardMaterial3D.new()
+	wedge_mat.albedo_color = Color(0.85, 0.30, 0.24)
+	wedge_mat.roughness = 0.75
+	wedge.material_override = wedge_mat
+	_body_pivot.add_child(wedge)
 
 
 ## ----- MOVEMENT ------------------------------------------------------------------

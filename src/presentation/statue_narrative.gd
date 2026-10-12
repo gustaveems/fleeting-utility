@@ -1,5 +1,5 @@
 class_name StatueNarrative
-extends Area3D
+extends Node3D
 ## PRESENTATION — the statues' true meaning (Ticket-09).
 ##
 ## Attached to each monolithic statue in the valley. During a valley-phase flash in the

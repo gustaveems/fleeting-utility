@@ -11,6 +11,9 @@ extends Control
 ##     - InteractionPrompt ("[E] Interact") — hidden by default
 ##   Top-center:
 ##     - FadingMemoryLabel ("Fading Memory") — shown only in dreamscape
+##   Center (FlavorLayer, created on demand):
+##     - narrative lines via show_line(): loop flavor text, the statue reveal, the
+##       betrayal. One line at a time; a new line replaces the current one.
 ##
 ## SIGNAL WIRING
 ## -------------
@@ -46,9 +49,11 @@ var _prompt_label: Label
 ## Top-center dreamscape label.
 var _fading_label: Label
 
-## Center-screen flavor text shown briefly after the endgame loop resets.
-var _flavor_layer: CanvasLayer
+## Center-screen narrative line (show_line). Lives inside this HUD's CanvasLayer (50),
+## above post-FX and the dream fade.
+var _flavor_layer: CenterContainer
 var _flavor_label: Label
+var _flavor_tween: Tween
 
 ## Internal state: true when in the dreamscape (meters hidden, "Fading Memory" shown).
 var _in_dreamscape: bool = false
@@ -56,7 +61,7 @@ var _in_dreamscape: bool = false
 
 func _ready() -> void:
 	# Fill the entire viewport.
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 
 	_build_meter_cluster()
@@ -136,10 +141,18 @@ func _style_bar(bar: ProgressBar, initial_tint: Color) -> void:
 
 
 func _build_prompt() -> void:
+	# Full-width strip anchored to the bottom edge, 40 px tall, 80 px up. Anchors plus
+	# offsets, not `position`: after an anchor preset, writing position.y = -80 put the
+	# prompt above the TOP of the screen.
 	_prompt_container = CenterContainer.new()
 	_prompt_container.name = "PromptContainer"
-	_prompt_container.set_anchors_preset(PRESET_CENTER_BOTTOM)
-	_prompt_container.position.y = -80  # 80 px above the bottom edge
+	_prompt_container.anchor_left = 0.0
+	_prompt_container.anchor_right = 1.0
+	_prompt_container.anchor_top = 1.0
+	_prompt_container.anchor_bottom = 1.0
+	_prompt_container.offset_top = -120.0
+	_prompt_container.offset_bottom = -80.0
+	_prompt_container.mouse_filter = MOUSE_FILTER_IGNORE
 	_prompt_container.visible = false
 	add_child(_prompt_container)
 
@@ -154,8 +167,11 @@ func _build_prompt() -> void:
 func _build_fading_label() -> void:
 	_fading_label = Label.new()
 	_fading_label.name = "FadingMemoryLabel"
-	_fading_label.set_anchors_preset(PRESET_CENTER_TOP)
-	_fading_label.position.y = 60
+	# Full-width strip 60 px from the top; the label centres its own text.
+	_fading_label.anchor_left = 0.0
+	_fading_label.anchor_right = 1.0
+	_fading_label.offset_top = 60.0
+	_fading_label.offset_bottom = 100.0
 	_fading_label.add_theme_font_size_override("font_size", 28)
 	_fading_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.75, 0.9))
 	_fading_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -250,35 +266,39 @@ func _on_dreamscape_transition(now_in_dreamscape: bool) -> void:
 		_fading_label.visible = now_in_dreamscape
 
 
-## Ticket-07: show the endgame loop flavor text in the center of the screen for a few
-## seconds, then fade it out.
+## Ticket-07: the endgame loop flavor text.
 func _on_loop_reset(flavor_text: String) -> void:
-	if _flavor_layer != null:
-		return  # Already showing.
+	show_line(flavor_text)
 
-	_flavor_layer = CanvasLayer.new()
-	_flavor_layer.name = "FlavorLayer"
-	add_child(_flavor_layer)
 
-	_flavor_label = Label.new()
-	_flavor_label.name = "FlavorLabel"
-	_flavor_label.text = flavor_text
-	_flavor_label.add_theme_font_size_override("font_size", 24)
-	_flavor_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.95))
-	_flavor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+## Show a narrative line centre-screen for `hold_seconds`, then fade it out. A new line
+## replaces the current one.
+func show_line(text: String, hold_seconds: float = 3.0) -> void:
+	if _flavor_layer == null:
+		_flavor_layer = CenterContainer.new()
+		_flavor_layer.name = "FlavorLayer"
+		_flavor_layer.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+		_flavor_layer.mouse_filter = MOUSE_FILTER_IGNORE
+		add_child(_flavor_layer)
+		_flavor_label = Label.new()
+		_flavor_label.name = "FlavorLabel"
+		_flavor_label.add_theme_font_size_override("font_size", 24)
+		_flavor_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.95))
+		_flavor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_flavor_layer.add_child(_flavor_label)
+	if _flavor_tween != null:
+		_flavor_tween.kill()
+	_flavor_label.text = text
 	_flavor_label.modulate.a = 1.0
+	_flavor_tween = create_tween()
+	_flavor_tween.tween_interval(hold_seconds)
+	_flavor_tween.tween_property(_flavor_label, "modulate:a", 0.0, 1.5)
+	_flavor_tween.tween_callback(_remove_flavor)
 
-	var container := CenterContainer.new()
-	container.name = "FlavorContainer"
-	container.set_anchors_preset(PRESET_FULL_RECT)
-	container.add_child(_flavor_label)
-	_flavor_layer.add_child(container)
 
-	# Fade out after 3 seconds.
-	var tween := create_tween()
-	tween.tween_interval(3.0)
-	tween.tween_property(_flavor_label, "modulate:a", 0.0, 1.5)
-	tween.tween_callback(_remove_flavor)
+## The narrative line currently on screen, or "".
+func displayed_line() -> String:
+	return _flavor_label.text if _flavor_label != null else ""
 
 
 func _remove_flavor() -> void:
@@ -286,3 +306,4 @@ func _remove_flavor() -> void:
 		_flavor_layer.queue_free()
 		_flavor_layer = null
 		_flavor_label = null
+		_flavor_tween = null

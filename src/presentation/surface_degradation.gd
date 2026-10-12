@@ -30,9 +30,19 @@ extends Node3D
 ##
 ## CONFIGURED FOR 2.5D ISOMETRIC VIEW
 ## ---------------------------------
-## Decals are placed flush against flat walls and floor planes. Their projection axis
-## (-Z) points perpendicular to the surface. At a fixed 45 isometric angle, a wall
-## Decal reads as a smear on the wall plane rather than a floating 3D object.
+## Decals are placed flush against flat walls and floor planes. A Godot 4 Decal projects
+## along its local −Y, and size.y is the projection DEPTH; size.x/size.z are the
+## footprint. Each decal's +Y is therefore aligned to the surface normal. At a fixed 45°
+## isometric angle a wall decal then reads as a smear on the wall plane.
+##
+## STABILITY
+## ---------
+## entropy_changed fires every frame while entropy grows. A batch is placed only when
+## it switches on, and keeps that placement while its tier holds; re-shuffling on every
+## signal made decals jump around each frame.
+
+## Projection depth: reaches the surface from a placement a few cm off it.
+const PROJECTION_DEPTH := 0.4
 
 ## --- DEPENDENCY ----------------------------------------------------------------------
 
@@ -53,6 +63,7 @@ static var _crack_texture: NoiseTexture2D
 
 var _pool: Array[Decal] = []
 var _batch_placements: Array[Array] = []
+var _batch_active: Array[bool] = [false, false, false]
 
 ## ----- LIFECYCLE ---------------------------------------------------------------------
 
@@ -180,7 +191,7 @@ func _init_placements() -> void:
 		. append(
 			[
 				{"pos": Vector3(-4.45, 0.85, -1.5), "normal": Vector3.RIGHT},
-				{"pos": Vector3(1.5, 0.28, -3.45), "normal": Vector3.FORWARD},
+				{"pos": Vector3(1.5, 0.28, -3.45), "normal": Vector3.BACK},
 				{"pos": Vector3(-4.45, 0.7, 1.0), "normal": Vector3.RIGHT},
 				{"pos": Vector3(-4.45, 0.5, 2.0), "normal": Vector3.RIGHT},
 				{"pos": Vector3(2.0, 0.02, 2.5), "normal": Vector3.UP},
@@ -192,7 +203,7 @@ func _init_placements() -> void:
 		_batch_placements
 		. append(
 			[
-				{"pos": Vector3(0.5, 0.3, -3.45), "normal": Vector3.FORWARD},
+				{"pos": Vector3(0.5, 0.3, -3.45), "normal": Vector3.BACK},
 				{"pos": Vector3(-4.45, 0.3, -2.0), "normal": Vector3.RIGHT},
 				{"pos": Vector3(-4.45, 1.05, -0.5), "normal": Vector3.RIGHT},
 				{"pos": Vector3(-1.0, 0.02, -2.5), "normal": Vector3.UP},
@@ -210,7 +221,7 @@ func _init_pool() -> void:
 		var decal := Decal.new()
 		decal.name = "DecayDecal%02d" % i
 		decal.visible = false
-		decal.size = Vector3(1.0, 1.5, 0.2)
+		decal.size = Vector3(1.0, PROJECTION_DEPTH, 1.5)
 		decal.modulate = Color(1.0, 1.0, 1.0, 0.75)
 		decal.albedo_mix = 1.0
 		decal.cull_mask = (1 << 20) - 1
@@ -236,34 +247,36 @@ func _on_entropy_changed(_new_entropy: float) -> void:
 	_sync_batch(2, entropy_data.entropy, threshold_high)
 
 
-## Activate/deactivate all Decals in a batch based on whether entropy exceeds the
-## threshold. Each Decal randomly picks a placement from its batch's shuffled pool.
+## Activate/deactivate all Decals in a batch on a tier change. A batch switching on
+## takes a fresh random placement; while its tier holds, nothing moves.
 func _sync_batch(batch_index: int, entropy: float, threshold: float) -> void:
 	var should_be_active := entropy >= threshold
-	var placements: Array = _batch_placements[batch_index]
-	var shuffled := placements.duplicate()
-	shuffled.shuffle()
+	if should_be_active == _batch_active[batch_index]:
+		return
+	_batch_active[batch_index] = should_be_active
 
+	var shuffled: Array = (_batch_placements[batch_index] as Array).duplicate()
+	shuffled.shuffle()
 	for i in range(batch_size):
 		var decal_index := batch_index * batch_size + i
 		if decal_index >= _pool.size():
 			break
 		var decal := _pool[decal_index]
-		if should_be_active:
-			if i < shuffled.size():
-				var placement: Dictionary = shuffled[i]
-				decal.global_position = placement["pos"] as Vector3
-				var normal: Vector3 = placement["normal"] as Vector3
-				# look_at up-vector must not be colinear with the projection direction
-				# (engine warns, and floor decals get a garbage roll): for -Z pointing
-				# straight down, use world +Z as the up reference instead.
-				var look_dir := -normal
-				var up_ref := Vector3.UP
-				if absf(look_dir.dot(Vector3.UP)) > 0.99:
-					up_ref = Vector3(0.0, 0.0, 1.0)
-				decal.look_at(decal.global_position + look_dir, up_ref)
-				decal.rotation.z += randf_range(-0.3, 0.3)
-				decal.size = Vector3(randf_range(0.8, 1.4), randf_range(1.0, 2.2), 0.2)
+		if should_be_active and i < shuffled.size():
+			var placement: Dictionary = shuffled[i]
+			_place(decal, placement["pos"] as Vector3, placement["normal"] as Vector3)
 			decal.visible = true
 		else:
 			decal.visible = false
+
+
+## Align local +Y with the surface normal so the −Y projection goes into the surface,
+## with a random roll about the normal and a random footprint.
+func _place(decal: Decal, pos: Vector3, normal: Vector3) -> void:
+	var y := normal.normalized()
+	var ref := Vector3.UP if absf(y.dot(Vector3.UP)) < 0.99 else Vector3.BACK
+	var x := ref.cross(y).normalized()
+	var z := x.cross(y).normalized()
+	var basis := Basis(x, y, z).rotated(y, randf_range(-0.3, 0.3))
+	decal.global_transform = Transform3D(basis, pos)
+	decal.size = Vector3(randf_range(0.8, 1.4), PROJECTION_DEPTH, randf_range(1.0, 2.2))

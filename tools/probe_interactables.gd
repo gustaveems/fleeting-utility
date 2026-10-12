@@ -69,6 +69,11 @@ func _run() -> void:
 	await _walk_to(player, shoes.global_position)
 	check("look prompt (got '%s')" % _prompt, _prompt == "[E] Look")
 	check("first look realizes the betrayal", zone.try_interact() and shoes.is_realized())
+	var hud := node("CoreHud/HudUI") as HudUI
+	check(
+		"HUD shows the betrayal line (got '%s')" % hud.displayed_line(),
+		hud.displayed_line() == LuxuryShoes.NARRATIVE_TEXT
+	)
 	check("prompt gone after the look (got '%s')" % _prompt, _prompt.is_empty())
 	check("second look refused", not zone.try_interact())
 	player.global_position = home

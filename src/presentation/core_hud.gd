@@ -26,3 +26,9 @@ func _ready() -> void:
 	_ui.dreamscape_manager = dreamscape_manager
 	_ui.endgame_loop_manager = endgame_loop_manager
 	add_child(_ui)
+
+
+## Show a narrative line on the HUD (statue reveal, betrayal, loop text).
+func show_line(text: String) -> void:
+	if _ui != null:
+		_ui.show_line(text)

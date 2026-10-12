@@ -74,9 +74,8 @@ var _is_crafting: bool = false
 var _current_recipe: CraftingRecipe
 var _places_to_consume: Array[Vector2i] = []
 var _target_cell: Vector2i
-
-@onready var _collision_shape: CollisionShape3D
-@onready var _timer: Timer
+var _collision_shape: CollisionShape3D
+var _timer: Timer
 
 ## ----- LIFECYCLE ---------------------------------------------------------------------
 

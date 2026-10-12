@@ -14,7 +14,16 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.core_hud.interaction_controller = ctx.interaction
 	ctx.core_hud.dreamscape_manager = ctx.dreamscape_manager
 	ctx.core_hud.endgame_loop_manager = ctx.endgame
+	# Narrative lines that must reach the player's eyes, not just stdout.
+	ctx.ransacked.betrayal_realized.connect(ctx.core_hud.show_line)
 
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.core_hud)
+
+
+## Statue narratives exist only after the valley module's post_attach (module order:
+## valley before ui).
+func post_attach(ctx: BootstrapContext) -> void:
+	for narrative in ctx.statue_narratives:
+		narrative.statue_truth_revealed.connect(ctx.core_hud.show_line)

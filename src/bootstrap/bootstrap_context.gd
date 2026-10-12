@@ -53,6 +53,7 @@ var valley: DreamscapeEnvironment
 var dreamscape_manager: DreamscapeManager
 var dreamscape_hud: DreamscapeHud
 var ambulance: AmbulanceInterception
+var statue_narratives: Array[StatueNarrative] = []
 
 ## --- narrative systems ---------------------------------------------------------------
 var interaction: InteractionController

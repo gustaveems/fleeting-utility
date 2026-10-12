@@ -163,7 +163,7 @@ func _build_shader_layer() -> void:
 	_color_rect.material = _material
 	# A full-rect Control on top of the view must not eat mouse clicks.
 	_color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_color_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_color_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_canvas_layer.add_child(_color_rect)
 
 

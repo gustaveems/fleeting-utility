@@ -88,7 +88,7 @@ func _ready() -> void:
 
 ## Called by ApartmentDoor when the player interacts with it and entropy >= 70.
 func transition_to_park() -> void:
-	if _transitioning or _in_park or walk_taken:
+	if _transitioning or _in_park or walk_taken or player == null:
 		return
 	walk_taken = true
 	_transitioning = true
@@ -109,7 +109,7 @@ func transition_to_park() -> void:
 
 ## Return triggered by the auto-return timer or the return door.
 func transition_to_apartment() -> void:
-	if _transitioning or not _in_park:
+	if _transitioning or not _in_park or player == null:
 		return
 	_transitioning = true
 	_lock_player(true)

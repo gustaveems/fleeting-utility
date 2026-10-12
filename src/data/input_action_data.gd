@@ -2,11 +2,9 @@ class_name InputActionData
 extends RefCounted
 ## DATA LAYER — the whole key map, registered at runtime.
 ##
-## Declared in code instead of project.godot's [input] section for two reasons:
-##   1. the action -> grid-facing binding stays next to the facing enum it refers to,
-##      so the isometric screen mapping can be read and audited in one file;
-##   2. Ticket-01 has to be creatable from a bare checkout without hand-editing
-##      project.godot's serialised InputEvent structures.
+## Declared in code instead of project.godot's [input] section so the whole key map
+## lives in one auditable file and a bare checkout runs without hand-edited
+## InputEvent structures.
 ## Cost: rebinding from the editor Settings dialog is not available yet. Revisit when
 ## an options menu exists.
 ##
@@ -19,17 +17,13 @@ extends RefCounted
 ##   W / Up    -> NORTH (-Z) -> up-right      S / Down -> SOUTH (+Z) -> down-left
 ##   A / Left  -> WEST  (-X) -> up-left       D / Right-> EAST  (+X) -> down-right
 ##
-## Each keypress therefore advances exactly one 1m cell along a grid line, which keeps
-## spatial rendering precise (constraint #3) instead of allowing 1.41m diagonals.
+## Movement is free-roam (2026-10-11 pivot): PlayerMovement maps these through the
+## camera basis, and key combinations give the diagonals.
 
 const ACTION_MOVE_NORTH := "move_north"
 const ACTION_MOVE_EAST := "move_east"
 const ACTION_MOVE_SOUTH := "move_south"
 const ACTION_MOVE_WEST := "move_west"
-
-## Dev-only until Ticket-02 owns the meter.
-const ACTION_TOGGLE_FOCUS_STATE := "toggle_focus_state"
-const ACTION_TOGGLE_GRID := "toggle_grid_overlay"
 
 ## Dev rig for the unified workspace scene (WorkspaceBootstrap): inject the two meters
 ## on demand so the crash/clutter/atmosphere chain can be watched without waiting on
@@ -52,8 +46,6 @@ static func _bindings() -> Dictionary:
 		ACTION_MOVE_EAST: [KEY_D, KEY_RIGHT],
 		ACTION_MOVE_SOUTH: [KEY_S, KEY_DOWN],
 		ACTION_MOVE_WEST: [KEY_A, KEY_LEFT],
-		ACTION_TOGGLE_FOCUS_STATE: [KEY_TAB],
-		ACTION_TOGGLE_GRID: [KEY_G],
 		ACTION_DEV_DUMP_OVERLOAD: [KEY_TAB],
 		ACTION_DEV_DUMP_ENTROPY: [KEY_T],
 		ACTION_DEV_RESET_ENTROPY: [KEY_R],
