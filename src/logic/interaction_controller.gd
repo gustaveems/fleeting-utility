@@ -55,8 +55,13 @@ func set_target(prompt: String) -> void:
 
 
 ## Called by proximity-detection systems when the player leaves an interactable zone.
-func clear_target() -> void:
+## Pass `only_if` (the prompt you published) so leaving one zone cannot wipe a prompt
+## another zone just set. Exit and enter can land in the same physics step, in either
+## order.
+func clear_target(only_if: String = "") -> void:
 	if _current_target.is_empty():
+		return
+	if not only_if.is_empty() and only_if != _current_target:
 		return
 	_current_target = ""
 	target_lost.emit()

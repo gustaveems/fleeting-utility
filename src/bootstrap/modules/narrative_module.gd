@@ -72,6 +72,7 @@ func wire(ctx: BootstrapContext) -> void:
 	ransacked.atmosphere_controller = ctx.atmosphere
 	ransacked.apartment_root = ctx.apartment
 	ransacked.player = ctx.player
+	ransacked.interaction_controller = ctx.interaction
 
 	# Ticket-09: the psychological break.
 	ctx.dual_vision.apartment_root = ctx.apartment

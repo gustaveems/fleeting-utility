@@ -37,7 +37,8 @@ signal ransacked_applied
 @export var spatial_grid: SpatialGrid
 @export var atmosphere_controller: AtmosphereController
 @export var apartment_root: WorldRoot
-@export var player: Node3D
+@export var player: PlayerMovement
+@export var interaction_controller: InteractionController
 
 ## --- TUNING --------------------------------------------------------------------------
 
@@ -154,4 +155,5 @@ func _place_luxury_shoes() -> void:
 	_luxury_shoes.name = "LuxuryShoes"
 	_luxury_shoes.position = shoes_position
 	_luxury_shoes.player = player
+	_luxury_shoes.interaction_controller = interaction_controller
 	apartment_root.add_child(_luxury_shoes)

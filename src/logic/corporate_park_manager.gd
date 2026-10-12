@@ -24,8 +24,8 @@ extends Node
 ##
 ## RETURN
 ## ------
-## A "Return Door" Area3D sits in the park. Walking into it and pressing E triggers
-## the return. A 15-second auto-return timer is a fallback.
+## A "Return Door" Interactable sits in the park. Walking into it and pressing E
+## triggers the return. A 15-second auto-return timer is a fallback.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
@@ -62,10 +62,9 @@ var walk_taken: bool = false
 
 var _park_root: WorldRoot
 var _park_env: Environment
-var _return_door: Area3D
+var _return_door: Interactable
 var _in_park: bool = false
 var _transitioning: bool = false
-var _near_return_door: bool = false
 var _auto_timer: Timer
 
 var _apartment_move_speed: float = 4.0
@@ -82,14 +81,6 @@ func _ready() -> void:
 	add_child(_auto_timer)
 	if apartment_environment == null and world_environment != null:
 		apartment_environment = world_environment.environment
-
-
-func _process(_delta: float) -> void:
-	if not _in_park or _transitioning:
-		return
-	# E key near the return door triggers return.
-	if _near_return_door and Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
-		transition_to_apartment()
 
 
 ## ----- PUBLIC API --------------------------------------------------------------------
@@ -189,12 +180,13 @@ func _build_park() -> void:
 		_add_tree(tree_positions[i])
 
 	# Return door: a thin box "portal" near the center of the park.
-	_return_door = Area3D.new()
+	_return_door = Interactable.new()
 	_return_door.name = "ReturnDoor"
 	_return_door.position = Vector3(0.0, 0.9, 0.0)
-	PhysicsLayers.make_player_sensor(_return_door)
-	_return_door.body_entered.connect(_on_return_door_entered)
-	_return_door.body_exited.connect(_on_return_door_exited)
+	_return_door.player = player
+	_return_door.interaction_controller = interaction_controller
+	_return_door.prompt_text = "[E] Return to Apartment"
+	_return_door.interacted.connect(transition_to_apartment)
 	var door_shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
 	box.size = Vector3(1.5, 2.0, 0.3)
@@ -256,20 +248,6 @@ func _swap_worlds(to_park: bool) -> void:
 	_park_root.set_active(to_park)
 	if world_environment != null:
 		world_environment.environment = _park_env if to_park else apartment_environment
-
-
-func _on_return_door_entered(body: Node3D) -> void:
-	if body == player:
-		_near_return_door = true
-		if interaction_controller != null:
-			interaction_controller.set_target("[E] Return to Apartment")
-
-
-func _on_return_door_exited(body: Node3D) -> void:
-	if body == player:
-		_near_return_door = false
-		if interaction_controller != null:
-			interaction_controller.clear_target()
 
 
 func _on_auto_return_timeout() -> void:

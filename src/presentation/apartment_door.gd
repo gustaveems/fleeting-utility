@@ -1,5 +1,5 @@
 class_name ApartmentDoor
-extends Area3D
+extends Interactable
 ## PRESENTATION — the apartment exit door (Ticket-08 Task 2).
 ##
 ## An interactable door at the apartment edge. When the player walks up and presses E,
@@ -7,75 +7,47 @@ extends Area3D
 ## has decayed enough, it opens — emitting `initiate_walk` and handing control to the
 ## CorporateParkManager.
 ##
-## INTERACTION
-## -----------
-## The door handles its own E-key detection (body_entered/body_exited + _process).
-## During compulsion (interaction_controller.is_locked), the door cannot be opened —
-## the Self-Soothing Mechanic takes priority.
-##
-## If entropy < 70, the door remains closed and shows no prompt. The player needs to
-## let the room degrade further.
+## INTERACTION (Interactable)
+## --------------------------
+## While interactions are locked (e.g. a compulsion), the door cannot be opened.
+## Below the threshold, or once this cycle's walk is spent, it shows no prompt: after
+## the betrayal, walking up to it is the hesitation (HesitationController listens to
+## body_entered), not another outing.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
 signal initiate_walk
 
+## --- CONSTANTS -----------------------------------------------------------------------
+
+const BETRAYAL_THRESHOLD := 70.0
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var entropy_data: WorkspaceEntropyData
 @export var corporate_park_manager: CorporateParkManager
-@export var interaction_controller: InteractionController
-
-## The player's CharacterBody3D, for proximity detection.
-@export var player: PlayerMovement
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
-var _near: bool = false
 var _collision_shape: CollisionShape3D
 
 
 func _ready() -> void:
-	PhysicsLayers.make_player_sensor(self)
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
+	prompt_text = "[E] Go Outside"
+	super()
 	_build_frame()
 
 
-func _process(_delta: float) -> void:
-	if not _near:
-		return
-	if not Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
-		return
-	# During compulsion, the self-soothing mechanic takes priority.
-	if interaction_controller != null and interaction_controller.is_locked:
-		return
+func can_interact() -> bool:
+	if entropy_data == null or entropy_data.entropy < BETRAYAL_THRESHOLD:
+		return false
+	return corporate_park_manager == null or not corporate_park_manager.walk_taken
 
-	var threshold_met := entropy_data != null and entropy_data.entropy >= 70.0
-	if not threshold_met:
-		return
 
+func _on_interacted() -> void:
 	initiate_walk.emit()
 	if corporate_park_manager != null:
 		corporate_park_manager.transition_to_park()
-
-
-func _on_body_entered(body: Node3D) -> void:
-	if body == player:
-		_near = true
-		if interaction_controller != null:
-			var threshold_met := entropy_data != null and entropy_data.entropy >= 70.0
-			if threshold_met:
-				interaction_controller.set_target("[E] Go Outside")
-			else:
-				interaction_controller.set_target("")
-
-
-func _on_body_exited(body: Node3D) -> void:
-	if body == player:
-		_near = false
-		if interaction_controller != null:
-			interaction_controller.clear_target()
 
 
 ## ----- VISUAL -------------------------------------------------------------------------

@@ -13,9 +13,8 @@ extends StaticBody3D
 ##
 ## INTERACTION
 ## -----------
-## An Area3D child detects player proximity. When the player is near and presses E,
-## the betrayal is realized. The interaction is one-shot: after the first E press,
-## further presses do nothing.
+## A one-shot Interactable child: walking up shows "[E] Look", pressing E realizes the
+## betrayal, then the zone goes quiet.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
@@ -28,13 +27,13 @@ const NARRATIVE_TEXT := "High-status luxury. He sold me out."
 ## --- REFERENCES ----------------------------------------------------------------------
 
 ## The player's CharacterBody3D, for proximity detection.
-@export var player: Node3D
+@export var player: PlayerMovement
+@export var interaction_controller: InteractionController
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
-var _near: bool = false
 var _realized: bool = false
-var _proximity_area: Area3D
+var _proximity_area: Interactable
 
 
 func _ready() -> void:
@@ -42,13 +41,14 @@ func _ready() -> void:
 	_build_proximity()
 
 
-func _process(_delta: float) -> void:
-	if not _near or _realized:
-		return
-	if Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
-		_realized = true
-		betrayal_realized.emit()
-		print(NARRATIVE_TEXT)
+func is_realized() -> bool:
+	return _realized
+
+
+func _on_realized() -> void:
+	_realized = true
+	betrayal_realized.emit()
+	print(NARRATIVE_TEXT)
 
 
 ## ----- VISUAL -------------------------------------------------------------------------
@@ -86,11 +86,13 @@ func _make_shoe_box(mat: Material) -> MeshInstance3D:
 
 
 func _build_proximity() -> void:
-	_proximity_area = Area3D.new()
+	_proximity_area = Interactable.new()
 	_proximity_area.name = "ProximityArea"
-	PhysicsLayers.make_player_sensor(_proximity_area)
-	_proximity_area.body_entered.connect(_on_body_entered)
-	_proximity_area.body_exited.connect(_on_body_exited)
+	_proximity_area.player = player
+	_proximity_area.interaction_controller = interaction_controller
+	_proximity_area.prompt_text = "[E] Look"
+	_proximity_area.one_shot = true
+	_proximity_area.interacted.connect(_on_realized)
 
 	var shape := CollisionShape3D.new()
 	shape.name = "CollisionShape3D"
@@ -99,13 +101,3 @@ func _build_proximity() -> void:
 	shape.shape = sphere
 	_proximity_area.add_child(shape)
 	add_child(_proximity_area)
-
-
-func _on_body_entered(body: Node3D) -> void:
-	if body == player:
-		_near = true
-
-
-func _on_body_exited(body: Node3D) -> void:
-	if body == player:
-		_near = false
