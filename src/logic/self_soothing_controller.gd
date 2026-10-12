@@ -10,9 +10,13 @@ extends Node
 ##
 ## RESOLUTION
 ## ----------
-## Each E press (is_action_just_pressed) calls trivial_object.soothe(2.0), which lowers
-## sensory_overload. While E is held, overload decays at 5.0/s. If no E input for 1.5 s,
-## overload spikes at 15.0/s (faster than the normal unmedicated rate).
+## Each E press (is_action_just_pressed) calls trivial_object.soothe(8.0), which lowers
+## sensory_overload. While E is held, overload decays at 55.0/s. If no E input for
+## 1.5 s, overload spikes at 15.0/s on top of the withdrawal flood.
+##
+## TUNING: a compulsion only happens at chemical 0, where overload floods at ~40/s
+## (+ entropy feed, up to ~5/s). Soothing must beat that or the compulsion is
+## inescapable: holding E nets about −10/s (90 → 50 in ~4 s), and mashing is faster.
 ##
 ## When overload drops below 50.0, the compulsion ends: movement and interactions unlock,
 ## the camera returns to the player, and compulsion_ended fires.
@@ -53,10 +57,10 @@ signal compulsion_ended
 @export var recovery_threshold: float = 50.0
 
 ## Overload reduction per E press.
-@export var soothe_per_press: float = 2.0
+@export var soothe_per_press: float = 8.0
 
 ## Overload decay rate while E is held (per second).
-@export var soothe_hold_rate: float = 5.0
+@export var soothe_hold_rate: float = 55.0
 
 ## Overload spike rate if no E input for spike_delay seconds.
 @export var spike_rate: float = 15.0

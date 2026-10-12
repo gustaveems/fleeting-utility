@@ -162,10 +162,7 @@ Also fixed, found during the work:
 
 `tools/run_all.sh`: lint PASS. 8 of 10 scripts green: T05, T07, T09, and the probes for game_flow, interactables, locks and world_isolation.
 
-Still red (Phase 2 decisions):
-| Script | Check | Question |
-|---|---|---|
-| ticket06_verify | key light shadowless | T07's ACES clinical look re-enabled key-light shadows. Was that intended? Update the test or the light. |
-| ticket08_task1_verify | soothe −10 measured −5.6 | Overload keeps accumulating while the test waits. Fix the test tolerance, or make soothing stronger? |
-
-Design note: after a calm dream, overload floods from 50 back to 100 during the 2 s fade-in, while input is locked. So the player always wakes straight into a compulsion. Decide whether the meters should pause during transitions.
+Decisions (2026-10-12):
+- The clinical room is shadowless, to make it creepier.
+- Soothing is made stronger so a compulsion is escapable at chemical 0. Hold E: 55/s; each press: 8.
+- The revival is intended: overload floods back during the fade-in, and the player wakes straight into a compulsion. Do NOT pause the meters during transitions.

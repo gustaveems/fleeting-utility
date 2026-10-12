@@ -28,6 +28,7 @@ func _run() -> void:
 	await _test_boot()
 	await _test_trigger()
 	await _test_soothe()
+	await _test_hold_escapes()
 	await _test_recovery()
 
 
@@ -95,15 +96,28 @@ func _test_soothe():
 		check("required refs exist", false)
 		return
 
+	# soothe() is synchronous: measure at once. Waiting lets the withdrawal flood
+	# (~40/s at chemical 0) refill the meter and skews the delta.
 	var before := _sd.sensory_overload
 	_trivial.soothe(10.0)
-	await create_timer(0.1).timeout
 	var after := _sd.sensory_overload
 	check("soothe(10.0) reduced overload (%.1f -> %.1f)" % [before, after], after < before)
 	check(
 		"overload reduced by ~10.0 (got %.1f)" % (before - after),
 		absf((before - after) - 10.0) < 0.1
 	)
+
+
+# ---------------------------------------------------------------- 3b. escapable
+func _test_hold_escapes():
+	print("\n--- 3b. Holding E beats the withdrawal flood ---")
+	_sd.chemical_level = 0.0
+	_sd.sensory_overload = 90.0
+	Input.action_press(InputActionData.ACTION_INTERACT)
+	await create_timer(1.0).timeout
+	var after_hold := _sd.sensory_overload
+	Input.action_release(InputActionData.ACTION_INTERACT)
+	check("holding E lowers overload at chemical 0 (90 -> %.1f)" % after_hold, after_hold < 85.0)
 
 
 # ---------------------------------------------------------------- 4. recovery

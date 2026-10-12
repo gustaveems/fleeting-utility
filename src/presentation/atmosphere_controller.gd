@@ -96,11 +96,10 @@ const DECAYED_LAMP_DIM := 0.55
 const CLINICAL_AMBIENT_COLOR := Color(0.7, 0.75, 0.8)
 const CLINICAL_AMBIENT_ENERGY := 0.3
 
-## Key: bright but not blinding, shadows ON with a tight bias to keep the room readable
-## without shadow acne on the floor and walls.
+## Key: bright but not blinding, and SHADOWLESS. The flat, sourceless light of an
+## operating theatre makes the room creepier (decision, 2026-10-12).
 const CLINICAL_KEY_ENERGY := 1.2
 const CLINICAL_KEY_COLOR := Color(0.85, 0.90, 1.0)
-const CLINICAL_SHADOW_BIAS := 0.02
 
 ## Tone mapping + exposure (Ticket-07 Task 3). ACES clamps highlights gracefully where
 ## Filmic left the old clinical value blowing to pure white. Exposure 0.8 is a one-stop
@@ -361,8 +360,7 @@ func _apply_atmosphere() -> void:
 			Mode.CLINICAL:
 				key_light.light_energy = CLINICAL_KEY_ENERGY
 				key_light.light_color = CLINICAL_KEY_COLOR
-				key_light.shadow_enabled = true
-				key_light.shadow_bias = CLINICAL_SHADOW_BIAS
+				key_light.shadow_enabled = false
 			Mode.SUBDUED:
 				key_light.light_energy = SUBDUED_KEY_ENERGY
 				key_light.light_color = SUBDUED_KEY_COLOR
