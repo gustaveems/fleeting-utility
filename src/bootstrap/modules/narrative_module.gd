@@ -26,6 +26,9 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.hesitation = HesitationController.new()
 	ctx.hesitation.name = "HesitationController"
 
+	ctx.game_flow = GameFlow.new()
+	ctx.game_flow.name = "GameFlow"
+
 
 func wire(ctx: BootstrapContext) -> void:
 	# Ticket-07: the scarred reset, plus the post-climax state it applies at the forced
@@ -81,6 +84,16 @@ func wire(ctx: BootstrapContext) -> void:
 	hesitation.ransacked_state_manager = ctx.ransacked
 	hesitation.camera = ctx.camera
 
+	# The narrative-phase observer: one phase_changed for audio, saves and menus.
+	var flow := ctx.game_flow
+	flow.dreamscape_manager = ctx.dreamscape_manager
+	flow.ambulance = ctx.ambulance
+	flow.endgame = ctx.endgame
+	flow.park = ctx.park
+	flow.ransacked = ctx.ransacked
+	flow.hesitation = ctx.hesitation
+	flow.dual_vision = ctx.dual_vision
+
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.interaction)
@@ -90,3 +103,4 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.ransacked)
 	ctx.root.add_child(ctx.dual_vision)
 	ctx.root.add_child(ctx.hesitation)
+	ctx.root.add_child(ctx.game_flow)

@@ -62,6 +62,7 @@ var park: CorporateParkManager
 var ransacked: RansackedStateManager
 var dual_vision: DualVisionController
 var hesitation: HesitationController
+var game_flow: GameFlow
 
 ## --- ui ------------------------------------------------------------------------------
 var core_hud: CoreHud
