@@ -146,7 +146,10 @@ const BROKEN_FLICKER_DURATION := 0.08  # seconds each dropout lasts
 ## --- REFERENCES (requirement #1) ------------------------------------------------------
 
 @export var entropy_data: WorkspaceEntropyData
-@export var world_environment: WorldEnvironment
+## The APARTMENT's Environment resource, written directly. Never go through
+## WorldEnvironment.environment: while the valley or park is active, that holds THEIR
+## resource, and the apartment look used to bleed into them.
+@export var environment: Environment
 @export var key_light: DirectionalLight3D
 
 ## The dying desk lamp. Null-safe: if absent, only the environment degrades.
@@ -189,8 +192,8 @@ func _ready() -> void:
 	if entropy_data == null:
 		push_warning("AtmosphereController: entropy_data is null, atmosphere will not decay.")
 		return
-	if world_environment == null or world_environment.environment == null:
-		push_warning("AtmosphereController: world_environment missing, only lights will degrade.")
+	if environment == null:
+		push_warning("AtmosphereController: environment missing, only lights will degrade.")
 	if lamp != null:
 		# Capture the authored lamp brightness so decay and flicker scale from it,
 		# rather than from a hardcoded 1.0.
@@ -308,8 +311,8 @@ func is_broken_mode() -> bool:
 
 
 func _apply_atmosphere() -> void:
-	if world_environment != null and world_environment.environment != null:
-		var env := world_environment.environment
+	if environment != null:
+		var env := environment
 		match _mode:
 			Mode.CLINICAL:
 				env.ambient_light_color = CLINICAL_AMBIENT_COLOR

@@ -1,5 +1,5 @@
 class_name DreamscapeEnvironment
-extends Node3D
+extends WorldRoot
 ## PRESENTATION — the autumn valley dreamscape world (Ticket-05).
 ##
 ## Everything the dream needs in one toggleable subtree: its own Environment resource
@@ -22,7 +22,8 @@ extends Node3D
 ##
 ## STARTS DORMANT
 ## --------------
-## visible = false at _ready. The manager flips it during the white-out.
+## set_active(false) at the end of _ready, once every collider exists. The manager
+## activates it during the white-out.
 
 ## Emitted when the player enters/leaves any statue return zone. DreamscapeManager
 ## listens to gate the manual-return interact key.
@@ -49,12 +50,12 @@ var _near_zone_count: int = 0
 
 
 func _ready() -> void:
-	visible = false
 	_build_environment()
 	_build_terrain()
 	_build_sun()
 	_build_statues()
 	_build_memory_anchors()
+	set_active(false)
 
 
 ## ----- ENVIRONMENT ------------------------------------------------------------------

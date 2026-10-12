@@ -223,7 +223,7 @@ func _test_climax_and_scarred_reset():
 	check("atmosphere is SUBDUED", _atmo.is_subdued_mode())
 	check("atmosphere NOT clinical anymore", not _atmo.is_clinical_mode())
 
-	var env := _atmo.world_environment.environment
+	var env := _atmo.environment
 	check(
 		"subdued ambient energy == 0.1 (got %.2f)" % env.ambient_light_energy,
 		is_equal_approx(env.ambient_light_energy, 0.1)

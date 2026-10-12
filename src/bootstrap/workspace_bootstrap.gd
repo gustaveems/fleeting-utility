@@ -85,7 +85,7 @@ var _atmosphere: AtmosphereController
 var _interaction_controller: InteractionController
 
 ## Ticket-05: the apartment as one toggleable subtree, plus the dream world.
-var _apartment_root: Node3D
+var _apartment_root: WorldRoot
 var _valley: DreamscapeEnvironment
 var _dreamscape_manager: DreamscapeManager
 var _ambulance: AmbulanceInterception
@@ -185,7 +185,7 @@ func _build_room() -> void:
 	# transition can hide the whole room with a single visible flag. The WorldEnvironment
 	# node stays OUTSIDE (its environment resource is swapped, not hidden), as do the
 	# player, camera, post-FX and boundary — those persist across both worlds.
-	_apartment_root = Node3D.new()
+	_apartment_root = WorldRoot.new()
 	_apartment_root.name = "Apartment"
 	add_child(_apartment_root)
 
@@ -271,7 +271,7 @@ func _build_effects() -> void:
 	_atmosphere = AtmosphereController.new()
 	_atmosphere.name = "AtmosphereController"
 	_atmosphere.entropy_data = _entropy_data
-	_atmosphere.world_environment = _world_env
+	_atmosphere.environment = _world_env.environment
 	_atmosphere.key_light = _key_light
 	_atmosphere.lamp = _lamp
 	_apartment_root.add_child(_atmosphere)
@@ -380,6 +380,7 @@ func _build_dreamscape() -> void:
 	endgame.entropy_data = _entropy_data
 	endgame.crafting_bench = _bench
 	endgame.spatial_grid = _spatial_grid
+	endgame.apartment_root = _apartment_root
 	add_child(endgame)
 	# Wire the flavor-text signal to the core HUD.
 	core_hud.endgame_loop_manager = endgame

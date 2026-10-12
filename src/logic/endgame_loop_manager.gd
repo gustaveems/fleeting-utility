@@ -26,10 +26,9 @@ extends Node
 ##
 ## SAFETY
 ## ------
-## The bench and grid nodes are hidden but not freed. get_node() calls targeting them
-## return null or invisible nodes — downstream systems that try to interact with the
-## bench already check interaction_controller.try_interact() which returns false when
-## locked, so the null-reference surface is the same as post-climax clinical state.
+## The bench and grid nodes are suppressed, not freed: references stay valid, and
+## interaction with the bench is already gated by interaction_controller.try_interact(),
+## which returns false while locked.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
@@ -49,7 +48,10 @@ const FLAVOR_TEXT := "The utility is fleeting. The lease renews."
 @export var atmosphere_controller: AtmosphereController
 @export var entropy_data: WorkspaceEntropyData
 
-## The crafting station. Hidden (not freed) during the scarred reset.
+## The apartment world. The scarred reset suppresses the bench and grid inside it.
+@export var apartment_root: WorldRoot
+
+## The crafting station. Suppressed (not freed) during the scarred reset.
 @export var crafting_bench: CraftingBench
 
 ## The worktop grid the bench used. Hidden alongside the bench.
@@ -116,13 +118,12 @@ func _execute_scarred_reset() -> void:
 	if interaction_controller != null:
 		interaction_controller.is_locked = true
 
-	# 4. Hide the crafting station. The bench and grid are invisible but the node
-	#    references survive; downstream systems that try to interact are already
-	#    gated by interaction_controller.try_interact().
-	if crafting_bench != null:
-		crafting_bench.visible = false
-	if spatial_grid != null:
-		spatial_grid.visible = false
+	# 4. Remove the crafting station: suppressed in the apartment WorldRoot, so it is
+	#    hidden AND non-solid (Rule 2) and stays gone through later world swaps. The node
+	#    references survive for anything that still holds them.
+	if apartment_root != null:
+		apartment_root.suppress(crafting_bench)
+		apartment_root.suppress(spatial_grid)
 
 	# 5. Accelerate entropy: the room decays faster each cycle.
 	if entropy_data != null:

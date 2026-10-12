@@ -63,8 +63,8 @@ func _run() -> void:
 	check(
 		"ambient cold white-blue",
 		(
-			_atmosphere.world_environment.environment.ambient_light_color.b
-			> _atmosphere.world_environment.environment.ambient_light_color.r
+			_atmosphere.environment.ambient_light_color.b
+			> _atmosphere.environment.ambient_light_color.r
 		)
 	)
 

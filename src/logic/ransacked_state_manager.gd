@@ -11,8 +11,8 @@ extends Node
 ##
 ## DESTRUCTION
 ## -----------
-## CraftingBench and SpatialGrid are hidden AND their CollisionShape3D children are
-## explicitly disabled (Rule 2 — visibility does not remove physics). 5-10 debris
+## CraftingBench and SpatialGrid are suppressed in the apartment WorldRoot: hidden,
+## non-solid and paused, and they stay that way through later world swaps (Rule 2). 5-10 debris
 ## objects (simple primitive meshes) are spawned at random positions across the floor.
 ##
 ## ATMOSPHERE
@@ -36,7 +36,7 @@ signal ransacked_applied
 @export var crafting_bench: CraftingBench
 @export var spatial_grid: SpatialGrid
 @export var atmosphere_controller: AtmosphereController
-@export var apartment_root: Node3D
+@export var apartment_root: WorldRoot
 @export var player: Node3D
 
 ## --- TUNING --------------------------------------------------------------------------
@@ -78,21 +78,10 @@ func _on_return_from_walk() -> void:
 
 
 func _destroy_bench_and_grid() -> void:
-	# Rule 2: hiding a node does NOT remove its CollisionShape3D from the physics space.
-	# Explicitly disable every collision shape in the subtree.
-	if crafting_bench != null:
-		crafting_bench.visible = false
-		_disable_subtree_collisions(crafting_bench)
-	if spatial_grid != null:
-		spatial_grid.visible = false
-		_disable_subtree_collisions(spatial_grid)
-
-
-func _disable_subtree_collisions(node: Node) -> void:
-	for child in node.get_children():
-		if child is CollisionShape3D:
-			(child as CollisionShape3D).disabled = true
-		_disable_subtree_collisions(child)
+	if apartment_root == null:
+		return
+	apartment_root.suppress(crafting_bench)
+	apartment_root.suppress(spatial_grid)
 
 
 ## ----- DEBRIS ------------------------------------------------------------------------

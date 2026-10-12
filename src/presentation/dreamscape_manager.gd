@@ -52,8 +52,8 @@ signal anchor_proximity_changed(near: bool)
 
 ## --- REFERENCES (spec requirement #1) --------------------------------------------------
 
-@export var workspace_root: Node3D
-@export var dreamscape_root: Node3D
+@export var workspace_root: WorldRoot
+@export var dreamscape_root: WorldRoot
 @export var world_environment: WorldEnvironment
 @export var apartment_environment: Environment
 @export var valley_environment: Environment
@@ -118,13 +118,13 @@ func _ready() -> void:
 		if not state_machine.dreamscape_transition_requested.is_connected(transition_to_dreamscape):
 			state_machine.dreamscape_transition_requested.connect(transition_to_dreamscape)
 
-	# Sanity: the valley starts dormant (its own _ready sets visible = false), but the
-	# manager asserts the apartment side too so a mis-wired export cannot start the
-	# game inside the dream.
-	if workspace_root != null:
-		workspace_root.visible = true
-	if dreamscape_root != null:
-		dreamscape_root.visible = false
+	# Sanity: the valley starts dormant (its own _ready deactivates it), but the manager
+	# asserts the apartment side too so a mis-wired export cannot start the game inside
+	# the dream.
+	if workspace_root != null and not workspace_root.is_active:
+		workspace_root.set_active(true)
+	if dreamscape_root != null and dreamscape_root.is_active:
+		dreamscape_root.set_active(false)
 
 
 func _build_fade_layer() -> void:
@@ -321,26 +321,12 @@ func _lock_player(locked: bool) -> void:
 		player.input_locked = locked
 
 
-## Recursively enable/disable every CollisionShape3D under a subtree.
-func _set_subtree_collisions_enabled(subtree: Node, enabled: bool) -> void:
-	for child in subtree.get_children():
-		if child is CollisionShape3D:
-			(child as CollisionShape3D).disabled = not enabled
-		_set_subtree_collisions_enabled(child, enabled)
-
-
 ## One WorldEnvironment, two resources — see class doc.
 func _swap_worlds(to_dreamscape: bool) -> void:
-	workspace_root.visible = not to_dreamscape
-	dreamscape_root.visible = to_dreamscape
-
-	# CRITICAL: visibility does NOT remove a parent-hidden CollisionShape3D from the
-	# physics space (verified by tools/invisible_walls_probe.gd — all four apartment
-	# walls blocked the valley player, and a statue ray hit WallEastCollision first).
-	# The hidden world's colliders must be explicitly disabled or the player roams the
-	# dream inside an invisible box.
-	_set_subtree_collisions_enabled(workspace_root, not to_dreamscape)
-	_set_subtree_collisions_enabled(dreamscape_root, to_dreamscape)
+	# WorldRoot handles Rule 2: hidden worlds lose their colliders and stop processing,
+	# and gameplay-suppressed nodes stay suppressed (tools/probe_world_isolation.gd).
+	workspace_root.set_active(not to_dreamscape)
+	dreamscape_root.set_active(to_dreamscape)
 
 	if world_environment != null:
 		world_environment.environment = (

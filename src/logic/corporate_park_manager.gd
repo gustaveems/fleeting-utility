@@ -40,7 +40,7 @@ signal return_from_walk
 
 @export var world_environment: WorldEnvironment
 @export var apartment_environment: Environment
-@export var apartment_root: Node3D
+@export var apartment_root: WorldRoot
 @export var player: PlayerMovement
 @export var state_machine: PlayerStateMachine
 @export var interaction_controller: InteractionController
@@ -56,7 +56,7 @@ signal return_from_walk
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
-var _park_root: Node3D
+var _park_root: WorldRoot
 var _park_env: Environment
 var _return_door: Area3D
 var _in_park: bool = false
@@ -135,9 +135,8 @@ func transition_to_apartment() -> void:
 
 func _build_park() -> void:
 	# Build park subtree programmatically.
-	_park_root = Node3D.new()
+	_park_root = WorldRoot.new()
 	_park_root.name = "CorporatePark"
-	_park_root.visible = false
 	add_child(_park_root)
 
 	# Outdoor environment.
@@ -208,6 +207,8 @@ func _build_park() -> void:
 	door_mesh.material_override = door_mat
 	_return_door.add_child(door_mesh)
 	_park_root.add_child(_return_door)
+	# Dormant until the walk: no phantom ReturnDoor sensing inside the apartment.
+	_park_root.set_active(false)
 
 
 func _add_tree(pos: Vector3) -> void:
@@ -244,20 +245,12 @@ func _add_tree(pos: Vector3) -> void:
 
 
 func _swap_worlds(to_park: bool) -> void:
-	apartment_root.visible = not to_park
-	_park_root.visible = to_park
-	# Rule 2: visibility does NOT remove colliders from the physics space.
-	_set_subtree_collisions_enabled(apartment_root, not to_park)
-	_set_subtree_collisions_enabled(_park_root, to_park)
+	# Rule 2 lives in WorldRoot: colliders, processing and suppressed nodes.
+	if apartment_root != null:
+		apartment_root.set_active(not to_park)
+	_park_root.set_active(to_park)
 	if world_environment != null:
 		world_environment.environment = _park_env if to_park else apartment_environment
-
-
-func _set_subtree_collisions_enabled(subtree: Node, enabled: bool) -> void:
-	for child in subtree.get_children():
-		if child is CollisionShape3D:
-			(child as CollisionShape3D).disabled = not enabled
-		_set_subtree_collisions_enabled(child, enabled)
 
 
 func _on_return_door_entered(body: Node3D) -> void:

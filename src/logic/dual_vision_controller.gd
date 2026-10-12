@@ -7,9 +7,9 @@ extends Node
 ## valley_root in an erratic, disorienting sequence. Each phase emits valley_phase_active
 ## so that statue_narrative.gd can trigger its reveal only during valley flashes.
 ##
-## CRITICAL (Rule 2): visibility does NOT remove colliders from the physics space.
-## Every toggle explicitly enables/disables every CollisionShape3D in the affected
-## subtree, matching the pattern from DreamscapeManager._swap_worlds().
+## CRITICAL (Rule 2): each flash goes through WorldRoot.set_active, which handles
+## colliders and processing, and leaves gameplay-suppressed nodes (the ransacked bench)
+## suppressed. The old local loop force-enabled every shape and resurrected the bench.
 
 ## --- SIGNALS -------------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ signal visions_ended
 
 ## --- REFERENCES ----------------------------------------------------------------------
 
-@export var apartment_root: Node3D
-@export var valley_root: Node3D
+@export var apartment_root: WorldRoot
+@export var valley_root: WorldRoot
 
 ## --- TUNING --------------------------------------------------------------------------
 
@@ -83,17 +83,7 @@ func start_visions() -> void:
 	visions_ended.emit()
 
 
-## Toggle a root's visibility AND recursively enable/disable every CollisionShape3D in
-## its subtree. This is the same confidentiality-tested pattern as DreamscapeManager.
-func _set_root_visible(root: Node3D, visible: bool) -> void:
+func _set_root_visible(root: WorldRoot, shown: bool) -> void:
 	if root == null:
 		return
-	root.visible = visible
-	_set_subtree_collisions_enabled(root, visible)
-
-
-func _set_subtree_collisions_enabled(node: Node, enabled: bool) -> void:
-	for child in node.get_children():
-		if child is CollisionShape3D:
-			(child as CollisionShape3D).disabled = not enabled
-		_set_subtree_collisions_enabled(child, enabled)
+	root.set_active(shown)
