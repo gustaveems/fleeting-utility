@@ -38,6 +38,15 @@ extends Node
 ## exist yet, so the signal IS the placeholder.
 signal fluorescent_hum_started
 
+## Placeholder audio hook (Ticket-08): a future audio system connects to this to play a
+## cold draft / broken window sound while broken mode is active.
+signal cold_draft_started
+
+## Lighting mode. NORMAL = entropy-driven decay; CLINICAL = post-climax harsh white;
+## SUBDUED = post-loop dim, flat, defeated silence; BROKEN = post-betrayal flickering,
+## one light dead, cold draft. Exactly one is active at a time.
+enum Mode { NORMAL, CLINICAL, SUBDUED, BROKEN }
+
 ## --- ENDPOINT TUNING (constants: the two ends of the decay curve) --------------------
 
 ## Ambient light: warm neutral grey → sickly green-yellow.
@@ -74,22 +83,65 @@ const DECAYED_CONTRAST := 1.4
 const CLEAN_LAMP_DIM := 1.0
 const DECAYED_LAMP_DIM := 0.55
 
-## --- CLINICAL / POST-CLIMAX ENDPOINTS (Ticket-06) -------------------------------------
+## --- CLINICAL / POST-CLIMAX ENDPOINTS (Ticket-06 / Ticket-07 Task 3) -------------------
 ## A third, separate look: not warm-clean and not sickly-decayed, but harsh, cold and
 ## over-lit. The room stops being a home and becomes a monitored space.
+##
+## Ticket-07 Task 3: energies have been dialled back from the original blinding values;
+## tone mapping (ACES) and an exposure cut to 0.8 prevent the blowout. Shadows are ON
+## with a tuned bias so the room retains physical depth — it reads cold, not flat.
 
-## Ambient: harsh cold white-blue, high energy — no warmth anywhere.
-const CLINICAL_AMBIENT_COLOR := Color(0.8, 0.9, 1.0)
-const CLINICAL_AMBIENT_ENERGY := 0.95
+## Ambient: cold desaturated blue-grey, moderate energy — the overexposed white wash of
+## the original clinical look is gone.
+const CLINICAL_AMBIENT_COLOR := Color(0.7, 0.75, 0.8)
+const CLINICAL_AMBIENT_ENERGY := 0.3
 
-## Key: blindingly bright, flat, shadowless. Shadows are what gave the decay its mood;
-## removing them makes the room read as scanned, not lived-in.
-const CLINICAL_KEY_ENERGY := 3.2
-const CLINICAL_KEY_COLOR := Color(0.90, 0.95, 1.0)
+## Key: bright but not blinding, shadows ON with a tight bias to keep the room readable
+## without shadow acne on the floor and walls.
+const CLINICAL_KEY_ENERGY := 1.2
+const CLINICAL_KEY_COLOR := Color(0.85, 0.90, 1.0)
+const CLINICAL_SHADOW_BIAS := 0.02
+
+## Tone mapping + exposure (Ticket-07 Task 3). ACES clamps highlights gracefully where
+## Filmic left the old clinical value blowing to pure white. Exposure 0.8 is a one-stop
+## pull that brings the whole room into readable range.
+const CLINICAL_TONE_MAPPER := Environment.TONE_MAPPER_ACES
+const CLINICAL_TONEMAP_EXPOSURE := 0.8
 
 ## Background + fog: sterile near-white, no murk at all.
-const CLINICAL_BACKGROUND_COLOR := Color(0.80, 0.86, 0.92)
+const CLINICAL_BACKGROUND_COLOR := Color(0.55, 0.60, 0.68)
 const CLINICAL_SATURATION := 0.55  # desaturated — colour is a memory, not a present
+
+## --- SUBDUED / POST-LOOP ENDPOINTS (Ticket-07) ----------------------------------------
+## The fourth look: after the clinical seizure passes, the room settles into a dim,
+## defeated hush. Sickly desaturated grey-green — not the warm decay of entropy, but
+## drained of colour and life. The lamp is dead and stays dead.
+
+const SUBDUED_AMBIENT_COLOR := Color(0.35, 0.38, 0.30)
+const SUBDUED_AMBIENT_ENERGY := 0.1
+const SUBDUED_KEY_ENERGY := 0.5
+const SUBDUED_KEY_COLOR := Color(0.52, 0.56, 0.48)
+const SUBDUED_BACKGROUND_COLOR := Color(0.04, 0.04, 0.05)
+const SUBDUED_FOG_DENSITY := 0.002
+const SUBDUED_VOLUMETRIC_DENSITY := 0.003
+
+## --- BROKEN / POST-BETRAYAL ENDPOINTS (Ticket-08) --------------------------------------
+## The fifth look: after the walk, the apartment has been ransacked. The key light
+## flickers erratically (not the smooth sine wobble of entropy decay — hard, random
+## dropouts), the desk lamp is completely dead, and a cold draft seeps in. The room
+## is no longer a home or a clinic; it is a crime scene.
+
+const BROKEN_AMBIENT_COLOR := Color(0.28, 0.30, 0.35)
+const BROKEN_AMBIENT_ENERGY := 0.15
+const BROKEN_KEY_ENERGY := 0.6
+const BROKEN_KEY_COLOR := Color(0.55, 0.58, 0.65)
+const BROKEN_BACKGROUND_COLOR := Color(0.03, 0.03, 0.04)
+const BROKEN_FOG_DENSITY := 0.003
+const BROKEN_VOLUMETRIC_DENSITY := 0.004
+
+## Flicker parameters for the broken key light: random dropouts, not sine wobble.
+const BROKEN_FLICKER_RATE := 2.5  # dropouts per second
+const BROKEN_FLICKER_DURATION := 0.08  # seconds each dropout lasts
 
 ## --- REFERENCES (requirement #1) ------------------------------------------------------
 
@@ -110,8 +162,7 @@ const CLINICAL_SATURATION := 0.55  # desaturated — colour is a memory, not a p
 
 ## --- INTERNAL STATE -------------------------------------------------------------------
 
-## Ticket-06: when true, entropy lighting is fully overridden by the clinical look.
-var is_clinical_mode: bool = false
+var _mode: Mode = Mode.NORMAL
 
 ## Smoothed 0..1 decay factor. Everything visual derives from this one number.
 var _t: float = 0.0
@@ -122,13 +173,17 @@ var _lamp_base_energy: float = 1.0
 var _drop_timer: float = 0.0
 var _flicker_phase: float = 0.0
 
+## Broken-mode key light flicker state (Ticket-08).
+var _broken_flicker_timer: float = 0.0
+
 ## Key-light authored values, captured so disabling clinical mode can restore them.
 var _key_base_energy: float = 1.0
 var _key_base_color: Color = Color.WHITE
 var _key_base_shadow: bool = true
-
+var _key_base_bias: float = 0.0
 
 ## ----- LIFECYCLE ----------------------------------------------------------------------
+
 
 func _ready() -> void:
 	if entropy_data == null:
@@ -144,6 +199,7 @@ func _ready() -> void:
 		_key_base_energy = key_light.light_energy
 		_key_base_color = key_light.light_color
 		_key_base_shadow = key_light.shadow_enabled
+		_key_base_bias = key_light.shadow_bias
 	_last_entropy = entropy_data.entropy
 	_t = entropy_data.entropy / 100.0
 	entropy_data.entropy_changed.connect(_on_entropy_changed)
@@ -154,8 +210,14 @@ func _process(delta: float) -> void:
 	if entropy_data == null:
 		return
 
-	# Clinical mode fully owns the lighting; entropy creep and lamp flicker are inert.
-	if is_clinical_mode:
+	# BROKEN mode: flicker the key light, skip entropy creep entirely.
+	if _mode == Mode.BROKEN:
+		_update_broken_flicker(delta)
+		return
+
+	# Clinical and subdued modes fully own the lighting; entropy creep and lamp flicker
+	# are inert.
+	if _mode != Mode.NORMAL:
 		return
 
 	# Requirement #3: smooth lerp toward the current entropy percentage.
@@ -172,6 +234,7 @@ func _process(delta: float) -> void:
 
 ## ----- SIGNAL REACTION (requirement #5) ------------------------------------------------
 
+
 func _on_entropy_changed(new_entropy: float) -> void:
 	# Cleaning (entropy dropping) reacts INSTANTLY — the light brightens on the same
 	# frame the clutter clears, so the reward is felt immediately.
@@ -183,13 +246,15 @@ func _on_entropy_changed(new_entropy: float) -> void:
 
 ## ----- CLINICAL MODE (Ticket-06) ------------------------------------------------------
 
+
 ## Toggle the post-climax clinical look. When enabled, entropy lighting is fully
 ## overridden: harsh cold ambient, blinding shadowless key, lamp dead, sterile fog-free
 ## background. Emits fluorescent_hum_started once as the audio placeholder.
 func set_clinical_mode(enabled: bool) -> void:
-	if is_clinical_mode == enabled:
+	var target := Mode.CLINICAL if enabled else Mode.NORMAL
+	if _mode == target:
 		return
-	is_clinical_mode = enabled
+	_mode = target
 	if enabled:
 		fluorescent_hum_started.emit()
 	_apply_atmosphere()
@@ -197,55 +262,132 @@ func set_clinical_mode(enabled: bool) -> void:
 		_update_lamp(0.0)
 
 
+## Read-only query: is clinical mode currently active?
+func is_clinical_mode() -> bool:
+	return _mode == Mode.CLINICAL
+
+
+## Read-only query: is the post-loop subdued mode currently active?
+func is_subdued_mode() -> bool:
+	return _mode == Mode.SUBDUED
+
+
+## Ticket-07: post-loop subdued/defeated lighting. Dim, flat, no flicker — dead silence.
+## Calling this clears any clinical override.
+func set_subdued_mode(enabled: bool) -> void:
+	var target := Mode.SUBDUED if enabled else Mode.NORMAL
+	if _mode == target:
+		return
+	_mode = target
+	_apply_atmosphere()
+	if lamp != null:
+		_update_lamp(0.0)
+
+
+## Ticket-08: post-betrayal broken state. Flickering key light, dead lamp, cold draft.
+## Calling this clears any clinical or subdued override.
+func set_broken_mode(enabled: bool) -> void:
+	var target := Mode.BROKEN if enabled else Mode.NORMAL
+	if _mode == target:
+		return
+	_mode = target
+	if enabled:
+		cold_draft_started.emit()
+		_broken_flicker_timer = 0.0
+	_apply_atmosphere()
+	if lamp != null:
+		_update_lamp(0.0)
+
+
+## Read-only query: is the post-betrayal broken mode currently active?
+func is_broken_mode() -> bool:
+	return _mode == Mode.BROKEN
+
+
 ## ----- ATMOSPHERE APPLICATION ----------------------------------------------------------
+
 
 func _apply_atmosphere() -> void:
 	if world_environment != null and world_environment.environment != null:
 		var env := world_environment.environment
-		if is_clinical_mode:
-			env.ambient_light_color = CLINICAL_AMBIENT_COLOR
-			env.ambient_light_energy = CLINICAL_AMBIENT_ENERGY
-			env.fog_density = 0.0
-			env.volumetric_fog_density = 0.0
-			env.background_color = CLINICAL_BACKGROUND_COLOR
-			env.adjustment_enabled = true
-			env.adjustment_contrast = 1.0
-			env.adjustment_saturation = CLINICAL_SATURATION
-		else:
-			env.ambient_light_color = CLEAN_AMBIENT_COLOR.lerp(DECAYED_AMBIENT_COLOR, _t)
-			env.ambient_light_energy = lerpf(CLEAN_AMBIENT_ENERGY, DECAYED_AMBIENT_ENERGY, _t)
-			env.fog_light_color = CLEAN_FOG_COLOR.lerp(DECAYED_FOG_COLOR, _t)
-			env.fog_density = lerpf(CLEAN_FOG_DENSITY, DECAYED_FOG_DENSITY, _t)
-			env.volumetric_fog_density = lerpf(
-				CLEAN_VOLUMETRIC_DENSITY, DECAYED_VOLUMETRIC_DENSITY, _t
-			)
-			env.background_color = CLEAN_BACKGROUND_COLOR.lerp(DECAYED_BACKGROUND_COLOR, _t)
-			# Adjustment pass only enabled once decay is visible — keeps the clean room
-			# completely neutral and avoids paying for an unused post step at entropy 0.
-			env.adjustment_enabled = _t > 0.01
-			env.adjustment_contrast = lerpf(CLEAN_CONTRAST, DECAYED_CONTRAST, _t)
-			env.adjustment_saturation = 1.0
+		match _mode:
+			Mode.CLINICAL:
+				env.ambient_light_color = CLINICAL_AMBIENT_COLOR
+				env.ambient_light_energy = CLINICAL_AMBIENT_ENERGY
+				env.fog_density = 0.0
+				env.volumetric_fog_density = 0.0
+				env.background_color = CLINICAL_BACKGROUND_COLOR
+				env.adjustment_enabled = true
+				env.adjustment_contrast = 1.0
+				env.adjustment_saturation = CLINICAL_SATURATION
+				env.tonemap_mode = CLINICAL_TONE_MAPPER
+				env.tonemap_exposure = CLINICAL_TONEMAP_EXPOSURE
+			Mode.SUBDUED:
+				env.ambient_light_color = SUBDUED_AMBIENT_COLOR
+				env.ambient_light_energy = SUBDUED_AMBIENT_ENERGY
+				env.fog_density = SUBDUED_FOG_DENSITY
+				env.volumetric_fog_density = SUBDUED_VOLUMETRIC_DENSITY
+				env.background_color = SUBDUED_BACKGROUND_COLOR
+				env.fog_light_color = Color(0.18, 0.18, 0.20)
+				env.adjustment_enabled = false
+			Mode.BROKEN:
+				env.ambient_light_color = BROKEN_AMBIENT_COLOR
+				env.ambient_light_energy = BROKEN_AMBIENT_ENERGY
+				env.fog_density = BROKEN_FOG_DENSITY
+				env.volumetric_fog_density = BROKEN_VOLUMETRIC_DENSITY
+				env.background_color = BROKEN_BACKGROUND_COLOR
+				env.fog_light_color = Color(0.15, 0.16, 0.18)
+				env.adjustment_enabled = false
+				env.tonemap_exposure = 1.0
+			_:
+				env.ambient_light_color = CLEAN_AMBIENT_COLOR.lerp(DECAYED_AMBIENT_COLOR, _t)
+				env.ambient_light_energy = lerpf(CLEAN_AMBIENT_ENERGY, DECAYED_AMBIENT_ENERGY, _t)
+				env.fog_light_color = CLEAN_FOG_COLOR.lerp(DECAYED_FOG_COLOR, _t)
+				env.fog_density = lerpf(CLEAN_FOG_DENSITY, DECAYED_FOG_DENSITY, _t)
+				env.volumetric_fog_density = lerpf(
+					CLEAN_VOLUMETRIC_DENSITY, DECAYED_VOLUMETRIC_DENSITY, _t
+				)
+				env.background_color = CLEAN_BACKGROUND_COLOR.lerp(DECAYED_BACKGROUND_COLOR, _t)
+				env.adjustment_enabled = _t > 0.01
+				env.adjustment_contrast = lerpf(CLEAN_CONTRAST, DECAYED_CONTRAST, _t)
+				env.adjustment_saturation = 1.0
+				env.tonemap_exposure = 1.0
 
 	if key_light != null:
-		if is_clinical_mode:
-			key_light.light_energy = CLINICAL_KEY_ENERGY
-			key_light.light_color = CLINICAL_KEY_COLOR
-			key_light.shadow_enabled = false  # flat, shadowless, scanned-not-lived-in
-		else:
-			key_light.light_energy = lerpf(CLEAN_KEY_ENERGY, DECAYED_KEY_ENERGY, _t)
-			key_light.light_color = _key_base_color
-			key_light.shadow_enabled = _key_base_shadow
+		match _mode:
+			Mode.CLINICAL:
+				key_light.light_energy = CLINICAL_KEY_ENERGY
+				key_light.light_color = CLINICAL_KEY_COLOR
+				key_light.shadow_enabled = true
+				key_light.shadow_bias = CLINICAL_SHADOW_BIAS
+			Mode.SUBDUED:
+				key_light.light_energy = SUBDUED_KEY_ENERGY
+				key_light.light_color = SUBDUED_KEY_COLOR
+				key_light.shadow_enabled = _key_base_shadow
+				key_light.shadow_bias = _key_base_bias
+			Mode.BROKEN:
+				# Key light energy is driven by the flicker in _process(); set the base
+				# here so the first frame after mode switch is not black.
+				key_light.light_energy = BROKEN_KEY_ENERGY
+				key_light.light_color = BROKEN_KEY_COLOR
+				key_light.shadow_enabled = true
+				key_light.shadow_bias = _key_base_bias
+			_:
+				key_light.light_energy = lerpf(CLEAN_KEY_ENERGY, DECAYED_KEY_ENERGY, _t)
+				key_light.light_color = _key_base_color
+				key_light.shadow_enabled = _key_base_shadow
+				key_light.shadow_bias = _key_base_bias
 
 
 ## ----- FLICKERING LAMP (requirement #4) -------------------------------------------------
+
 
 func _update_lamp(delta: float) -> void:
 	if lamp == null or entropy_data == null:
 		return
 
-	# Clinical mode kills the desk lamp entirely — the room is lit by overhead fluorescents
-	# now, not by his dying bulb. No flicker, no wobble, no warmth.
-	if is_clinical_mode:
+	# Clinical or subdued mode kills the desk lamp entirely — fluorescent or dead silence.
+	if _mode != Mode.NORMAL:
 		lamp.light_energy = 0.0
 		return
 
@@ -272,3 +414,28 @@ func _update_lamp(delta: float) -> void:
 	var wobble := 1.0 - 0.15 * overload_past_onset * (0.5 + 0.5 * sin(_flicker_phase * 2.1))
 	var dim := lerpf(CLEAN_LAMP_DIM, DECAYED_LAMP_DIM, _t)
 	lamp.light_energy = _lamp_base_energy * wobble * dim
+
+
+## ----- BROKEN KEY LIGHT FLICKER (Ticket-08) ---------------------------------------------
+
+
+## Random hard dropouts on the key light — not the smooth sine wobble of entropy decay.
+## The light stutters like a failing fluorescent tube in a crime scene.
+func _update_broken_flicker(delta: float) -> void:
+	if key_light == null:
+		return
+
+	# Mid-dropout: hold at zero until the dropout window closes.
+	if _broken_flicker_timer > 0.0:
+		_broken_flicker_timer -= delta
+		key_light.light_energy = 0.0
+		return
+
+	# Roll for a new dropout. BROKEN_FLICKER_RATE dropouts per second on average.
+	if randf() < BROKEN_FLICKER_RATE * delta:
+		_broken_flicker_timer = BROKEN_FLICKER_DURATION
+		key_light.light_energy = 0.0
+		return
+
+	# Between dropouts: steady at the broken base energy.
+	key_light.light_energy = BROKEN_KEY_ENERGY

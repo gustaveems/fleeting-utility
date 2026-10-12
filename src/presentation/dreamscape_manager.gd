@@ -98,8 +98,8 @@ var _apartment_extents: Vector2
 ## tick instead of one per frame.
 var _last_timer_second: int = -1
 
-
 ## ----- LIFECYCLE ------------------------------------------------------------------------
+
 
 func _ready() -> void:
 	_build_fade_layer()
@@ -178,9 +178,16 @@ func _process(_delta: float) -> void:
 
 ## ----- PUBLIC API -----------------------------------------------------------------------
 
+
 ## Called by DreamscapeEnvironment.statue_proximity_changed via bootstrap wiring.
 func set_statue_proximity(near: bool) -> void:
 	_near_statue = near
+	# Ticket-07: feed the interaction prompt when near a statue (manual return).
+	if interaction_controller != null:
+		if near and _in_dreamscape:
+			interaction_controller.set_target("[E] Return")
+		elif not near:
+			interaction_controller.clear_target()
 
 
 ## Called by MemoryAnchor._on_body_entered/exited. The anchor passes itself so the
@@ -191,6 +198,12 @@ func _set_anchor_near(anchor: MemoryAnchor, near: bool) -> void:
 	elif _near_anchor == anchor:
 		_near_anchor = null
 	anchor_proximity_changed.emit(_near_anchor != null)
+	# Ticket-07: feed the interaction prompt when near a memory anchor.
+	if interaction_controller != null:
+		if _near_anchor != null and _in_dreamscape:
+			interaction_controller.set_target("[E] Remember")
+		elif _near_anchor == null:
+			interaction_controller.clear_target()
 
 
 func in_dreamscape() -> bool:
@@ -249,6 +262,7 @@ func _hard_flash_out(seconds: float) -> void:
 
 ## ----- TRANSITIONS ------------------------------------------------------------------------
 
+
 func transition_to_dreamscape() -> void:
 	if _transitioning or _in_dreamscape:
 		return
@@ -300,6 +314,7 @@ func return_to_workspace() -> void:
 
 
 ## ----- INTERNALS --------------------------------------------------------------------------
+
 
 func _lock_player(locked: bool) -> void:
 	if player != null:

@@ -7,7 +7,6 @@ extends SceneTree
 ##
 ## Run: godot --headless --path . -s tools/ticket06_verify.gd
 
-
 var _manager: DreamscapeManager
 var _ambulance: AmbulanceInterception
 var _screen: ScreenEffects
@@ -72,12 +71,16 @@ func _run() -> void:
 	_check("anchors sealed (>=1 disabled)", disabled_count >= 1)
 
 	# Clinical post-climax state (Task 2): harsh cold light, dead lamp, no shadows.
-	_check("clinical mode active", _atmosphere.is_clinical_mode)
+	_check("clinical mode active", _atmosphere.is_clinical_mode())
 	_check("desk lamp dead", is_zero_approx(_atmosphere.lamp.light_energy))
 	_check("key light shadowless", _atmosphere.key_light.shadow_enabled == false)
-	_check("ambient cold white-blue", _atmosphere.world_environment.environment
-		.ambient_light_color.b > _atmosphere.world_environment.environment
-		.ambient_light_color.r)
+	_check(
+		"ambient cold white-blue",
+		(
+			_atmosphere.world_environment.environment.ambient_light_color.b
+			> _atmosphere.world_environment.environment.ambient_light_color.r
+		)
+	)
 
 	# Task 3: withdrawal + lock + climax latch + lucid cap.
 	_check("player in withdrawal", _player.is_in_withdrawal)

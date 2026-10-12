@@ -95,8 +95,8 @@ var _raw_compound_scene: PackedScene
 var _pill_scene: PackedScene
 var _clutter_scene: PackedScene
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	InputActionData.register()
@@ -115,6 +115,7 @@ func _process(_delta: float) -> void:
 
 
 ## ----- RUNTIME PROTOTYPE SCENES ------------------------------------------------------
+
 
 func _build_prototypes() -> void:
 	_raw_compound_scene = _pack_inventory(&"raw_compound")
@@ -140,6 +141,7 @@ func _pack_inventory(id: StringName) -> PackedScene:
 
 ## ----- DATA --------------------------------------------------------------------------
 
+
 func _build_data() -> void:
 	_grid = WorkspaceGridData.new()
 	_state_data = PlayerStateData.new()
@@ -153,6 +155,7 @@ func _build_data() -> void:
 
 
 ## ----- ROOM --------------------------------------------------------------------------
+
 
 func _build_room() -> void:
 	# The Environment values below are clean-room defaults only; AtmosphereController
@@ -213,6 +216,7 @@ func _build_room() -> void:
 
 ## ----- PLAYER + CAMERA ---------------------------------------------------------------
 
+
 func _build_player_pipeline() -> void:
 	_player = PlayerMovement.new()
 	_player.name = "Player"
@@ -231,12 +235,14 @@ func _build_player_pipeline() -> void:
 	add_child(_camera)
 	# Seed the fixed iso standoff BEFORE binding the target: WorkspaceCamera lerps, so
 	# starting at the resting position prevents a slide-in from the origin on frame 1.
-	_camera.global_position = _player.global_position \
-		+ _camera.camera_offset + Vector3(0.0, _camera.framing_lift, 0.0)
+	_camera.global_position = (
+		_player.global_position + _camera.camera_offset + Vector3(0.0, _camera.framing_lift, 0.0)
+	)
 	_camera.set_target(_player)
 
 
 ## ----- EFFECTS -----------------------------------------------------------------------
+
 
 func _build_effects() -> void:
 	_screen_effects = ScreenEffects.new()
@@ -273,6 +279,7 @@ func _build_effects() -> void:
 
 ## ----- CRAFTING ----------------------------------------------------------------------
 
+
 func _build_bench() -> void:
 	_bench_area = Node3D.new()
 	_bench_area.name = "BenchArea"
@@ -302,6 +309,7 @@ func _build_bench() -> void:
 
 
 ## ----- DREAMSCAPE (Ticket-05) ----------------------------------------------------------
+
 
 func _build_dreamscape() -> void:
 	_valley = DreamscapeEnvironment.new()
@@ -335,6 +343,14 @@ func _build_dreamscape() -> void:
 	hud.dreamscape_manager = _dreamscape_manager
 	add_child(hud)
 
+	# Ticket-07: Core HUD — Chemical/Overload meters, interaction prompt, dream state.
+	var core_hud := CoreHud.new()
+	core_hud.name = "CoreHud"
+	core_hud.state_machine = _state_machine
+	core_hud.interaction_controller = _interaction_controller
+	core_hud.dreamscape_manager = _dreamscape_manager
+	add_child(core_hud)
+
 	# Ticket-06: the ambulance interception. Arms 15 s into each dream, seals the exits,
 	# then forces a violent return.
 	_ambulance = AmbulanceInterception.new()
@@ -353,12 +369,102 @@ func _build_dreamscape() -> void:
 	_bench.interaction_controller = _interaction_controller
 	_dreamscape_manager.interaction_controller = _interaction_controller
 
+	# Ticket-07: Endgame Loop Manager — the scarred reset after the climax.
+	var endgame := EndgameLoopManager.new()
+	endgame.name = "EndgameLoopManager"
+	endgame.dreamscape_manager = _dreamscape_manager
+	endgame.state_machine = _state_machine
+	endgame.player = _player
+	endgame.interaction_controller = _interaction_controller
+	endgame.atmosphere_controller = _atmosphere
+	endgame.entropy_data = _entropy_data
+	endgame.crafting_bench = _bench
+	endgame.spatial_grid = _spatial_grid
+	add_child(endgame)
+	# Wire the flavor-text signal to the core HUD.
+	core_hud.endgame_loop_manager = endgame
+
+	# Ticket-08 Task 1: Self-Soothing Mechanic — the compulsive fidget target.
+	var trivial := TrivialObject.new()
+	trivial.name = "TrivialObject"
+	trivial.position = Vector3(1.5, 0.0, 1.0)  # Near player start, visible and reachable
+	trivial.state_machine = _state_machine
+	_apartment_root.add_child(trivial)
+
+	var self_soothing := SelfSoothingController.new()
+	self_soothing.name = "SelfSoothingController"
+	self_soothing.state_machine = _state_machine
+	self_soothing.player = _player
+	self_soothing.camera = _camera
+	self_soothing.interaction_controller = _interaction_controller
+	self_soothing.trivial_object = trivial
+	add_child(self_soothing)
+
+	# Ticket-08 Task 2: Corporate Park Manager + Apartment Door.
+	var park_manager := CorporateParkManager.new()
+	park_manager.name = "CorporateParkManager"
+	park_manager.world_environment = _world_env
+	park_manager.apartment_environment = _world_env.environment
+	park_manager.apartment_root = _apartment_root
+	park_manager.player = _player
+	park_manager.state_machine = _state_machine
+	park_manager.interaction_controller = _interaction_controller
+	add_child(park_manager)
+
+	var door := ApartmentDoor.new()
+	door.name = "ApartmentDoor"
+	door.position = Vector3(0.0, 0.0, -3.5)  # North edge of the room
+	door.entropy_data = _entropy_data
+	door.corporate_park_manager = park_manager
+	door.interaction_controller = _interaction_controller
+	door.player = _player
+	_apartment_root.add_child(door)
+
+	# Ticket-08 Task 3: Ransacked State Manager — the betrayal after the walk.
+	var ransacked := RansackedStateManager.new()
+	ransacked.name = "RansackedStateManager"
+	ransacked.corporate_park_manager = park_manager
+	ransacked.crafting_bench = _bench
+	ransacked.spatial_grid = _spatial_grid
+	ransacked.atmosphere_controller = _atmosphere
+	ransacked.apartment_root = _apartment_root
+	ransacked.player = _player
+	add_child(ransacked)
+
+	# Ticket-09: Dual Vision Controller + Hesitation Controller.
+	var dual_vision := DualVisionController.new()
+	dual_vision.name = "DualVisionController"
+	dual_vision.apartment_root = _apartment_root
+	dual_vision.valley_root = _valley
+	add_child(dual_vision)
+
+	var hesitation := HesitationController.new()
+	hesitation.name = "HesitationController"
+	hesitation.player = _player
+	hesitation.apartment_door = door
+	hesitation.dual_vision_controller = dual_vision
+	hesitation.ransacked_state_manager = ransacked
+	hesitation.camera = _camera
+	add_child(hesitation)
+
+	# Ticket-09: Statue Narrative — attach to the valley's monolithic statues.
+	for i in 4:
+		var statue := _valley.get_node_or_null("Statue_%d" % i) as StaticBody3D
+		if statue == null:
+			continue
+		var narrative := StatueNarrative.new()
+		narrative.name = "StatueNarrative_%d" % i
+		narrative.dual_vision_controller = dual_vision
+		narrative.camera = _camera
+		statue.add_child(narrative)
+
 	# Ticket-06: the violent forced return flips the apartment into clinical mode AND
 	# locks all interactions AND puts the player into withdrawal.
 	_dreamscape_manager.forced_return_completed.connect(_on_forced_return)
 
 
 ## ----- DEMO SEED + DEV RIG -------------------------------------------------------------
+
 
 func _apply_demo_seed() -> void:
 	_state_data.chemical_level = DEMO_CHEMICAL
@@ -371,9 +477,7 @@ func _handle_dev_keys() -> void:
 	if Input.is_action_just_pressed(InputActionData.ACTION_DEV_DUMP_OVERLOAD):
 		_state_data.apply_overload_pressure(DEV_OVERLOAD_DUMP)
 	if Input.is_action_just_pressed(InputActionData.ACTION_DEV_DUMP_ENTROPY):
-		_entropy_data.entropy = clampf(
-			_entropy_data.entropy + DEV_ENTROPY_DUMP, 0.0, 100.0
-		)
+		_entropy_data.entropy = clampf(_entropy_data.entropy + DEV_ENTROPY_DUMP, 0.0, 100.0)
 		_entropy_data.entropy_changed.emit(_entropy_data.entropy)
 	if Input.is_action_just_pressed(InputActionData.ACTION_DEV_RESET_ENTROPY):
 		_entropy_data.reset()
