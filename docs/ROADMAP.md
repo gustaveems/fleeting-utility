@@ -151,3 +151,21 @@ Skip `setup-pre-commit` (Husky/JS-specific). Instead, a plain `.git/hooks/pre-co
 | ticket05_verify | 1 | "D anchor returned": E via parse_input_event does not trigger anchor return. Uninvestigated, likely input polling (1d) |
 | ticket06_verify | 1 | "key light shadowless": T07 clinical lighting re-enabled shadows. Check intent vs test (Phase 2) |
 | ticket08_task1_verify | 1 | soothe −10 measured as −5.6: overload keeps accumulating during the wait. Test tolerance or design (Phase 2) |
+
+## Status after Phase 1 (2026-10-12)
+Done: WorldRoot, PhysicsLayers, LockSet, bootstrap modules + BootstrapContext, GameFlow, Interactable.
+Also fixed, found during the work:
+- Climax re-fired: a second dream and ambulance after the forced return.
+- Compulsion leaked into the dream.
+- Story order: the brief's arc now plays; the ambulance is armed by the dual visions.
+- Prompt clobbering between adjacent zones.
+
+`tools/run_all.sh`: lint PASS. 8 of 10 scripts green: T05, T07, T09, and the probes for game_flow, interactables, locks and world_isolation.
+
+Still red (Phase 2 decisions):
+| Script | Check | Question |
+|---|---|---|
+| ticket06_verify | key light shadowless | T07's ACES clinical look re-enabled key-light shadows. Was that intended? Update the test or the light. |
+| ticket08_task1_verify | soothe −10 measured −5.6 | Overload keeps accumulating while the test waits. Fix the test tolerance, or make soothing stronger? |
+
+Design note: after a calm dream, overload floods from 50 back to 100 during the 2 s fade-in, while input is locked. So the player always wakes straight into a compulsion. Decide whether the meters should pause during transitions.
