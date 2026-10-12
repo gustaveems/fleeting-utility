@@ -1,4 +1,4 @@
-extends SceneTree
+extends "res://tools/lib/verify_harness.gd"
 ## Ticket-08 Task 1 functional verifier — the Self-Soothing Mechanic.
 ##
 ## Drives the real scene through the Compulsive State cycle:
@@ -17,28 +17,18 @@ var _camera: WorkspaceCamera
 var _controller: SelfSoothingController
 var _trivial: TrivialObject
 
-var _pass := 0
-var _fail := 0
 var _compulsion_started_seen := false
 var _compulsion_ended_seen := false
 
 
-func _init() -> void:
-	var scene: PackedScene = load("res://scenes/workspace.tscn")
-	_ws = scene.instantiate()
-	root.add_child(_ws)
-	await create_timer(0.5).timeout
+func _run() -> void:
+	_ws = ws
 
 	_collect()
 	await _test_boot()
 	await _test_trigger()
 	await _test_soothe()
 	await _test_recovery()
-
-	print("\n========================================")
-	print(" TICKET-08 TASK 1 VERIFY  %d PASS / %d FAIL" % [_pass, _fail])
-	print("========================================")
-	quit(1 if _fail > 0 else 0)
 
 
 func _collect() -> void:
@@ -50,27 +40,19 @@ func _collect() -> void:
 	_sd = _sm.state_data if _sm != null else null
 
 
-func _check(label: String, ok: bool) -> void:
-	if ok:
-		_pass += 1
-	else:
-		_fail += 1
-	print("  [%s] %s" % ["PASS" if ok else "FAIL", label])
-
-
 # ---------------------------------------------------------------- 1. boot
 func _test_boot():
 	print("\n--- 1. Self-Soothing Mechanic exists in the tree ---")
-	_check("SelfSoothingController present", _controller != null)
-	_check("TrivialObject present", _trivial != null)
-	_check("TrivialObject is Area3D", _trivial is Area3D)
-	_check("TrivialObject.state_machine wired", _trivial != null and _trivial.state_machine != null)
-	_check(
+	check("SelfSoothingController present", _controller != null)
+	check("TrivialObject present", _trivial != null)
+	check("TrivialObject is Area3D", _trivial is Area3D)
+	check("TrivialObject.state_machine wired", _trivial != null and _trivial.state_machine != null)
+	check(
 		"Controller.state_machine wired", _controller != null and _controller.state_machine != null
 	)
-	_check("Controller.player wired", _controller != null and _controller.player != null)
-	_check("Controller.camera wired", _controller != null and _controller.camera != null)
-	_check(
+	check("Controller.player wired", _controller != null and _controller.player != null)
+	check("Controller.camera wired", _controller != null and _controller.camera != null)
+	check(
 		"Controller.trivial_object wired",
 		_controller != null and _controller.trivial_object != null
 	)
@@ -84,7 +66,7 @@ func _test_boot():
 func _test_trigger():
 	print("\n--- 2. Compulsive State triggers at overload 80+ / chemical 0 ---")
 	if _sd == null or _controller == null:
-		_check("state_machine and controller exist", false)
+		check("state_machine and controller exist", false)
 		return
 
 	# Start in a safe state.
@@ -92,7 +74,7 @@ func _test_trigger():
 	_sd.sensory_overload = 40.0
 	_sd.state_changed.emit(_sd)
 	await create_timer(0.2).timeout
-	_check("not in compulsion at overload 40 / chemical 0.5", not _controller._in_compulsion)
+	check("not in compulsion at overload 40 / chemical 0.5", not _controller._in_compulsion)
 
 	# Drive to trigger condition.
 	_sd.chemical_level = 0.0
@@ -100,25 +82,25 @@ func _test_trigger():
 	_sd.state_changed.emit(_sd)
 	await create_timer(0.2).timeout
 
-	_check("compulsion_started signal fired", _compulsion_started_seen)
-	_check("controller._in_compulsion == true", _controller._in_compulsion)
-	_check("player.input_locked == true", _player.input_locked)
-	_check("camera.target_node == trivial_object", _camera.target_node == _trivial)
+	check("compulsion_started signal fired", _compulsion_started_seen)
+	check("controller._in_compulsion == true", _controller._in_compulsion)
+	check("player.input_locked == true", _player.input_locked)
+	check("camera.target_node == trivial_object", _camera.target_node == _trivial)
 
 
 # ---------------------------------------------------------------- 3. soothe
 func _test_soothe():
 	print("\n--- 3. E presses lower overload via trivial_object.soothe() ---")
 	if _controller == null or _trivial == null or _sd == null:
-		_check("required refs exist", false)
+		check("required refs exist", false)
 		return
 
 	var before := _sd.sensory_overload
 	_trivial.soothe(10.0)
 	await create_timer(0.1).timeout
 	var after := _sd.sensory_overload
-	_check("soothe(10.0) reduced overload (%.1f -> %.1f)" % [before, after], after < before)
-	_check(
+	check("soothe(10.0) reduced overload (%.1f -> %.1f)" % [before, after], after < before)
+	check(
 		"overload reduced by ~10.0 (got %.1f)" % (before - after),
 		absf((before - after) - 10.0) < 0.1
 	)
@@ -128,7 +110,7 @@ func _test_soothe():
 func _test_recovery():
 	print("\n--- 4. Compulsion ends when overload < 50 ---")
 	if _controller == null or _sd == null:
-		_check("required refs exist", false)
+		check("required refs exist", false)
 		return
 
 	# Drive overload below recovery threshold.
@@ -136,7 +118,11 @@ func _test_recovery():
 	_sd.state_changed.emit(_sd)
 	await create_timer(0.2).timeout
 
-	_check("compulsion_ended signal fired", _compulsion_ended_seen)
-	_check("controller._in_compulsion == false", not _controller._in_compulsion)
-	_check("player.input_locked == false", not _player.input_locked)
-	_check("camera.target_node restored to player", _camera.target_node == _player)
+	check("compulsion_ended signal fired", _compulsion_ended_seen)
+	check("controller._in_compulsion == false", not _controller._in_compulsion)
+	check("player.input_locked == false", not _player.input_locked)
+	check("camera.target_node restored to player", _camera.target_node == _player)
+
+
+func _title() -> String:
+	return "TICKET-08 TASK 1 VERIFY"
