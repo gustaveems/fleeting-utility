@@ -86,6 +86,11 @@ func _ready() -> void:
 ## ----- PUBLIC API --------------------------------------------------------------------
 
 
+## The park world (built in _ready). Audio and VFX parent their park layers here.
+func get_park_root() -> WorldRoot:
+	return _park_root
+
+
 ## Called by ApartmentDoor when the player interacts with it and entropy >= 70.
 func transition_to_park() -> void:
 	if _transitioning or _in_park or walk_taken or player == null:

@@ -20,6 +20,11 @@ extends Area3D
 ## replace this with a stress ball, a loose thread, or a specific stain — something mundane
 ## and fidgetable.
 
+## --- SIGNALS -------------------------------------------------------------------------
+
+## Emitted on every soothe (each E press / hold tick). The fidget tap sound keys here.
+signal soothed(amount: float)
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var state_machine: PlayerStateMachine
@@ -65,3 +70,4 @@ func soothe(amount: float) -> void:
 		return
 	# Negative pressure = reduction.
 	state_machine.state_data.apply_overload_pressure(-amount)
+	soothed.emit(amount)

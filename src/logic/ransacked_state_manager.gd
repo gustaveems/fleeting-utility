@@ -18,7 +18,7 @@ extends Node
 ## ATMOSPHERE
 ## ----------
 ## AtmosphereController switches to BROKEN mode: flickering key light, dead lamp, cold
-## draft audio placeholder.
+## draft (AudioDirector plays it in the RANSACKED phase).
 ##
 ## NARRATIVE PROP
 ## --------------

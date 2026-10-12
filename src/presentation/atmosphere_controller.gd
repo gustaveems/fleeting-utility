@@ -33,15 +33,6 @@ extends Node
 
 ## --- SIGNALS ---------------------------------------------------------------------------
 
-## Placeholder audio hook (Ticket-06): a future audio system connects to this to play a
-## subtle high-pitched fluorescent hum while clinical mode is active. No audio assets
-## exist yet, so the signal IS the placeholder.
-signal fluorescent_hum_started
-
-## Placeholder audio hook (Ticket-08): a future audio system connects to this to play a
-## cold draft / broken window sound while broken mode is active.
-signal cold_draft_started
-
 ## Lighting mode. NORMAL = entropy-driven decay; CLINICAL = post-climax harsh white;
 ## SUBDUED = post-loop dim, flat, defeated silence; BROKEN = post-betrayal flickering,
 ## one light dead, cold draft. Exactly one is active at a time.
@@ -251,14 +242,12 @@ func _on_entropy_changed(new_entropy: float) -> void:
 
 ## Toggle the post-climax clinical look. When enabled, entropy lighting is fully
 ## overridden: harsh cold ambient, blinding shadowless key, lamp dead, sterile fog-free
-## background. Emits fluorescent_hum_started once as the audio placeholder.
+## background. (Its fluorescent hum is AudioDirector's job, keyed off GameFlow.)
 func set_clinical_mode(enabled: bool) -> void:
 	var target := Mode.CLINICAL if enabled else Mode.NORMAL
 	if _mode == target:
 		return
 	_mode = target
-	if enabled:
-		fluorescent_hum_started.emit()
 	_apply_atmosphere()
 	if lamp != null:
 		_update_lamp(0.0)
@@ -294,7 +283,6 @@ func set_broken_mode(enabled: bool) -> void:
 		return
 	_mode = target
 	if enabled:
-		cold_draft_started.emit()
 		_broken_flicker_timer = 0.0
 	_apply_atmosphere()
 	if lamp != null:

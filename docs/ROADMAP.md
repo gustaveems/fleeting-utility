@@ -166,3 +166,22 @@ Decisions (2026-10-12):
 - The clinical room is shadowless, to make it creepier.
 - Soothing is made stronger so a compulsion is escapable at chemical 0. Hold E: 55/s; each press: 8.
 - The revival is intended: overload floods back during the fade-in, and the player wakes straight into a compulsion. Do NOT pause the meters during transitions.
+
+## Status after Phase 2 + Ticket-10 (2026-10-12)
+- **Phase 2:**
+  - HUD layout: HudUI was 0×0.
+  - Narrative lines are shown on the HUD.
+  - DreamscapeHud reduced to the countdown.
+  - Decals: −Y axis, wall normals, tier-only re-placement.
+  - Input: TAB is only bound to the dev overload key.
+  - Null guards; no find_child calls.
+- **Ticket-10:** AudioBuses, SoundCue/SoundBank, ProceduralAudio (15 cues), RhythmicCuePlayer, AudioDirector, audio_module.
+  - Phase-driven apartment mix.
+  - World-paused beds.
+  - Crash low-pass/overdrive on the World bus.
+  - Compulsion pulse and taps.
+  - Hesitation heartbeat climbing under the rumble.
+  - Siren swell, then defib, then a hard cut to the clinical hum.
+  - Stings and chimes.
+- `tools/probe_audio.gd`: 40/40. `run_all`: 12/12 green.
+- Known cost: synthesizing the placeholder bank takes ~0.55 s at boot. T13 can hide it behind the boot screen, or cache the WAVs.

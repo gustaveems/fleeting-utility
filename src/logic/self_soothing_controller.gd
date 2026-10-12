@@ -75,6 +75,10 @@ var _time_since_last_soothe: float = 0.0
 var _previous_camera_target: Node3D = null
 
 
+func is_in_compulsion() -> bool:
+	return _in_compulsion
+
+
 func _ready() -> void:
 	if apartment_root != null:
 		apartment_root.activation_changed.connect(_on_apartment_activation_changed)

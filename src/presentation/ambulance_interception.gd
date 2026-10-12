@@ -21,7 +21,7 @@ extends Node
 ##   dream entry (transition_completed true) while armed → start 15 s timer
 ##   timer timeout → initiate_interception():
 ##     1. kill the 30 s auto-return + disable every MemoryAnchor (no peaceful exit)
-##     2. start procedural siren + red/blue flashing + ScreenEffects intensity override
+##     2. red/blue flashing + ScreenEffects intensity override (siren: AudioDirector)
 ##     3. after escalation_seconds: emit defibrillation_triggered, force_return_to_workspace()
 ##
 ## WHY THE TIMER ARMS ON DREAM ENTRY, NOT IN _ready()
@@ -34,10 +34,8 @@ extends Node
 ##
 ## AUDIO
 ## -----
-## No audio assets exist in the project, so the siren is generated procedurally into an
-## AudioStreamWAV (two-tone 1080/720 Hz, continuous phase so the tone switch doesn't
-## click) and played on an AudioStreamPlayer3D. Swap in a real asset later by replacing
-## _build_siren_stream()'s return value.
+## This node owns no sound. AudioDirector plays the siren on interception_started and the
+## defibrillation hit on defibrillation_triggered.
 
 ## Emitted when the defibrillation jolt fires, just before the forced return.
 signal defibrillation_triggered
@@ -69,7 +67,6 @@ var armed: bool = false
 var _timer: Timer
 var _red_light: OmniLight3D
 var _blue_light: OmniLight3D
-var _siren_player: AudioStreamPlayer3D
 var _flash_tween: Tween
 var _escalating: bool = false
 
@@ -88,7 +85,6 @@ func _ready() -> void:
 		dreamscape_manager.transition_completed.connect(_on_transition_completed)
 
 	_build_lights()
-	_build_siren_player()
 
 
 ## The forced-detox beat is complete: the next dream is the climax.
@@ -124,8 +120,7 @@ func initiate_interception() -> void:
 	_disable_anchors()
 	dreamscape_manager.clear_anchor_proximity()
 
-	# 2. Escalate: siren, strobes, full-strength screen violence.
-	_start_siren()
+	# 2. Escalate: strobes and full-strength screen violence (AudioDirector: siren).
 	_start_flashing()
 	if screen_effects != null:
 		screen_effects.set_intensity_override(1.0)
@@ -177,51 +172,6 @@ func _start_flashing() -> void:
 	_flash_tween.tween_property(_blue_light, "light_energy", 0.0, 0.25)
 
 
-## ----- SIREN (procedural) --------------------------------------------------------------------
-
-
-func _build_siren_player() -> void:
-	_siren_player = AudioStreamPlayer3D.new()
-	_siren_player.name = "SirenPlayer"
-	_siren_player.stream = _build_siren_stream()
-	_siren_player.max_distance = 60.0
-	_siren_player.unit_size = 8.0
-	add_child(_siren_player)
-
-
-func _start_siren() -> void:
-	if _siren_player != null:
-		_siren_player.play()
-
-
-## Two-tone siren as a looping 16-bit mono WAV. Phase accumulates continuously so the
-## 1080→720 Hz switch is a frequency change, not a discontinuity (no click).
-func _build_siren_stream() -> AudioStreamWAV:
-	var mix_rate := 22050
-	var seconds := 2.0
-	var sample_count := int(mix_rate * seconds)
-	var data := PackedByteArray()
-	data.resize(sample_count * 2)  # 16-bit mono = 2 bytes per sample
-
-	var phase := 0.0
-	for i in range(sample_count):
-		var t := float(i) / float(mix_rate)
-		var freq := 1080.0 if fmod(t, 1.0) < 0.5 else 720.0
-		phase += freq / float(mix_rate)
-		var value := sin(phase * TAU) * 0.4
-		data.encode_s16(i * 2, int(clampf(value, -1.0, 1.0) * 32767.0))
-
-	var stream := AudioStreamWAV.new()
-	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = mix_rate
-	stream.stereo = false
-	stream.data = data
-	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	stream.loop_begin = 0
-	stream.loop_end = sample_count
-	return stream
-
-
 ## ----- TEARDOWN ------------------------------------------------------------------------------
 
 
@@ -235,5 +185,3 @@ func _stop_escalation() -> void:
 		_blue_light.light_energy = 0.0
 	if screen_effects != null:
 		screen_effects.clear_intensity_override()
-	if _siren_player != null:
-		_siren_player.stop()
