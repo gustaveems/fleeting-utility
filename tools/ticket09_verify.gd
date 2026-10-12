@@ -1,8 +1,8 @@
 extends "res://tools/lib/verify_harness.gd"
 ## Ticket-09 functional verifier — The Hesitation, Dual Visions, Statue Narrative.
 ##
-## Tests the public API (note: body_entered DOES fire headless, see probe_interactables)
-## (no physics simulation in headless). The probe therefore tests the public API:
+## Drives the public API directly (the physics-triggered path from the door is covered
+## by tools/probe_interactables.gd: body_entered does fire headless):
 ##   - initiate_hesitation() locks the player
 ##   - dual_vision_controller.start_visions() runs the flash loop
 ##   - valley_phase_active toggles correctly
