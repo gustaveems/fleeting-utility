@@ -88,8 +88,7 @@ func _make_shoe_box(mat: Material) -> MeshInstance3D:
 func _build_proximity() -> void:
 	_proximity_area = Area3D.new()
 	_proximity_area.name = "ProximityArea"
-	_proximity_area.collision_layer = 4  # interactable
-	_proximity_area.collision_mask = 2  # player
+	PhysicsLayers.make_player_sensor(_proximity_area)
 	_proximity_area.body_entered.connect(_on_body_entered)
 	_proximity_area.body_exited.connect(_on_body_exited)
 

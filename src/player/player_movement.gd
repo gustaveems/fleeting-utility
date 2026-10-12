@@ -105,6 +105,8 @@ var _heading_yaw: float = 0.0
 
 
 func _ready() -> void:
+	collision_layer = PhysicsLayers.PLAYER
+	collision_mask = PhysicsLayers.WORLD
 	global_position = Vector3.ZERO
 	_heading_yaw = 0.0  # default-facing NORTH (up-right on screen)
 

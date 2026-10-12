@@ -188,8 +188,7 @@ func _build_park() -> void:
 	_return_door = Area3D.new()
 	_return_door.name = "ReturnDoor"
 	_return_door.position = Vector3(0.0, 0.9, 0.0)
-	_return_door.collision_layer = 4
-	_return_door.collision_mask = 2
+	PhysicsLayers.make_player_sensor(_return_door)
 	_return_door.body_entered.connect(_on_return_door_entered)
 	_return_door.body_exited.connect(_on_return_door_exited)
 	var door_shape := CollisionShape3D.new()

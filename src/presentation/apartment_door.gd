@@ -36,8 +36,7 @@ var _collision_shape: CollisionShape3D
 
 
 func _ready() -> void:
-	collision_layer = 4  # bit 3, interactable
-	collision_mask = 2  # bit 2, player
+	PhysicsLayers.make_player_sensor(self)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_build_frame()
@@ -86,8 +85,12 @@ func _build_frame() -> void:
 	_collision_shape = CollisionShape3D.new()
 	_collision_shape.name = "CollisionShape3D"
 	var box := BoxShape3D.new()
-	box.size = Vector3(1.2, 2.2, 0.3)
+	# Deep sensor (1.4 m) reaching into the room: the door sits ON the north wall plane,
+	# and the movement clamp stops the capsule ~0.35 m short of it, so a thin 0.3 m box
+	# was unreachable in practice.
+	box.size = Vector3(1.2, 2.2, 1.4)
 	_collision_shape.shape = box
+	_collision_shape.position = Vector3(0.0, 1.1, 0.7)
 	add_child(_collision_shape)
 
 	# Simple doorframe: two posts and a lintel.

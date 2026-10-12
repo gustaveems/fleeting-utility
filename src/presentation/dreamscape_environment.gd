@@ -180,6 +180,7 @@ func _build_return_zone(index: int, origin: Vector3) -> void:
 	var zone := Area3D.new()
 	zone.name = "StatueReturnZone_%d" % index
 	zone.position = origin + Vector3(0.0, 1.0, 0.0)
+	PhysicsLayers.make_player_sensor(zone)
 	var shape := CollisionShape3D.new()
 	var cylinder_shape := CylinderShape3D.new()
 	cylinder_shape.radius = 3.5

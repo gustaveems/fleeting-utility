@@ -5,16 +5,13 @@ extends "res://tools/lib/verify_harness.gd"
 ## One question, asked of every world swap: does the hidden world truly leave the game?
 ##   A. Hidden apartment walls stop blocking in the valley and come back on return.
 ##   B. Every interactable Area3D can actually detect the player (layer/mask match plus
-##      an empirical overlap).
+##      an empirical overlap, standing at the closest point the movement clamp allows).
 ##   C. The park, hidden at boot, has no live Area3D overlapping the apartment.
-##   D. Interactables sit inside the player's movement clamp.
 ##   E. Colliders that gameplay disabled (the ransacked bench) stay disabled through a
 ##      Dual Vision cycle.
 ##   F. The apartment AtmosphereController does not write into the valley Environment.
 ##
 ## Run: godot --headless --path . -s tools/probe_world_isolation.gd
-
-const CAPSULE_RADIUS := 0.28
 
 var _player: PlayerMovement
 var _manager: DreamscapeManager
@@ -29,7 +26,6 @@ func _run() -> void:
 	_manager = node("DreamscapeManager")
 	await _test_interactables_detect_player()
 	_test_hidden_park_no_phantoms()
-	_test_reachability()
 	await _test_valley_isolation()
 	await _test_ransacked_colliders_survive_dual_vision()
 
@@ -55,9 +51,11 @@ func _check_zone(label: String, area_node: Node, at: Vector3) -> void:
 		(area.collision_mask & _player.collision_layer) != 0
 	)
 	var home := _player.global_position
-	_player.global_position = at + Vector3(0.0, 0.4, 0.0)
+	var ext := _player.room_half_extents
+	var reachable := Vector3(clampf(at.x, -ext.x, ext.x), 0.0, clampf(at.z, -ext.y, ext.y))
+	_player.global_position = reachable
 	await wait(0.35)
-	check("%s detects player standing in it" % label, area.overlaps_body(_player))
+	check("%s detects player at nearest reachable point" % label, area.overlaps_body(_player))
 	_player.global_position = home
 	await wait(0.2)
 
@@ -76,18 +74,6 @@ func _test_hidden_park_no_phantoms() -> void:
 	check(
 		"no monitoring Area3D with live shapes under hidden park (%d)" % live_areas, live_areas == 0
 	)
-
-
-# ------------------------------------------------------------------- D. reachability
-func _test_reachability() -> void:
-	section("D. interactables inside the movement clamp")
-	for entry in [["TrivialObject", Vector3(1.5, 0, 1.0)], ["ApartmentDoor", Vector3(0, 0, -3.5)]]:
-		var p: Vector3 = entry[1]
-		var ok := (
-			absf(p.x) - CAPSULE_RADIUS <= _player.room_half_extents.x
-			and absf(p.z) - CAPSULE_RADIUS <= _player.room_half_extents.y
-		)
-		check("%s reachable at (%.1f, %.1f)" % [entry[0], p.x, p.z], ok)
 
 
 # ------------------------------------------------------------------- A + F. valley

@@ -9,7 +9,7 @@ extends Area3D
 ##
 ## COLLISION SETUP
 ## ---------------
-## Layer 3 (interactable), mask 2 (player). The Area3D detects the player's body entering
+## PhysicsLayers.INTERACTABLE, masking PLAYER. The Area3D detects the player's body entering
 ## and exiting, though the actual interaction is handled by the controller's E-key check.
 ## The collision shape is a small sphere (radius 0.3 m) so the object is reachable from
 ## a standing position without requiring precise alignment.
@@ -31,9 +31,7 @@ var _mesh: MeshInstance3D
 
 
 func _ready() -> void:
-	# Collision setup: layer 3 (interactable), mask 2 (player).
-	collision_layer = 4  # bit 3 (1 << 2)
-	collision_mask = 2  # bit 2 (1 << 1)
+	PhysicsLayers.make_player_sensor(self)
 
 	# Collision shape: small sphere so the object is reachable from standing.
 	_collision_shape = CollisionShape3D.new()
