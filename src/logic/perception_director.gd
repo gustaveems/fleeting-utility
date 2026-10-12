@@ -71,8 +71,8 @@ var _focus_intensity: float = 0.0
 var _debounce_timer: float = 0.0
 var _sequence_fired: bool = false
 
-
 ## ----- ORIGINAL API (untouched) ---------------------------------------------------------------
+
 
 func state() -> int:
 	return _state
@@ -107,11 +107,15 @@ func advance(delta: float) -> void:
 	var rate := delta / maxf(_transition_seconds, 0.0001)
 
 	if not is_equal_approx(_crash_intensity, target):
-		_crash_intensity = clampf(_crash_intensity + signf(target - _crash_intensity) * rate, 0.0, 1.0)
+		_crash_intensity = clampf(
+			_crash_intensity + signf(target - _crash_intensity) * rate, 0.0, 1.0
+		)
 		crash_intensity_changed.emit(_crash_intensity)
 
 	if not is_equal_approx(_focus_intensity, opposite):
-		_focus_intensity = clampf(_focus_intensity + signf(opposite - _focus_intensity) * rate, 0.0, 1.0)
+		_focus_intensity = clampf(
+			_focus_intensity + signf(opposite - _focus_intensity) * rate, 0.0, 1.0
+		)
 		focus_intensity_changed.emit(_focus_intensity)
 
 
@@ -120,6 +124,7 @@ func state_name() -> String:
 
 
 ## ----- TICKET-05: _PROCESS + TRIGGER (new) ----------------------------------------------------
+
 
 ## Runs every frame when instantiated by a pipeline that gives this object a parent
 ## (i.e. when it is a Node in the tree). The legacy GameBootstrap pipeline never adds
@@ -150,6 +155,7 @@ func _process(delta: float) -> void:
 
 
 ## ----- TICKET-05: CRASH SEQUENCE (new) --------------------------------------------------------
+
 
 func initiate_crash_sequence() -> void:
 	crash_state_entered.emit()

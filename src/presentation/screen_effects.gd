@@ -156,8 +156,8 @@ var _last_emitted_intensity: float = -1.0
 ## to force full-strength CA/blur/tremor regardless of the sensory_overload meter.
 var _intensity_override: float = -1.0
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	layer = fx_layer
@@ -172,6 +172,7 @@ func _process(delta: float) -> void:
 
 
 ## ----- SHADER SETUP ------------------------------------------------------------------
+
 
 func _build_shader_layer() -> void:
 	var shader := Shader.new()
@@ -189,6 +190,7 @@ func _build_shader_layer() -> void:
 
 
 ## ----- SIGNAL WIRING -----------------------------------------------------------------
+
 
 func _connect_signals() -> void:
 	if player_movement != null:
@@ -210,6 +212,7 @@ func _on_movement_completed() -> void:
 
 
 ## ----- INTENSITY (Task 4 requirement #3) ---------------------------------------------
+
 
 func _update_intensity(_delta: float) -> void:
 	var target := _compute_intensity()
@@ -244,6 +247,7 @@ func clear_intensity_override() -> void:
 
 ## ----- SHAKE IMPULSE ----------------------------------------------------------------
 
+
 func _update_shake_impulse(delta: float) -> void:
 	if _shake_remaining <= 0.0:
 		# No active impulse — reset the canvas offset.
@@ -263,6 +267,7 @@ func _update_shake_impulse(delta: float) -> void:
 
 ## ----- SHADER PUSH ------------------------------------------------------------------
 
+
 func _push_shader_params() -> void:
 	if _material == null:
 		return
@@ -277,6 +282,7 @@ func _push_shader_params() -> void:
 
 
 ## ----- HELPERS -----------------------------------------------------------------------
+
 
 func _is_crashed() -> bool:
 	if state_machine == null:

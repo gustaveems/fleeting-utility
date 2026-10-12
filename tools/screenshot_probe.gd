@@ -9,7 +9,6 @@ extends Node
 ## get_viewport().get_texture().get_image() reads the engine's own render target, so
 ## unlike screencapture it needs no macOS screen-recording permission.
 
-
 var _frames := 0
 
 

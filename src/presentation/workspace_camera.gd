@@ -92,8 +92,8 @@ extends Camera3D
 var _base_fov: float
 var _breath_phase: float = 0.0
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	# Lock the rotation to the isometric angle. This is the camera's identity: it never
@@ -122,6 +122,7 @@ func _ready() -> void:
 
 ## ----- FOLLOW LOGIC ------------------------------------------------------------------
 
+
 func _process(delta: float) -> void:
 	_follow_target(delta)
 	_update_crash_fov(delta)
@@ -134,16 +135,18 @@ func _follow_target(delta: float) -> void:
 	# Exponential smoothing: frame-rate independent, converges to target.
 	# `follow_smoothing` is the fraction of the gap closed per frame; convert to a
 	# delta-aware weight so a 30 fps and 144 fps player get the same feel.
-	var target_pos := target_node.global_position \
-		+ Vector3(0.0, framing_lift, 0.0) + camera_offset
+	var target_pos := target_node.global_position + Vector3(0.0, framing_lift, 0.0) + camera_offset
 	# Withdrawal shake: small random offset so the camera jitters even when still.
 	if withdrawal_shake > 0.0:
-		target_pos += Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), 0.0) * withdrawal_shake
+		target_pos += (
+			Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), 0.0) * withdrawal_shake
+		)
 	var weight := 1.0 - exp(-delta / maxf(follow_smoothing, 0.001))
 	global_position = global_position.lerp(target_pos, weight)
 
 
 ## ----- CRASH FOV BREATHING -----------------------------------------------------------
+
 
 func _update_crash_fov(delta: float) -> void:
 	if is_orthographic or crash_fov_amplitude <= 0.0 or state_machine == null:
@@ -172,6 +175,7 @@ func _get_sensory_overload() -> float:
 
 
 ## ----- PUBLIC API --------------------------------------------------------------------
+
 
 ## Assign the follow target at runtime (bootstrap uses this instead of the inspector).
 func set_target(node: Node3D) -> void:

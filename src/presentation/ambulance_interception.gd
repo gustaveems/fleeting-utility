@@ -63,8 +63,8 @@ var _siren_player: AudioStreamPlayer3D
 var _flash_tween: Tween
 var _escalating: bool = false
 
-
 ## ----- LIFECYCLE ------------------------------------------------------------------------
+
 
 func _ready() -> void:
 	_timer = Timer.new()
@@ -93,6 +93,7 @@ func _on_transition_completed(now_in_dreamscape: bool) -> void:
 
 
 ## ----- THE INTERCEPTION ------------------------------------------------------------------
+
 
 func initiate_interception() -> void:
 	if dreamscape_manager == null or not dreamscape_manager.in_dreamscape():
@@ -132,6 +133,7 @@ func _disable_anchors() -> void:
 
 ## ----- LIGHTS (red/blue strobe) ------------------------------------------------------------
 
+
 func _build_lights() -> void:
 	_red_light = OmniLight3D.new()
 	_red_light.name = "AmbulanceRed"
@@ -159,6 +161,7 @@ func _start_flashing() -> void:
 
 
 ## ----- SIREN (procedural) --------------------------------------------------------------------
+
 
 func _build_siren_player() -> void:
 	_siren_player = AudioStreamPlayer3D.new()
@@ -203,6 +206,7 @@ func _build_siren_stream() -> AudioStreamWAV:
 
 
 ## ----- TEARDOWN ------------------------------------------------------------------------------
+
 
 func _stop_escalation() -> void:
 	if _flash_tween != null and _flash_tween.is_valid():

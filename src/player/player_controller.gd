@@ -36,12 +36,14 @@ var _view: PlayerView
 
 
 func _ready() -> void:
-	assert(grid != null and movement != null, (
+	assert(
+		grid != null and movement != null,
 		"PlayerController needs grid + movement assigned before add_child()"
-	))
-	assert(_perception != null and _boundary != null, (
+	)
+	assert(
+		_perception != null and _boundary != null,
 		"Call PlayerController.setup() before add_child()"
-	))
+	)
 
 	_turn = TurnController.new()
 	_mover = GridMover.new()

@@ -78,8 +78,8 @@ var _target_cell: Vector2i
 @onready var _collision_shape: CollisionShape3D
 @onready var _timer: Timer
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	_ensure_collision_shape()
@@ -113,6 +113,7 @@ func _setup_timer() -> void:
 
 
 ## ----- INTERACTION -------------------------------------------------------------------
+
 
 ## Called by the InteractionController when the player interacts with this bench.
 ## Idempotent: if a craft is already in progress, the call is silently ignored.
@@ -149,6 +150,7 @@ func interact() -> void:
 
 ## ----- CRAFTING COMPLETION ------------------------------------------------------------
 
+
 func _on_craft_completed() -> void:
 	_consume_items()
 	_place_result()
@@ -180,6 +182,7 @@ func _place_result() -> void:
 
 ## ----- RECIPE HELPERS ----------------------------------------------------------------
 
+
 ## Find a cell on the grid for every required item_id in the recipe, up to the needed
 ## count. Returns a flat list of cells (e.g., 2 cells for 2× "raw_compound").
 func _collect_required_cells(recipe: CraftingRecipe) -> Array[Vector2i]:
@@ -210,6 +213,7 @@ func _total_required(recipe: CraftingRecipe) -> int:
 
 
 ## ----- CHEMICAL MODIFIERS ------------------------------------------------------------
+
 
 func _modified_craft_time(base_time: float) -> float:
 	if chemical_manager == null:

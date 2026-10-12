@@ -5,7 +5,6 @@ extends Node
 ##   frame 40:  tap N (enter dream)
 ##   frame ~420: capture clinical apartment after the forced return
 
-
 var _frames := 0
 
 

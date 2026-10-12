@@ -32,7 +32,9 @@ func _note(n: Node) -> String:
 			bits.append("disabled=%s" % str((n as CollisionShape3D).disabled))
 		if n is Area3D:
 			var a := n as Area3D
-			bits.append("L%d/M%d monitoring=%s" % [a.collision_layer, a.collision_mask, str(a.monitoring)])
+			bits.append(
+				"L%d/M%d monitoring=%s" % [a.collision_layer, a.collision_mask, str(a.monitoring)]
+			)
 		if n is CollisionShape3D and not n.is_visible_in_tree():
 			bits.append("IN-HIDDEN-SUBTREE")
 	if n is Node3D and not n.visible and n.get_child_count() > 0:

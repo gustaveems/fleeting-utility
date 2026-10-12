@@ -89,22 +89,12 @@ func update_overload(delta: float) -> bool:
 	# step: the last milligram of drug being gone flips the meter to maximum inflow.
 	if chemical_level <= 0.0:
 		sensory_overload = clampf(
-			sensory_overload + chemical_zero_accumulation_rate * delta,
-			0.0,
-			100.0
+			sensory_overload + chemical_zero_accumulation_rate * delta, 0.0, 100.0
 		)
 	elif chemical_level >= recovery_chemical_threshold:
-		sensory_overload = clampf(
-			sensory_overload - overload_decay_rate * delta,
-			0.0,
-			100.0
-		)
+		sensory_overload = clampf(sensory_overload - overload_decay_rate * delta, 0.0, 100.0)
 	else:
-		sensory_overload = clampf(
-			sensory_overload + overload_accumulation_rate * delta,
-			0.0,
-			100.0
-		)
+		sensory_overload = clampf(sensory_overload + overload_accumulation_rate * delta, 0.0, 100.0)
 
 	# Emit if anything changed. Consumers can diff old vs new if they need to know what
 	# crossed, but most just want to know "something changed, re-read the meters".
@@ -116,13 +106,9 @@ func update_overload(delta: float) -> bool:
 	# Return true if a threshold was crossed this frame (for the state machine to emit
 	# specific signals).
 	var overload_crossed := (
-		old_overload < crash_overload_threshold
-		and sensory_overload >= crash_overload_threshold
+		old_overload < crash_overload_threshold and sensory_overload >= crash_overload_threshold
 	)
-	var chemical_crossed := (
-		old_chemical > 0.0
-		and chemical_level <= 0.0
-	)
+	var chemical_crossed := old_chemical > 0.0 and chemical_level <= 0.0
 	return overload_crossed or chemical_crossed
 
 

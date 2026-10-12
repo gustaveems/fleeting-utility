@@ -59,6 +59,7 @@ func _ready() -> void:
 
 ## ----- ENVIRONMENT ------------------------------------------------------------------
 
+
 func _build_environment() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -93,6 +94,7 @@ func _build_environment() -> void:
 
 ## ----- TERRAIN + SUN ------------------------------------------------------------------
 
+
 func _build_terrain() -> void:
 	var ground := MeshInstance3D.new()
 	ground.name = "ValleyFloor"
@@ -120,6 +122,7 @@ func _build_sun() -> void:
 
 
 ## ----- STATUES + RETURN ZONES ----------------------------------------------------------
+
 
 func _build_statues() -> void:
 	for i in range(STATUE_POSITIONS.size()):

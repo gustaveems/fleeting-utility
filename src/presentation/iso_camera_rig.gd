@@ -65,9 +65,7 @@ func _ready() -> void:
 	_camera = Camera3D.new()
 	_camera.name = "IsoCamera"
 	_camera.projection = (
-		Camera3D.PROJECTION_PERSPECTIVE
-		if is_off_perspective
-		else Camera3D.PROJECTION_ORTHOGONAL
+		Camera3D.PROJECTION_PERSPECTIVE if is_off_perspective else Camera3D.PROJECTION_ORTHOGONAL
 	)
 	_camera.fov = 30.0
 	_camera.size = orthographic_height

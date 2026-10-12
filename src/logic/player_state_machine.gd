@@ -106,10 +106,7 @@ func _process(delta: float) -> void:
 			_overload_threshold_fired = true
 			overload_threshold_reached.emit()
 
-		var chemical_empty := (
-			state_data.chemical_level <= 0.0
-			and not _chemical_depleted_fired
-		)
+		var chemical_empty := state_data.chemical_level <= 0.0 and not _chemical_depleted_fired
 		if chemical_empty:
 			_chemical_depleted_fired = true
 			chemical_depleted.emit()
@@ -125,10 +122,7 @@ func _process(delta: float) -> void:
 	# Dreamscape knockout condition (Ticket-05): fully withdrawn AND maxed overload.
 	# Checked every frame regardless of threshold_crossed, because at the pin the
 	# meters stop changing and update_overload() stops reporting crossings.
-	var collapse := (
-		state_data.chemical_level <= 0.0
-		and state_data.sensory_overload >= 100.0
-	)
+	var collapse := state_data.chemical_level <= 0.0 and state_data.sensory_overload >= 100.0
 	if collapse and not _dreamscape_fired and not _climax_fired:
 		_dreamscape_fired = true
 		dreamscape_transition_requested.emit()

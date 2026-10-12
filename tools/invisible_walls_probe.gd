@@ -14,7 +14,6 @@ extends SceneTree
 ##
 ## Run: godot --headless --path . -s tools/invisible_walls_probe.gd
 
-
 var _manager: DreamscapeManager
 var _player: PlayerMovement
 
@@ -38,8 +37,12 @@ func _run() -> void:
 
 	# --- Phase 1: valley ---
 	await _manager.transition_to_dreamscape()
-	print("VALLEY in_dreamscape=", _manager.in_dreamscape(),
-		" apartment_visible=", _manager.workspace_root.visible)
+	print(
+		"VALLEY in_dreamscape=",
+		_manager.in_dreamscape(),
+		" apartment_visible=",
+		_manager.workspace_root.visible
+	)
 
 	var statue_hit := _ray_to(Vector3(34.0, 2.0, -12.0))
 	if statue_hit:
@@ -62,8 +65,12 @@ func _run() -> void:
 
 	# --- Phase 2: return, colliders must come back ---
 	await _manager.return_to_workspace()
-	print("RETURN in_dreamscape=", _manager.in_dreamscape(),
-		" apartment_visible=", _manager.workspace_root.visible)
+	print(
+		"RETURN in_dreamscape=",
+		_manager.in_dreamscape(),
+		" apartment_visible=",
+		_manager.workspace_root.visible
+	)
 	var east := _ray_to(Vector3(5.5, 0.5, 0.0))
 	if east:
 		print("RETURN east wall -> BLOCKED as expected collider=", east["collider"].name)
@@ -86,10 +93,7 @@ func _run() -> void:
 func _ray_to(target: Vector3) -> Dictionary:
 	var space := _player.get_world_3d().direct_space_state
 	var query := PhysicsRayQueryParameters3D.create(
-		_player.global_position + Vector3(0.0, 0.5, 0.0),
-		target,
-		4294967295,  # all layers — we want to know about ANY body out there
-		[_player.get_rid()]
+		_player.global_position + Vector3(0.0, 0.5, 0.0), target, 4294967295, [_player.get_rid()]  # all layers — we want to know about ANY body out there
 	)
 	query.collide_with_areas = false
 	query.collide_with_bodies = true

@@ -6,7 +6,6 @@ extends SceneTree
 ## a Node script passed to -s never enters the tree, which is why this loads the scene
 ## into root itself.
 
-
 var _frames := 0
 
 
@@ -34,39 +33,67 @@ func _run_chain() -> void:
 	var decals := ws.get_node("SurfaceDegradation")
 	var lamp: OmniLight3D = ws.get_node("DeskLamp")
 
-	print("PROBE boot: cell≈", player.global_position,
-		" clutter=", _count_visible(clutter),
-		" decals=", _count_visible(decals),
-		" lamp_energy=", lamp.light_energy)
+	print(
+		"PROBE boot: cell≈",
+		player.global_position,
+		" clutter=",
+		_count_visible(clutter),
+		" decals=",
+		_count_visible(decals),
+		" lamp_energy=",
+		lamp.light_energy
+	)
 
 	# Drive entropy past both decal thresholds via the T dev key (bootstrap +20 each).
 	for _i in range(3):
 		_tap(KEY_T)
 		await _wait(10)
-	print("PROBE after T×3: entropy=", sm.entropy_data.entropy,
-		" clutter=", _count_visible(clutter),
-		" decals=", _count_visible(decals),
-		" lamp_energy=", lamp.light_energy)
+	print(
+		"PROBE after T×3: entropy=",
+		sm.entropy_data.entropy,
+		" clutter=",
+		_count_visible(clutter),
+		" decals=",
+		_count_visible(decals),
+		" lamp_energy=",
+		lamp.light_energy
+	)
 
 	# Crash the protagonist via the Tab dev key, then walk a cell.
 	_tap(KEY_TAB)
 	await _wait(20)
-	print("PROBE after Tab: overload=", sm.state_data.sensory_overload,
-		" crashed=", sm.state_data.is_crashed())
+	print(
+		"PROBE after Tab: overload=",
+		sm.state_data.sensory_overload,
+		" crashed=",
+		sm.state_data.is_crashed()
+	)
 
 	Input.action_press("move_east")
 	await _wait(30)
 	Input.action_release("move_east")
 	await _wait(60)  # let the deceleration settle below the stop threshold
-	print("PROBE after step: pos=", player.global_position,
-		"  is_moving=", player._is_moving, " (free roam: any position, must be stopped)")
+	print(
+		"PROBE after step: pos=",
+		player.global_position,
+		"  is_moving=",
+		player._is_moving,
+		" (free roam: any position, must be stopped)"
+	)
 
 	# Deactivation path: R resets entropy to 0 — clutter and decals must disappear.
 	_tap(KEY_R)
 	await _wait(10)
-	print("PROBE after R: entropy=", sm.entropy_data.entropy,
-		" clutter=", _count_visible(clutter), " decals=", _count_visible(decals),
-		" lamp_energy=", lamp.light_energy)
+	print(
+		"PROBE after R: entropy=",
+		sm.entropy_data.entropy,
+		" clutter=",
+		_count_visible(clutter),
+		" decals=",
+		_count_visible(decals),
+		" lamp_energy=",
+		lamp.light_energy
+	)
 
 	quit()
 

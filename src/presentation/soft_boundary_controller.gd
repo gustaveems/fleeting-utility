@@ -123,8 +123,8 @@ var _color_rect: ColorRect
 var _material: ShaderMaterial
 var _pulse_time: float = 0.0
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	_build_shader_layer()
@@ -137,6 +137,7 @@ func _process(delta: float) -> void:
 
 
 ## ----- SHADER SETUP ------------------------------------------------------------------
+
 
 func _build_shader_layer() -> void:
 	# Create the shader resource from the embedded code.
@@ -167,6 +168,7 @@ func _build_shader_layer() -> void:
 
 
 ## ----- PUBLIC API --------------------------------------------------------------------
+
 
 ## Update edge proximity at runtime. Called by GameBootstrap when SoftBoundaryModel
 ## emits proximity_changed, or by PlayerMovement when the cell position changes.

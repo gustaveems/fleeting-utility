@@ -10,7 +10,6 @@ extends SceneTree
 ##
 ## Run: godot --headless --path . -s tools/ticket05_verify.gd
 
-
 var _manager: DreamscapeManager
 var _player: PlayerMovement
 var _sm: PlayerStateMachine
@@ -55,8 +54,7 @@ func _run() -> void:
 	var hud := _ws.get_node("DreamscapeHud")
 	var label := hud.get_node("TimerLabel") as Label
 	print("   countdown label: '", label.text, "'")
-	var ticking := label.text.contains("Fading memory") \
-		and not label.text.contains(": 30s")
+	var ticking := label.text.contains("Fading memory") and not label.text.contains(": 30s")
 	_check("B countdown ticking", ticking)
 
 	# --- C: auto-return (timer shortened to 3 s; 30 s is the same code path) ---------

@@ -101,8 +101,8 @@ var _heading_yaw: float = 0.0
 @onready var _collision_shape: CollisionShape3D
 @onready var _mesh: MeshInstance3D
 
-
 ## ----- LIFECYCLE -----------------------------------------------------------------
+
 
 func _ready() -> void:
 	global_position = Vector3.ZERO
@@ -163,6 +163,7 @@ func _setup_placeholder_body() -> void:
 
 
 ## ----- MOVEMENT ------------------------------------------------------------------
+
 
 func _physics_process(delta: float) -> void:
 	# Locked input still decelerates: desired velocity is zero, so the exponential
@@ -231,9 +232,9 @@ func _update_heading(input_dir: Vector3, delta: float) -> void:
 	if input_dir != Vector3.ZERO:
 		# Yaw that points the model's -Z forward axis along the movement direction.
 		var target_yaw := atan2(-input_dir.x, -input_dir.z)
-		var max_step := deg_to_rad(
-			crash_turn_speed_degrees if _crashed() else turn_speed_degrees
-		) * delta
+		var max_step := (
+			deg_to_rad(crash_turn_speed_degrees if _crashed() else turn_speed_degrees) * delta
+		)
 		var diff := wrapf(target_yaw - _heading_yaw, -PI, PI)
 		_heading_yaw += clampf(diff, -max_step, max_step)
 	_body_pivot.rotation.y = _heading_yaw
@@ -255,6 +256,7 @@ func _update_moving_signals() -> void:
 
 ## ----- CRASH STATE ---------------------------------------------------------------
 
+
 func _current_speed() -> float:
 	return crash_move_speed if _crashed() else move_speed
 
@@ -270,6 +272,7 @@ func _crashed() -> bool:
 
 
 ## ----- PUBLIC API ----------------------------------------------------------------
+
 
 ## Read-only movement state (dev HUD / probes).
 func is_moving() -> bool:

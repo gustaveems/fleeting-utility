@@ -49,8 +49,7 @@ func _build_floor() -> void:
 	floor_instance.name = "Floor"
 	var mesh := PlaneMesh.new()
 	mesh.size = Vector2(
-		float(grid.width_cells) * grid.cell_size,
-		float(grid.depth_cells) * grid.cell_size
+		float(grid.width_cells) * grid.cell_size, float(grid.depth_cells) * grid.cell_size
 	)
 	floor_instance.mesh = mesh
 	floor_instance.material_override = _mat(COLOR_FLOOR, 0.9)
@@ -122,11 +121,7 @@ func _build_walls() -> void:
 
 ## Visible wall box + StaticBody3D collision of a possibly different height.
 func _solid_wall(
-	node_name: String,
-	size: Vector3,
-	origin: Vector3,
-	color: Color,
-	collision_height: float
+	node_name: String, size: Vector3, origin: Vector3, color: Color, collision_height: float
 ) -> void:
 	add_child(_box(node_name, size, origin, color))
 	_add_wall_collision(node_name + "Collision", size, origin, collision_height)
@@ -135,10 +130,7 @@ func _solid_wall(
 ## Collision box spanning floor..collision_height at the wall's footprint. The visual
 ## box is centred at size.y/2, so the taller collision is offset up by half the delta.
 func _add_wall_collision(
-	node_name: String,
-	visual_size: Vector3,
-	origin: Vector3,
-	collision_height: float
+	node_name: String, visual_size: Vector3, origin: Vector3, collision_height: float
 ) -> void:
 	var body := StaticBody3D.new()
 	body.name = node_name

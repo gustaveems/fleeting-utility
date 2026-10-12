@@ -55,11 +55,7 @@ func _init_grid() -> void:
 
 ## Convert a cell coordinate to a local position (cell center).
 func cell_to_local(cell: Vector2i) -> Vector3:
-	return Vector3(
-		(float(cell.x) + 0.5) * cell_size,
-		0.0,
-		(float(cell.y) + 0.5) * cell_size
-	)
+	return Vector3((float(cell.x) + 0.5) * cell_size, 0.0, (float(cell.y) + 0.5) * cell_size)
 
 
 ## Is the cell within the grid bounds?

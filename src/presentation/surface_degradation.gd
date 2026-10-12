@@ -54,8 +54,8 @@ static var _crack_texture: NoiseTexture2D
 var _pool: Array[Decal] = []
 var _batch_placements: Array[Array] = []
 
-
 ## ----- LIFECYCLE ---------------------------------------------------------------------
+
 
 func _ready() -> void:
 	_init_textures()
@@ -67,6 +67,7 @@ func _ready() -> void:
 
 
 ## ----- TEXTURES ----------------------------------------------------------------------
+
 
 func _init_textures() -> void:
 	if _splatter_texture == null:
@@ -91,12 +92,19 @@ func _make_splatter_texture() -> NoiseTexture2D:
 	# white point that rendered low-noise regions as opaque streaks (confirmed on the
 	# first real render; Gradient.reset() does not exist in 4.x).
 	gradient.set_offsets(PackedFloat32Array([0.0, 0.48, 0.52, 1.0]))
-	gradient.set_colors(PackedColorArray([
-		Color(0.0, 0.0, 0.0, 0.0),
-		Color(0.0, 0.0, 0.0, 0.0),
-		Color(0.12, 0.09, 0.06, 0.8),
-		Color(0.08, 0.06, 0.04, 0.9),
-	]))
+	(
+		gradient
+		. set_colors(
+			PackedColorArray(
+				[
+					Color(0.0, 0.0, 0.0, 0.0),
+					Color(0.0, 0.0, 0.0, 0.0),
+					Color(0.12, 0.09, 0.06, 0.8),
+					Color(0.08, 0.06, 0.04, 0.9),
+				]
+			)
+		)
+	)
 
 	var texture := NoiseTexture2D.new()
 	texture.noise = noise
@@ -122,13 +130,20 @@ func _make_crack_texture() -> NoiseTexture2D:
 	var gradient := Gradient.new()
 	# set_offsets/set_colors replace the default white@0 point — see splatter note.
 	gradient.set_offsets(PackedFloat32Array([0.0, 0.44, 0.50, 0.56, 1.0]))
-	gradient.set_colors(PackedColorArray([
-		Color(0.0, 0.0, 0.0, 0.0),
-		Color(0.0, 0.0, 0.0, 0.0),
-		Color(0.1, 0.07, 0.05, 0.85),
-		Color(0.0, 0.0, 0.0, 0.0),
-		Color(0.0, 0.0, 0.0, 0.0),
-	]))
+	(
+		gradient
+		. set_colors(
+			PackedColorArray(
+				[
+					Color(0.0, 0.0, 0.0, 0.0),
+					Color(0.0, 0.0, 0.0, 0.0),
+					Color(0.1, 0.07, 0.05, 0.85),
+					Color(0.0, 0.0, 0.0, 0.0),
+					Color(0.0, 0.0, 0.0, 0.0),
+				]
+			)
+		)
+	)
 
 	var texture := NoiseTexture2D.new()
 	texture.noise = noise
@@ -141,37 +156,54 @@ func _make_crack_texture() -> NoiseTexture2D:
 
 ## ----- PLACEMENT POOLS ---------------------------------------------------------------
 
+
 func _init_placements() -> void:
 	# Batch 1 (threshold_low = 30): scattered floor stains.
-	_batch_placements.append([
-		{"pos": Vector3(-3.0, 0.02, -2.0), "normal": Vector3.UP},
-		{"pos": Vector3(1.5, 0.02, 2.0), "normal": Vector3.UP},
-		{"pos": Vector3(3.5, 0.02, -1.0), "normal": Vector3.UP},
-		{"pos": Vector3(-2.0, 0.02, 2.5), "normal": Vector3.UP},
-		{"pos": Vector3(0.0, 0.02, -1.5), "normal": Vector3.UP},
-	])
+	(
+		_batch_placements
+		. append(
+			[
+				{"pos": Vector3(-3.0, 0.02, -2.0), "normal": Vector3.UP},
+				{"pos": Vector3(1.5, 0.02, 2.0), "normal": Vector3.UP},
+				{"pos": Vector3(3.5, 0.02, -1.0), "normal": Vector3.UP},
+				{"pos": Vector3(-2.0, 0.02, 2.5), "normal": Vector3.UP},
+				{"pos": Vector3(0.0, 0.02, -1.5), "normal": Vector3.UP},
+			]
+		)
+	)
 	# Batch 2 (threshold_medium = 60): wall cracks + floor stains. Wall slots sit on
 	# SOLID surfaces only: the west wall (full height) and the north sill band (y ≤ 0.45).
 	# The south/east walls are sill-height (iso sightlines) and the north pane is
 	# transparent — decals project onto neither.
-	_batch_placements.append([
-		{"pos": Vector3(-4.45, 0.85, -1.5), "normal": Vector3.RIGHT},
-		{"pos": Vector3(1.5, 0.28, -3.45), "normal": Vector3.FORWARD},
-		{"pos": Vector3(-4.45, 0.7, 1.0), "normal": Vector3.RIGHT},
-		{"pos": Vector3(-4.45, 0.5, 2.0), "normal": Vector3.RIGHT},
-		{"pos": Vector3(2.0, 0.02, 2.5), "normal": Vector3.UP},
-	])
+	(
+		_batch_placements
+		. append(
+			[
+				{"pos": Vector3(-4.45, 0.85, -1.5), "normal": Vector3.RIGHT},
+				{"pos": Vector3(1.5, 0.28, -3.45), "normal": Vector3.FORWARD},
+				{"pos": Vector3(-4.45, 0.7, 1.0), "normal": Vector3.RIGHT},
+				{"pos": Vector3(-4.45, 0.5, 2.0), "normal": Vector3.RIGHT},
+				{"pos": Vector3(2.0, 0.02, 2.5), "normal": Vector3.UP},
+			]
+		)
+	)
 	# Batch 3 (threshold_high = 90): more wall damage + floor.
-	_batch_placements.append([
-		{"pos": Vector3(0.5, 0.3, -3.45), "normal": Vector3.FORWARD},
-		{"pos": Vector3(-4.45, 0.3, -2.0), "normal": Vector3.RIGHT},
-		{"pos": Vector3(-4.45, 1.05, -0.5), "normal": Vector3.RIGHT},
-		{"pos": Vector3(-1.0, 0.02, -2.5), "normal": Vector3.UP},
-		{"pos": Vector3(3.5, 0.02, 0.5), "normal": Vector3.UP},
-	])
+	(
+		_batch_placements
+		. append(
+			[
+				{"pos": Vector3(0.5, 0.3, -3.45), "normal": Vector3.FORWARD},
+				{"pos": Vector3(-4.45, 0.3, -2.0), "normal": Vector3.RIGHT},
+				{"pos": Vector3(-4.45, 1.05, -0.5), "normal": Vector3.RIGHT},
+				{"pos": Vector3(-1.0, 0.02, -2.5), "normal": Vector3.UP},
+				{"pos": Vector3(3.5, 0.02, 0.5), "normal": Vector3.UP},
+			]
+		)
+	)
 
 
 ## ----- POOL --------------------------------------------------------------------------
+
 
 func _init_pool() -> void:
 	for i in range(batch_size * 3):
@@ -196,6 +228,7 @@ func _texture_for_index(i: int) -> NoiseTexture2D:
 
 
 ## ----- SYNC LOGIC --------------------------------------------------------------------
+
 
 func _on_entropy_changed(_new_entropy: float) -> void:
 	_sync_batch(0, entropy_data.entropy, threshold_low)
@@ -230,11 +263,7 @@ func _sync_batch(batch_index: int, entropy: float, threshold: float) -> void:
 					up_ref = Vector3(0.0, 0.0, 1.0)
 				decal.look_at(decal.global_position + look_dir, up_ref)
 				decal.rotation.z += randf_range(-0.3, 0.3)
-				decal.size = Vector3(
-					randf_range(0.8, 1.4),
-					randf_range(1.0, 2.2),
-					0.2
-				)
+				decal.size = Vector3(randf_range(0.8, 1.4), randf_range(1.0, 2.2), 0.2)
 			decal.visible = true
 		else:
 			decal.visible = false

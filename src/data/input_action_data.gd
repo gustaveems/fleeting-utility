@@ -43,6 +43,7 @@ const ACTION_DEV_RESET_ENTROPY := "dev_reset_entropy"
 const ACTION_INTERACT := "interact"
 const ACTION_DEV_DREAMSCAPE := "dev_dreamscape"
 
+
 ## physical_keycode so the binding follows the key's position on the keyboard, not the
 ## layout — W/A/S/D stay W/A/S/D on AZERTY.
 static func _bindings() -> Dictionary:

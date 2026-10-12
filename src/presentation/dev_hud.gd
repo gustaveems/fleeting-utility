@@ -75,14 +75,18 @@ func _format() -> String:
 	var lines: Array[String] = [
 		"FLEETING UTILITY  //  Ticket-02",
 		"state        %s" % _perception.state_name(),
-		"cell         (%d, %d)   footprint (%d x %d)   1 cell = %.2fm" % [
-			cell.x, cell.y, _grid.width_cells, _grid.depth_cells, _grid.cell_size
-		],
-		"facing       %s (%s)  %s" % [
-			WorkspaceGridData.facing_name(facing),
-			WorkspaceGridData.facing_screen_hint(facing),
-			turn_state
-		],
+		(
+			"cell         (%d, %d)   footprint (%d x %d)   1 cell = %.2fm"
+			% [cell.x, cell.y, _grid.width_cells, _grid.depth_cells, _grid.cell_size]
+		),
+		(
+			"facing       %s (%s)  %s"
+			% [
+				WorkspaceGridData.facing_name(facing),
+				WorkspaceGridData.facing_screen_hint(facing),
+				turn_state
+			]
+		),
 		"step         %s  alpha %.2f" % [step_state, _mover.step_alpha()],
 		"crash        %.2f    edge %.2f" % [_perception.crash_intensity(), _boundary.proximity()],
 	]
@@ -90,16 +94,29 @@ func _format() -> String:
 	# Ticket-02 meter lines — only when the state machine is bound (pipeline-dependent).
 	if _state_machine != null and _state_machine.state_data != null:
 		var data := _state_machine.state_data
-		lines.append("chem         %.2f  focus:%s  overload %.1f" % [
-			data.chemical_level,
-			"ON" if data.is_high_focus() else "off",
-			data.sensory_overload
-		])
+		lines.append(
+			(
+				"chem         %.2f  focus:%s  overload %.1f"
+				% [
+					data.chemical_level,
+					"ON" if data.is_high_focus() else "off",
+					data.sensory_overload
+				]
+			)
+		)
 		if _state_machine.entropy_data != null:
-			lines.append("entropy      %.1f   feed +%.2f/s" % [
-				_state_machine.entropy_data.entropy,
-				_state_machine.entropy_data.entropy * _state_machine.entropy_data.overload_feed_ratio
-			])
+			lines.append(
+				(
+					"entropy      %.1f   feed +%.2f/s"
+					% [
+						_state_machine.entropy_data.entropy,
+						(
+							_state_machine.entropy_data.entropy
+							* _state_machine.entropy_data.overload_feed_ratio
+						)
+					]
+				)
+			)
 	lines.append("")
 	lines.append("WASD/arrows  step one cell   (iso: W = up-right)")
 	lines.append("Tab          toggle HIGH-FOCUS / CRASH")
