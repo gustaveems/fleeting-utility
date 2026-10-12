@@ -1,0 +1,29 @@
+; Engine configuration file.
+; Fleeting Utility — Ticket-01 scaffold.
+;
+; NOTE: `config/features` is intentionally omitted. Godot writes it the first time the
+; editor saves the project, using whatever 4.x minor version Alain actually installs.
+; Hand-pinning it here would only create a version-mismatch warning on first open.
+;
+; Input actions are NOT declared here on purpose: they are registered at runtime by
+; res://src/data/input_action_data.gd so that the key map stays in the Data layer
+; (single source of truth) instead of being split across two file formats.
+
+config_version=5
+
+[application]
+
+config/name="Fleeting Utility"
+run/main_scene="res://scenes/workspace.tscn"
+config/description="Narrative immersive sim: grid-snapped 2.5D isometric workspace under hyper-accelerationism."
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=2
