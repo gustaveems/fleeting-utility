@@ -22,7 +22,10 @@ godot --path . -s tools/capture_states.gd       # windowed: PNG per lighting sta
 
 ## Architecture
 - `src/data` Resources · `src/logic` state machines/controllers · `src/presentation` visuals/audio/UI · `src/player` movement/camera · `src/bootstrap` composition root.
-- `scenes/workspace.tscn` is one Node3D running `workspace_bootstrap.gd`, which builds and wires **everything in code**. There are no authored sub-scenes.
+- `scenes/workspace.tscn` is one Node3D running `workspace_bootstrap.gd`, which builds **everything in code** through modules in `src/bootstrap/modules/` (core, apartment, player, valley, narrative, ui). Each module overrides `create → wire → attach → post_attach` (`BootstrapModule`), and each phase runs across all modules before the next, so every export is set before any `_ready`. Register nodes on `BootstrapContext`. A new system (audio, VFX, persistence) gets a new module.
+- **Worlds** (apartment, valley, park) are `WorldRoot`s: use `set_active()` to swap and `suppress(node)` to remove a prop for good. Never toggle `visible` or shapes by hand.
+- **Locks**: `player.lock_input(owner)` / `interaction.lock(owner)` with a named owner (`LockSet`). The bools are read-only.
+- **Physics layers**: `PhysicsLayers` consts only. Player sensors use `PhysicsLayers.make_player_sensor(area)`.
 - **Movement is free-roam everywhere** (velocity, `move_and_slide`). Grid-snapped stepping was rejected after playtesting (2026-10-11). The grid survives only as data (bench worktop, clutter spawn points). The old grid pipeline (`Main.tscn`, `GameBootstrap`, `GridMover`…) was deleted. `assets/shaders/_salvage/perception_post.gdshader` is kept as T11 input.
 - Logic scripts emit signals and never own audio/VFX nodes. Presentation listens.
 - Soft boundaries (vignette/fog), never invisible walls.

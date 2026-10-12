@@ -44,7 +44,7 @@ signal interception_started
 @export var screen_effects: ScreenEffects
 
 ## The valley root, scanned for MemoryAnchor nodes to disable during the sequence.
-@export var valley_root: WorldRoot
+@export var valley_root: DreamscapeEnvironment
 
 ## --- TIMING ----------------------------------------------------------------------------
 
@@ -126,11 +126,10 @@ func initiate_interception() -> void:
 func _disable_anchors() -> void:
 	if valley_root == null:
 		return
-	for child in valley_root.get_children():
-		if child is MemoryAnchor:
-			(child as MemoryAnchor).set_enabled(false)
-			# Keep them glowing but sealed through any later valley activation.
-			valley_root.suppress(child, false)
+	for anchor in valley_root.memory_anchors:
+		anchor.set_enabled(false)
+		# Keep them glowing but sealed through any later valley activation.
+		valley_root.suppress(anchor, false)
 
 
 ## ----- LIGHTS (red/blue strobe) ------------------------------------------------------------

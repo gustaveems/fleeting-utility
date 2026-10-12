@@ -145,11 +145,20 @@ func _test_interaction_prompt():
 	await create_timer(0.1).timeout
 	check("prompt HIDDEN after clear_target", pc != null and not pc.visible)
 
-	# The real producer path: DreamscapeManager drives set_target on statue proximity.
+	# The real producer path: DreamscapeManager drives set_target on statue proximity,
+	# but only inside the dream (statues exist nowhere else).
 	_dm.set_statue_proximity(true)
 	await create_timer(0.1).timeout
-	check("statue proximity -> prompt via DreamscapeManager", pc != null and pc.visible)
+	check("statue proximity outside the dream -> no prompt", pc != null and not pc.visible)
 	_dm.set_statue_proximity(false)
+	_dm._in_dreamscape = true
+	_dm.set_statue_proximity(true)
+	await create_timer(0.1).timeout
+	check(
+		"statue proximity in the dream -> prompt via DreamscapeManager", pc != null and pc.visible
+	)
+	_dm.set_statue_proximity(false)
+	_dm._in_dreamscape = false
 	await create_timer(0.1).timeout
 
 

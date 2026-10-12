@@ -43,14 +43,23 @@ const STATUE_POSITIONS: Array[Vector3] = [
 ## The brief's 50 feet, in metres.
 const STATUE_HEIGHT := 15.0
 
-## The valley's Environment resource, built in _ready and handed to the manager.
+## The valley's Environment resource. Built in _init (not _ready) so the bootstrap can
+## hand it to DreamscapeManager before either node enters the tree.
 var valley_environment: Environment
+
+## The four monoliths and the three memory anchors, built in _ready. Typed handles so
+## wiring code never looks children up by name.
+var statues: Array[StaticBody3D] = []
+var memory_anchors: Array[MemoryAnchor] = []
 
 var _near_zone_count: int = 0
 
 
-func _ready() -> void:
+func _init() -> void:
 	_build_environment()
+
+
+func _ready() -> void:
 	_build_terrain()
 	_build_sun()
 	_build_statues()
@@ -173,6 +182,7 @@ func _build_statue(index: int, origin: Vector3) -> void:
 	statue.add_child(collar)
 
 	add_child(statue)
+	statues.append(statue)
 	_build_return_zone(index, origin)
 
 
@@ -202,8 +212,9 @@ func _build_memory_anchors() -> void:
 		var anchor := MemoryAnchor.new()
 		anchor.name = "MemoryAnchor_%d" % i
 		anchor.position = anchor_pos + Vector3(0.0, 1.5, 0.0)
-		# Wire the manager reference (set by bootstrap after add_child).
+		# The bootstrap wires dreamscape_manager after the valley is built (post_attach).
 		add_child(anchor)
+		memory_anchors.append(anchor)
 
 
 func _on_zone_entered(_body: Node3D) -> void:
