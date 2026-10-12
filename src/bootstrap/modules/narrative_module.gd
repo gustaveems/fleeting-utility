@@ -83,6 +83,9 @@ func wire(ctx: BootstrapContext) -> void:
 	hesitation.dual_vision_controller = ctx.dual_vision
 	hesitation.ransacked_state_manager = ctx.ransacked
 	hesitation.camera = ctx.camera
+	# The forced-detox beat (dual visions) earns the climax: the next dream is the
+	# ambulance (MASTER_BRIEF order).
+	ctx.dual_vision.visions_ended.connect(ctx.ambulance.arm)
 
 	# The narrative-phase observer: one phase_changed for audio, saves and menus.
 	var flow := ctx.game_flow

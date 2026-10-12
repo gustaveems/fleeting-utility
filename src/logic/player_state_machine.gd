@@ -58,9 +58,9 @@ var _overload_threshold_fired: bool = false
 var _chemical_depleted_fired: bool = false
 var _dreamscape_fired: bool = false
 
-## Ticket-06: permanent climax latch. Once the dreamscape has been triggered and the
-## forced return completed, this flag stays true forever — the dream can never re-fire,
-## even if the meters somehow clear and re-meet the collapse condition.
+## Ticket-06: permanent climax latch, set by latch_climax() at the ambulance's forced
+## return. Collapse dreams before the climax are calm and may recur (MASTER_BRIEF order);
+## after the climax the dream never re-fires.
 var _climax_fired: bool = false
 
 ## Logic driver for entropy_data, built here so the scene tree never has to carry it.
@@ -128,10 +128,6 @@ func _process(delta: float) -> void:
 		dreamscape_transition_requested.emit()
 	elif not collapse:
 		_dreamscape_fired = false
-
-	# Once the climax fires, it never re-arms — the dream is a one-way trip.
-	if _dreamscape_fired:
-		_climax_fired = true
 
 
 ## Dreamscape bookkeeping (called by DreamscapeManager, never by presentation code):

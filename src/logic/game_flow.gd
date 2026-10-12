@@ -9,17 +9,13 @@ extends Node
 ## `phase_changed`. Consumers that care about the whole arc (audio soundscapes,
 ## save/load, the menu, analytics) listen here instead of wiring to a dozen managers.
 ##
-## ARC
-## ---
-##   WORKSPACE ─collapse─▶ DREAMSCAPE ─ambulance─▶ INTERCEPTION ─forced return─▶ CLINICAL
-##       ▲            │ (calm return)                                              │
-##       └────────────┘                                                    loop reset
-##                                                                               ▼
-##   RANSACKED ◀─return─ PARK_WALK ◀─door (entropy ≥ 70)─ WORKSPACE / SCARRED ◀───┘
-##       │  ▲
-##   door│  └─visions end─ HESITATION (incl. dual visions)
-##       ▼
-##   HESITATION
+## ARC (MASTER_BRIEF order)
+## -------------------------
+##   WORKSPACE ⇄ DREAMSCAPE            early collapses: calm dreams, return to the room
+##   WORKSPACE → PARK_WALK → RANSACKED (one walk per cycle; the betrayal)
+##   RANSACKED ⇄ DREAMSCAPE            forced detox: calm dreams in the ruined room
+##   RANSACKED → HESITATION → RANSACKED   at the door; dual visions arm the ambulance
+##   RANSACKED → DREAMSCAPE → INTERCEPTION → CLINICAL → SCARRED   the climax and reset
 
 signal phase_changed(from: Phase, to: Phase)
 
@@ -46,6 +42,9 @@ var phase: Phase = Phase.WORKSPACE
 
 ## Completed scarred-reset loops. Survives into save data (T12).
 var loops_completed: int = 0
+
+## Where a calm dream returns to (the room the collapse happened in).
+var _phase_before_dream: Phase = Phase.WORKSPACE
 
 
 func _ready() -> void:
@@ -77,11 +76,13 @@ func snapshot() -> Dictionary:
 
 func _on_transition_completed(now_in_dreamscape: bool) -> void:
 	if now_in_dreamscape:
+		if phase != Phase.DREAMSCAPE:
+			_phase_before_dream = phase
 		_enter_phase(Phase.DREAMSCAPE)
 	elif phase == Phase.DREAMSCAPE:
-		# Calm return (timer, statue, anchor). The forced return is handled separately
-		# and already moved us past DREAMSCAPE.
-		_enter_phase(Phase.WORKSPACE)
+		# Calm return (timer, statue, anchor) to the room the collapse happened in. The
+		# forced return is handled separately and already moved us past DREAMSCAPE.
+		_enter_phase(_phase_before_dream)
 
 
 func _on_loop_reset(_flavor_text: String) -> void:

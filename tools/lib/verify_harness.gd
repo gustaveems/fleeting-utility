@@ -21,6 +21,9 @@ const MAIN_SCENE := "res://scenes/workspace.tscn"
 const OUT_DIR := "res://tools/out/"
 const SETTLE_SECONDS := 0.5
 
+## Watchdog: a test awaiting a signal that never fires would otherwise hang run_all.
+const TIMEOUT_SECONDS := 120.0
+
 var ws: Node
 var passed := 0
 var failed := 0
@@ -30,6 +33,7 @@ func _initialize() -> void:
 	var scene: PackedScene = load(MAIN_SCENE)
 	ws = scene.instantiate()
 	root.add_child(ws)
+	create_timer(TIMEOUT_SECONDS).timeout.connect(_on_watchdog)
 	_drive()
 
 
@@ -40,6 +44,17 @@ func _drive() -> void:
 	print(" %s  %d PASS / %d FAIL" % [_title(), passed, failed])
 	print("========================================")
 	quit(1 if failed > 0 else 0)
+
+
+func _on_watchdog() -> void:
+	print(
+		(
+			"\n  [FAIL] WATCHDOG: no result after %.0f s (awaiting a signal that never fired?)"
+			% TIMEOUT_SECONDS
+		)
+	)
+	print(" %s  %d PASS / %d FAIL" % [_title(), passed, failed + 1])
+	quit(2)
 
 
 ## Override: the test body. May await.

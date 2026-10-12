@@ -34,6 +34,7 @@ func _run() -> void:
 	# Compress the sequence: 2 s to intercept, 1 s escalation.
 	_ambulance.interception_delay = 2.0
 	_ambulance.escalation_seconds = 1.0
+	_ambulance.arm()  # in play, the dual visions arm it (MASTER_BRIEF order)
 
 	await _manager.transition_to_dreamscape()
 	check("entered dream", _manager.in_dreamscape())

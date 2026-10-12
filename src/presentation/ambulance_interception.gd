@@ -9,9 +9,16 @@ extends Node
 ## after four seconds of escalation a defibrillation jolt yanks him back — violently,
 ## not gently. He does not choose to return.
 ##
+## WHEN IT FIRES (MASTER_BRIEF order)
+## -----------------------------------
+## The climax ends the arc: walk → betrayal → hesitation → dual visions → climax. Early
+## collapse dreams are calm. The ambulance stays disarmed until arm() is called (the
+## bootstrap wires DualVisionController.visions_ended to it). Only the next dream is
+## intercepted, and firing disarms it again.
+##
 ## SEQUENCE
 ## --------
-##   dream entry (transition_completed true) → arm 15 s timer
+##   dream entry (transition_completed true) while armed → start 15 s timer
 ##   timer timeout → initiate_interception():
 ##     1. kill the 30 s auto-return + disable every MemoryAnchor (no peaceful exit)
 ##     2. start procedural siren + red/blue flashing + ScreenEffects intensity override
@@ -56,6 +63,9 @@ signal interception_started
 
 ## --- INTERNAL STATE --------------------------------------------------------------------
 
+## True once the arc has earned the climax (see class doc). Read-only outside arm().
+var armed: bool = false
+
 var _timer: Timer
 var _red_light: OmniLight3D
 var _blue_light: OmniLight3D
@@ -81,8 +91,13 @@ func _ready() -> void:
 	_build_siren_player()
 
 
+## The forced-detox beat is complete: the next dream is the climax.
+func arm() -> void:
+	armed = true
+
+
 func _on_transition_completed(now_in_dreamscape: bool) -> void:
-	if now_in_dreamscape:
+	if now_in_dreamscape and armed:
 		# Arm the countdown the moment the valley becomes playable.
 		_timer.start(interception_delay)
 	else:
@@ -101,6 +116,7 @@ func initiate_interception() -> void:
 	if _escalating:
 		return
 	_escalating = true
+	armed = false
 	interception_started.emit()
 
 	# 1. Seal the exits: no peaceful auto-return, no anchor escape.

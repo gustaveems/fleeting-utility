@@ -56,6 +56,10 @@ signal return_from_walk
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
+## True once this cycle's walk has happened. The door offers one walk; after the
+## betrayal, approaching it again is the hesitation, not another outing.
+var walk_taken: bool = false
+
 var _park_root: WorldRoot
 var _park_env: Environment
 var _return_door: Area3D
@@ -93,8 +97,9 @@ func _process(_delta: float) -> void:
 
 ## Called by ApartmentDoor when the player interacts with it and entropy >= 70.
 func transition_to_park() -> void:
-	if _transitioning or _in_park:
+	if _transitioning or _in_park or walk_taken:
 		return
+	walk_taken = true
 	_transitioning = true
 	_lock_player(true)
 
