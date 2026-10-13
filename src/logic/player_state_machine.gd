@@ -144,6 +144,10 @@ func on_dreamscape_entered() -> void:
 ## return, BEFORE it pins the meters at the knockout condition. Latching only inside
 ## the collapse trigger missed dreams entered any other way (dev key, tests), and the
 ## post-climax pin then re-triggered a second dream and a second ambulance.
+func is_climax_latched() -> bool:
+	return _climax_fired
+
+
 func latch_climax() -> void:
 	_climax_fired = true
 	_dreamscape_fired = true

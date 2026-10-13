@@ -20,8 +20,10 @@ extends Node3D
 ##   audio      bus graph + AudioDirector (soundscape keyed off GameFlow)
 ##   vfx        VfxDirector: dust and falling leaves, frozen with their worlds
 ##   ui         Core HUD
+##   persistence  save/load; last, so a save restores onto the finished world
 ##
-## DEV RIG: TAB overload +20 · T entropy +20 · R entropy reset · N toggle dreamscape.
+## DEV RIG: TAB overload +20 · T entropy +20 · R entropy reset · N toggle dreamscape ·
+##          F9 wipe the save.
 
 const MODULES: Array[GDScript] = [
 	preload("res://src/bootstrap/modules/core_module.gd"),
@@ -32,6 +34,7 @@ const MODULES: Array[GDScript] = [
 	preload("res://src/bootstrap/modules/audio_module.gd"),
 	preload("res://src/bootstrap/modules/vfx_module.gd"),
 	preload("res://src/bootstrap/modules/ui_module.gd"),
+	preload("res://src/bootstrap/modules/persistence_module.gd"),
 ]
 
 ## Dev rig injection amounts.
@@ -73,6 +76,9 @@ func _handle_dev_keys() -> void:
 		data.entropy_changed.emit(data.entropy)
 	if Input.is_action_just_pressed(InputActionData.ACTION_DEV_RESET_ENTROPY):
 		ctx.entropy_data.reset()
+	if Input.is_action_just_pressed(InputActionData.ACTION_DEV_WIPE_SAVE):
+		ctx.persistence.wipe()
+		print("Save wiped: the next launch starts fresh.")
 
 
 ## Live vignette drive: edge proximity from the room footprint (same math as

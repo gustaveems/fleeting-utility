@@ -64,6 +64,12 @@ func try_interact() -> bool:
 	return true
 
 
+## Spend a one-shot without running it (restoring a save).
+func mark_used() -> void:
+	_used = true
+	refresh_prompt()
+
+
 ## Override: is the interaction available right now?
 func can_interact() -> bool:
 	return true

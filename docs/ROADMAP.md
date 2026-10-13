@@ -193,3 +193,11 @@ Decisions (2026-10-12):
 - **Clinical:** SSR on, plus a wet low-roughness floor; restored to matte after the reset.
 - **Dream framing:** pitch −12°, FOV 55, ×1.4 distance, so the 15 m statues fit whole. The fixed iso tilt made that geometrically impossible before.
 - `run_all`: 14/14 green (new: probe_post_fx 11, probe_vfx 19).
+
+## Status after Ticket-12 (2026-10-14)
+- **Persistence:** checkpoint saves (WORKSPACE/RANSACKED/SCARRED + on quit) as versioned JSON, written atomically (tmp file, then rename). Malformed saves are set aside to `.bad`; newer versions are refused. Either way the game boots fresh.
+- **Restore APIs** apply scars without replaying beats. Seeded ransack debris and decals reload identically.
+- **SettingsStore** (ConfigFile) is ready for T13.
+- **Dev key:** F9 wipes the save.
+- **Harness:** isolated save path plus `reboot()`. `probe_persistence`: 30/30. `run_all`: 15/15.
+- Decision pending T13: auto-continue on boot vs a Continue/New Game menu (auto-continue for now).

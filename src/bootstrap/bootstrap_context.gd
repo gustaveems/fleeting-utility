@@ -68,5 +68,8 @@ var game_flow: GameFlow
 var audio_director: AudioDirector
 var vfx_director: VfxDirector
 
+## --- persistence -----------------------------------------------------------------------
+var persistence: Persistence
+
 ## --- ui ------------------------------------------------------------------------------
 var core_hud: CoreHud

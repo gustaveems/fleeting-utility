@@ -29,7 +29,8 @@ signal hesitation_rumble
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
-var _hesitated_in_this_cycle: bool = false
+## True once this cycle's hesitation has played (saved by Persistence).
+var has_hesitated: bool = false
 
 ## Camera shake in effect before the hesitation (e.g. the post-climax tremor), restored
 ## afterwards rather than zeroed.
@@ -42,7 +43,7 @@ func _ready() -> void:
 
 
 func _on_door_body_entered(body: Node3D) -> void:
-	if _hesitated_in_this_cycle:
+	if has_hesitated:
 		return
 	if body != player:
 		return
@@ -52,7 +53,7 @@ func _on_door_body_entered(body: Node3D) -> void:
 
 
 func initiate_hesitation() -> void:
-	_hesitated_in_this_cycle = true
+	has_hesitated = true
 
 	if player != null:
 		player.lock_input(&"hesitation")

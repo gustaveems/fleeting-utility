@@ -45,6 +45,13 @@ func is_realized() -> bool:
 	return _realized
 
 
+## Restore without replaying the beat (no signal, no line on screen).
+func mark_realized() -> void:
+	_realized = true
+	if _proximity_area != null:
+		_proximity_area.mark_used()
+
+
 func _on_realized() -> void:
 	_realized = true
 	betrayal_realized.emit()

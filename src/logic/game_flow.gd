@@ -74,6 +74,14 @@ func snapshot() -> Dictionary:
 	return {"phase": phase_name(), "loops_completed": loops_completed}
 
 
+## Restore a saved checkpoint: set the phase (announced once, so audio/VFX follow) and
+## the loop count.
+func restore(saved_phase: Phase, loops: int) -> void:
+	loops_completed = loops
+	_phase_before_dream = saved_phase
+	_enter_phase(saved_phase)
+
+
 func _on_transition_completed(now_in_dreamscape: bool) -> void:
 	if now_in_dreamscape:
 		if phase != Phase.DREAMSCAPE:

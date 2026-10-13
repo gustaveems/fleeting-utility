@@ -37,6 +37,9 @@ const ACTION_DEV_RESET_ENTROPY := "dev_reset_entropy"
 const ACTION_INTERACT := "interact"
 const ACTION_DEV_DREAMSCAPE := "dev_dreamscape"
 
+## Ticket-12: delete the save so the next launch starts fresh.
+const ACTION_DEV_WIPE_SAVE := "dev_wipe_save"
+
 
 ## physical_keycode so the binding follows the key's position on the keyboard, not the
 ## layout — W/A/S/D stay W/A/S/D on AZERTY.
@@ -51,6 +54,7 @@ static func _bindings() -> Dictionary:
 		ACTION_DEV_RESET_ENTROPY: [KEY_R],
 		ACTION_INTERACT: [KEY_E],
 		ACTION_DEV_DREAMSCAPE: [KEY_N],
+		ACTION_DEV_WIPE_SAVE: [KEY_F9],
 	}
 
 

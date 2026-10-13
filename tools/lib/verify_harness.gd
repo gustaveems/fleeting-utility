@@ -24,17 +24,41 @@ const SETTLE_SECONDS := 0.5
 ## Watchdog: a test awaiting a signal that never fires would otherwise hang run_all.
 const TIMEOUT_SECONDS := 120.0
 
+## Tests never touch the player's real save: every run gets its own, wiped first.
+const TEST_SAVE_PATH := "user://verify_save.json"
+
 var ws: Node
 var passed := 0
 var failed := 0
 
 
 func _initialize() -> void:
+	Persistence.save_path = TEST_SAVE_PATH
+	wipe_test_save()
 	var scene: PackedScene = load(MAIN_SCENE)
 	ws = scene.instantiate()
 	root.add_child(ws)
 	create_timer(TIMEOUT_SECONDS).timeout.connect(_on_watchdog)
 	_drive()
+
+
+func wipe_test_save() -> void:
+	for suffix in ["", ".tmp", ".bad"]:
+		var path := ProjectSettings.globalize_path(TEST_SAVE_PATH + suffix)
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(path)
+
+
+## Quit-and-relaunch inside one test: free the whole game and boot it again (which
+## auto-loads the save, if there is one).
+func reboot() -> void:
+	ws.queue_free()
+	await process_frame
+	await process_frame
+	var scene: PackedScene = load(MAIN_SCENE)
+	ws = scene.instantiate()
+	root.add_child(ws)
+	await create_timer(SETTLE_SECONDS).timeout
 
 
 func _drive() -> void:

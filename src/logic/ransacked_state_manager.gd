@@ -61,7 +61,11 @@ signal betrayal_realized(text: String)
 ## determine whether the door should trigger the psychological break.
 var is_ransacked: bool = false
 
+## Seed for the debris layout, saved by Persistence so a reload rebuilds the same wreck.
+var ransack_seed: int = 0
+
 var _luxury_shoes: LuxuryShoes = null
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -70,12 +74,37 @@ func _ready() -> void:
 
 
 func _on_return_from_walk() -> void:
+	apply_ransack()
+
+
+## Wreck the apartment. `seed_value` 0 = fresh random wreck; Persistence passes the
+## saved seed to rebuild the same one, with `announce` false so the restore doesn't
+## replay the narrative beat (GameFlow is restored separately).
+func apply_ransack(seed_value: int = 0, announce: bool = true) -> void:
+	if is_ransacked:
+		return
+	if seed_value == 0:
+		_rng.randomize()
+		seed_value = _rng.randi() | 1
+	ransack_seed = seed_value
+	_rng.seed = seed_value
 	_destroy_bench_and_grid()
 	_spawn_debris()
 	_apply_broken_atmosphere()
 	_place_luxury_shoes()
 	is_ransacked = true
-	ransacked_applied.emit()
+	if announce:
+		ransacked_applied.emit()
+
+
+func is_betrayal_realized() -> bool:
+	return _luxury_shoes != null and _luxury_shoes.is_realized()
+
+
+## Restore: the player already looked at the shoes in a previous session.
+func restore_betrayal_realized() -> void:
+	if _luxury_shoes != null:
+		_luxury_shoes.mark_realized()
 
 
 ## ----- DESTRUCTION -------------------------------------------------------------------
@@ -94,47 +123,49 @@ func _destroy_bench_and_grid() -> void:
 func _spawn_debris() -> void:
 	if apartment_root == null:
 		return
-	var count := randi_range(debris_count_min, debris_count_max)
+	var count := _rng.randi_range(debris_count_min, debris_count_max)
 	for i in count:
 		var debris := _make_debris_piece()
+		debris.name = "Debris_%d" % i
 		debris.position = Vector3(
-			randf_range(-debris_scatter_bounds.x, debris_scatter_bounds.x),
+			_rng.randf_range(-debris_scatter_bounds.x, debris_scatter_bounds.x),
 			0.05,
-			randf_range(-debris_scatter_bounds.y, debris_scatter_bounds.y)
+			_rng.randf_range(-debris_scatter_bounds.y, debris_scatter_bounds.y)
 		)
 		debris.rotation_degrees = Vector3(
-			randf_range(0.0, 360.0), randf_range(0.0, 360.0), randf_range(0.0, 360.0)
+			_rng.randf_range(0.0, 360.0), _rng.randf_range(0.0, 360.0), _rng.randf_range(0.0, 360.0)
 		)
 		apartment_root.add_child(debris)
 
 
 func _make_debris_piece() -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
-	mi.name = "Debris"
 	# Random primitive: box, sphere, or cylinder.
-	var roll := randi() % 3
+	var roll := _rng.randi() % 3
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = Color(
-		randf_range(0.25, 0.45), randf_range(0.22, 0.38), randf_range(0.18, 0.32)
+		_rng.randf_range(0.25, 0.45), _rng.randf_range(0.22, 0.38), _rng.randf_range(0.18, 0.32)
 	)
 	mat.roughness = 0.95
 	match roll:
 		0:
 			var box := BoxMesh.new()
 			box.size = Vector3(
-				randf_range(0.08, 0.25), randf_range(0.04, 0.12), randf_range(0.08, 0.25)
+				_rng.randf_range(0.08, 0.25),
+				_rng.randf_range(0.04, 0.12),
+				_rng.randf_range(0.08, 0.25)
 			)
 			mi.mesh = box
 		1:
 			var sphere := SphereMesh.new()
-			sphere.radius = randf_range(0.04, 0.10)
+			sphere.radius = _rng.randf_range(0.04, 0.10)
 			sphere.height = sphere.radius * 2.0
 			mi.mesh = sphere
 		_:
 			var cyl := CylinderMesh.new()
-			cyl.top_radius = randf_range(0.03, 0.08)
+			cyl.top_radius = _rng.randf_range(0.03, 0.08)
 			cyl.bottom_radius = cyl.top_radius
-			cyl.height = randf_range(0.06, 0.18)
+			cyl.height = _rng.randf_range(0.06, 0.18)
 			mi.mesh = cyl
 	mi.material_override = mat
 	return mi

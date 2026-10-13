@@ -115,6 +115,25 @@ func _on_forced_return() -> void:
 	_timer.start()
 
 
+## Restore a saved SCARRED state without replaying the climax or the reset beat. The
+## saved entropy growth rate already carries the multiplier, so it is not re-applied.
+func restore_scarred() -> void:
+	_loop_armed = true
+	if state_machine != null:
+		state_machine.latch_climax()
+	if interaction_controller != null:
+		interaction_controller.lock(CLIMAX_LOCK)
+	if apartment_root != null:
+		apartment_root.suppress(crafting_bench)
+		apartment_root.suppress(spatial_grid)
+	if atmosphere_controller != null:
+		atmosphere_controller.set_subdued_mode(true)
+	if screen_effects != null:
+		screen_effects.lucid_cap = post_climax_lucid_cap
+	if camera != null:
+		camera.withdrawal_shake = post_climax_shake
+
+
 func _apply_post_climax_state() -> void:
 	# Latch first: the meter pin below satisfies the collapse condition.
 	if state_machine != null:

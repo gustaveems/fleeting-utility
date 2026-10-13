@@ -61,14 +61,22 @@ static var _crack_texture: NoiseTexture2D
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
+## Seed for decal placement, saved by Persistence so reloads look the same.
+var layout_seed: int = 0
+
 var _pool: Array[Decal] = []
 var _batch_placements: Array[Array] = []
 var _batch_active: Array[bool] = [false, false, false]
+
+var _rng := RandomNumberGenerator.new()
 
 ## ----- LIFECYCLE ---------------------------------------------------------------------
 
 
 func _ready() -> void:
+	_rng.randomize()
+	layout_seed = _rng.randi() | 1
+	_rng.seed = layout_seed
 	_init_textures()
 	_init_placements()
 	_init_pool()
@@ -256,7 +264,7 @@ func _sync_batch(batch_index: int, entropy: float, threshold: float) -> void:
 	_batch_active[batch_index] = should_be_active
 
 	var shuffled: Array = (_batch_placements[batch_index] as Array).duplicate()
-	shuffled.shuffle()
+	_shuffle(shuffled)
 	for i in range(batch_size):
 		var decal_index := batch_index * batch_size + i
 		if decal_index >= _pool.size():
@@ -277,6 +285,26 @@ func _place(decal: Decal, pos: Vector3, normal: Vector3) -> void:
 	var ref := Vector3.UP if absf(y.dot(Vector3.UP)) < 0.99 else Vector3.BACK
 	var x := ref.cross(y).normalized()
 	var z := x.cross(y).normalized()
-	var basis := Basis(x, y, z).rotated(y, randf_range(-0.3, 0.3))
+	var basis := Basis(x, y, z).rotated(y, _rng.randf_range(-0.3, 0.3))
 	decal.global_transform = Transform3D(basis, pos)
-	decal.size = Vector3(randf_range(0.8, 1.4), PROJECTION_DEPTH, randf_range(1.0, 2.2))
+	decal.size = Vector3(_rng.randf_range(0.8, 1.4), PROJECTION_DEPTH, _rng.randf_range(1.0, 2.2))
+
+
+## Re-place every active batch from `seed_value` (restoring a save).
+func relayout(seed_value: int) -> void:
+	layout_seed = seed_value
+	_rng.seed = seed_value
+	_batch_active = [false, false, false]
+	for d in _pool:
+		d.visible = false
+	if entropy_data != null:
+		_on_entropy_changed(entropy_data.entropy)
+
+
+## Fisher-Yates with the seeded RNG (Array.shuffle uses the global one).
+func _shuffle(arr: Array) -> void:
+	for i in range(arr.size() - 1, 0, -1):
+		var j := _rng.randi_range(0, i)
+		var tmp: Variant = arr[i]
+		arr[i] = arr[j]
+		arr[j] = tmp
