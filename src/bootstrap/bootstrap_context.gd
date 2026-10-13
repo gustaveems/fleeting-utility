@@ -74,4 +74,5 @@ var persistence: Persistence
 ## --- ui ------------------------------------------------------------------------------
 var core_hud: CoreHud
 var settings_applier: SettingsApplier
+var fader: ScreenFader
 var pause_menu: PauseMenu

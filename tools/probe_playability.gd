@@ -73,10 +73,26 @@ func _run() -> void:
 	await wait(0.3)
 	check("go-outside prompt at the threshold (got '%s')" % _prompt, _prompt == "[E] Go Outside")
 
-	section("the betrayal is seen through the window")
+	section("the walk is a blink, not a hard cut, and says where you are")
 	var park := node("CorporateParkManager") as CorporateParkManager
+	var fader := node("ScreenFader") as ScreenFader
+	var hud := node("CoreHud/HudUI") as HudUI
 	park.transition_to_park()
+	check("swap hidden under black", fader != null and fader.is_black())
+	check(
+		"arrival line (got '%s')" % hud.displayed_line(),
+		hud.displayed_line() == CorporateParkManager.ARRIVAL_TEXT
+	)
+	await wait(1.5)
+	check("fades back in", not fader.is_black())
 	park.transition_to_apartment()
+	check("return hidden under black", fader.is_black())
+	check(
+		"the wreck is explained (got '%s')" % hud.displayed_line(),
+		hud.displayed_line() == RansackedStateManager.RETURN_TEXT
+	)
+
+	section("the betrayal is seen through the window")
 	var shoes := node("Apartment/LuxuryShoes") as LuxuryShoes
 	check(
 		"shoes are OUTSIDE, past the window wall (z %.1f)" % shoes.global_position.z,

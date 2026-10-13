@@ -33,6 +33,9 @@ signal ransacked_applied
 ## Relayed from the runtime-spawned LuxuryShoes so listeners can wire at boot.
 signal betrayal_realized(text: String)
 
+## Shown as the player walks back in, so the wreck reads as a break-in, not a glitch.
+const RETURN_TEXT := "The door was open. Someone has been here."
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var corporate_park_manager: CorporateParkManager

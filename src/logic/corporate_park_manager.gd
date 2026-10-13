@@ -36,6 +36,9 @@ signal walk_started
 ## (Ransacked State) connects here.
 signal return_from_walk
 
+## Shown on arrival, so the player knows where they are.
+const ARRIVAL_TEXT := "The corporate park. Leased air, licensed trees."
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var world_environment: WorldEnvironment
@@ -44,6 +47,9 @@ signal return_from_walk
 @export var player: PlayerMovement
 @export var state_machine: PlayerStateMachine
 @export var interaction_controller: InteractionController
+
+## Blinks to black over each world swap (null = hard cut).
+@export var fader: ScreenFader
 
 ## --- TUNING --------------------------------------------------------------------------
 
@@ -104,6 +110,8 @@ func transition_to_park() -> void:
 	player.move_speed = park_move_speed
 	player.room_half_extents = park_room_extents
 
+	if fader != null:
+		fader.blink()
 	_swap_worlds(true)
 	_in_park = true
 	_auto_timer.start(park_duration)
@@ -120,6 +128,8 @@ func transition_to_apartment() -> void:
 	_lock_player(true)
 	_auto_timer.stop()
 
+	if fader != null:
+		fader.blink()
 	_swap_worlds(false)
 	_in_park = false
 

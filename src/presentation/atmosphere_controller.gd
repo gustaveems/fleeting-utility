@@ -127,8 +127,8 @@ const SUBDUED_VOLUMETRIC_DENSITY := 0.003
 ## is no longer a home or a clinic; it is a crime scene.
 
 const BROKEN_AMBIENT_COLOR := Color(0.28, 0.30, 0.35)
-const BROKEN_AMBIENT_ENERGY := 0.15
-const BROKEN_KEY_ENERGY := 0.6
+const BROKEN_AMBIENT_ENERGY := 0.24  # dark, but readable on a normal screen (playtest)
+const BROKEN_KEY_ENERGY := 0.8
 const BROKEN_KEY_COLOR := Color(0.55, 0.58, 0.65)
 const BROKEN_BACKGROUND_COLOR := Color(0.03, 0.03, 0.04)
 const BROKEN_FOG_DENSITY := 0.003
