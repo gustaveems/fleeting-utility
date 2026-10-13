@@ -46,7 +46,6 @@ var clutter_scene: PackedScene
 var player: PlayerMovement
 var camera: WorkspaceCamera
 var screen_effects: ScreenEffects
-var boundary: SoftBoundaryController
 
 ## --- dreamscape ----------------------------------------------------------------------
 var valley: DreamscapeEnvironment

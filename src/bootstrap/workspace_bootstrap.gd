@@ -13,7 +13,7 @@ extends Node3D
 ##   core       data, state machine, WorldEnvironment, packed item scenes, demo seed
 ##   apartment  the apartment WorldRoot: lights, blockout, clutter, decals, atmosphere,
 ##              bench, fidget object, door
-##   player     player, iso camera, screen effects, vignette
+##   player     player, iso camera, screen effects (incl. vignette)
 ##   valley     dreamscape world + manager + HUD, ambulance, statue narratives
 ##   narrative  interaction gate, endgame loop, self-soothing, park, ransack, visions,
 ##              hesitation
@@ -81,6 +81,6 @@ func _drive_edge_proximity() -> void:
 	# express. Without this guard the out-of-range cell reads as closeness 1.0 and the
 	# vignette closes in across the whole dreamscape.
 	if not ctx.grid.contains(cell):
-		ctx.boundary.set_edge_proximity(0.0)
+		ctx.screen_effects.set_edge_proximity(0.0)
 		return
-	ctx.boundary.set_edge_proximity(ctx.grid.edge_closeness(cell))
+	ctx.screen_effects.set_edge_proximity(ctx.grid.edge_closeness(cell))

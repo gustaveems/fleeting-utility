@@ -1,5 +1,6 @@
 extends BootstrapModule
-## The player body, the fixed iso camera, screen-space post effects and the vignette.
+## The player body, the fixed iso camera and the screen-space post pass (which also
+## draws the soft-boundary vignette).
 ## These persist across every world, so they live outside any WorldRoot.
 
 ## Tunneling safety clamp, inset past the wall faces. With free roam (2026-10-11 pivot)
@@ -17,9 +18,6 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.screen_effects = ScreenEffects.new()
 	ctx.screen_effects.name = "ScreenEffects"
 
-	ctx.boundary = SoftBoundaryController.new()
-	ctx.boundary.name = "SoftBoundaryController"
-
 
 func wire(ctx: BootstrapContext) -> void:
 	ctx.player.room_half_extents = Vector2(
@@ -36,7 +34,6 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.player)
 	ctx.root.add_child(ctx.camera)
 	ctx.root.add_child(ctx.screen_effects)
-	ctx.root.add_child(ctx.boundary)
 
 
 func post_attach(ctx: BootstrapContext) -> void:
