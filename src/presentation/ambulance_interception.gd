@@ -126,7 +126,7 @@ func initiate_interception() -> void:
 		screen_effects.set_intensity_override(1.0)
 
 	# 3. After the escalation window, the jolt and the forced return.
-	await get_tree().create_timer(escalation_seconds).timeout
+	await get_tree().create_timer(escalation_seconds, false).timeout
 	defibrillation_triggered.emit()
 	_stop_escalation()
 	if dreamscape_manager != null:

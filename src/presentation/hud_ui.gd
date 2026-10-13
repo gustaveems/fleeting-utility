@@ -23,6 +23,19 @@ extends Control
 ##   DreamscapeManager.transition_completed       → toggle dream state (hide meters,
 ##                                                  show "Fading Memory")
 ##
+## ACCESSIBILITY (Ticket-13)
+## -------------------------
+## Meters never rely on colour alone: each carries tick marks at its gameplay thresholds
+## (chemical: unmedicated 0.3, High-Focus 0.7; overload: crash 50, compulsion 80), plus
+## the percentage labels. set_meter_palette() swaps the fills:
+##   DEFAULT        green→yellow→red / blue→red
+##   COLORBLIND     Okabe-Ito, BANDED at the thresholds rather than blended (a blue to
+##                  vermillion blend goes muddy brown mid-way): chemical vermillion
+##                  (unmedicated) / yellow / blue (High-Focus); overload sky blue
+##                  below the crash, vermillion above. Distinct under deuteranopia,
+##                  protanopia and tritanopia.
+##   HIGH_CONTRAST  solid white fills on black with a white outline, larger labels
+##
 ## STYLING
 ## -------
 ##   ProgressBars use StyleBoxFlat with dynamic foreground colors:
@@ -57,6 +70,8 @@ var _flavor_tween: Tween
 
 ## Internal state: true when in the dreamscape (meters hidden, "Fading Memory" shown).
 var _in_dreamscape: bool = false
+
+var _palette: GameSettings.MeterPalette = GameSettings.MeterPalette.DEFAULT
 
 
 func _ready() -> void:
@@ -93,6 +108,7 @@ func _build_meter_cluster() -> void:
 	_chemical_bar.show_percentage = false
 	_style_bar(_chemical_bar, Color(0.35, 0.75, 0.35))
 	_meter_container.add_child(_chemical_bar)
+	_add_ticks(_chemical_bar, [0.3, 0.7])
 
 	_chemical_label = Label.new()
 	_chemical_label.name = "ChemicalLabel"
@@ -110,6 +126,7 @@ func _build_meter_cluster() -> void:
 	_overload_bar.show_percentage = false
 	_style_bar(_overload_bar, Color(0.3, 0.5, 0.85))
 	_meter_container.add_child(_overload_bar)
+	_add_ticks(_overload_bar, [0.5, 0.8])
 
 	_overload_label = Label.new()
 	_overload_label.name = "OverloadLabel"
@@ -219,9 +236,86 @@ func _update_meters(data: PlayerStateData) -> void:
 	_update_bar_colors(data.chemical_level, data.sensory_overload)
 
 
-## Chemical bar: green (1.0) → yellow (0.5) → red (0.0).
-## Overload bar: blue (0.0) → red (100.0).
+## Threshold marks, as fractions of the bar. Colour-independent meaning.
+func _add_ticks(bar: ProgressBar, fractions: Array) -> void:
+	for f in fractions:
+		var tick := ColorRect.new()
+		tick.name = "Tick_%d" % int(float(f) * 100.0)
+		tick.color = Color(1.0, 1.0, 1.0, 0.55)
+		tick.mouse_filter = MOUSE_FILTER_IGNORE
+		tick.anchor_left = float(f)
+		tick.anchor_right = float(f)
+		tick.anchor_top = 0.0
+		tick.anchor_bottom = 1.0
+		tick.offset_left = -1.0
+		tick.offset_right = 1.0
+		bar.add_child(tick)
+
+
+func set_meter_palette(palette: GameSettings.MeterPalette) -> void:
+	_palette = palette
+	var high_contrast := palette == GameSettings.MeterPalette.HIGH_CONTRAST
+	for bar in [_chemical_bar, _overload_bar]:
+		if bar == null:
+			continue
+		var bg := bar.get_theme_stylebox("background") as StyleBoxFlat
+		if bg != null:
+			bg.bg_color = Color.BLACK if high_contrast else Color(0.12, 0.12, 0.14, 0.7)
+			bg.set_border_width_all(2 if high_contrast else 0)
+			bg.border_color = Color.WHITE
+	for bar in [_chemical_bar, _overload_bar]:
+		for tick in bar.get_children():
+			if tick is ColorRect:
+				# Mid-grey reads on both a white fill and a black track.
+				(tick as ColorRect).color = (
+					Color(0.5, 0.5, 0.5) if high_contrast else Color(1.0, 1.0, 1.0, 0.55)
+				)
+	for label in [_chemical_label, _overload_label]:
+		if label == null:
+			continue
+		label.add_theme_font_size_override("font_size", 18 if high_contrast else 14)
+		label.add_theme_constant_override("outline_size", 4 if high_contrast else 0)
+		label.add_theme_color_override("font_outline_color", Color.BLACK)
+		label.add_theme_color_override(
+			"font_color", Color.WHITE if high_contrast else Color(0.9, 0.9, 0.9, 0.85)
+		)
+	if state_machine != null and state_machine.state_data != null:
+		_update_meters(state_machine.state_data)
+
+
+## The current fill colour of a meter (tests, tooling).
+func meter_fill_color(chemical: bool) -> Color:
+	var bar := _chemical_bar if chemical else _overload_bar
+	var fill := bar.get_theme_stylebox("fill") as StyleBoxFlat if bar != null else null
+	return fill.bg_color if fill != null else Color.TRANSPARENT
+
+
+## Fill colours per palette (see class doc).
 func _update_bar_colors(chemical: float, overload: float) -> void:
+	var overload_t := clampf(overload / 100.0, 0.0, 1.0)
+	match _palette:
+		GameSettings.MeterPalette.COLORBLIND:
+			var vermillion := Color(0.835, 0.369, 0.0)
+			var yellow := Color(0.941, 0.894, 0.259)
+			var blue := Color(0.0, 0.447, 0.698)
+			var chem := yellow
+			if chemical < 0.3:
+				chem = vermillion
+			elif chemical > 0.7:
+				chem = blue
+			_apply_fill_color(_chemical_bar, chem)
+			var crashed := overload_t >= 0.5
+			_apply_fill_color(_overload_bar, vermillion if crashed else Color(0.337, 0.706, 0.914))
+			return
+		GameSettings.MeterPalette.HIGH_CONTRAST:
+			_apply_fill_color(_chemical_bar, Color.WHITE)
+			_apply_fill_color(_overload_bar, Color.WHITE)
+			return
+	_update_default_colors(chemical, overload)
+
+
+## DEFAULT: chemical green (1.0) → yellow (0.5) → red (0.0); overload blue → red.
+func _update_default_colors(chemical: float, overload: float) -> void:
 	# Chemical: lerp red→yellow→green. At 1.0 = green, at 0.5 = yellow, at 0.0 = red.
 	var chem_color: Color
 	if chemical >= 0.5:

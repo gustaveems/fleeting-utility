@@ -71,7 +71,7 @@ func start_visions() -> void:
 		_set_root_visible(apartment_root, not show_valley)
 		_set_root_visible(valley_root, show_valley)
 		valley_phase_active.emit(show_valley)
-		await get_tree().create_timer(dur).timeout
+		await get_tree().create_timer(dur, false).timeout
 
 	# Leave in the apartment, valley hidden.
 	is_valley_phase = false

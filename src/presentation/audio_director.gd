@@ -422,17 +422,17 @@ func _duck_ambience(duck: bool, seconds: float = FADE_SECONDS) -> void:
 	var bus := AudioBuses.index(AudioBuses.AMBIENCE)
 	if bus == -1:
 		return
+	var amp := AudioServer.get_bus_effect(bus, AudioBuses.AMBIENCE_DUCK) as AudioEffectAmplify
+	if amp == null:
+		return
 	_kill(_duck_tween)
 	_ducked = duck
-	var from := AudioServer.get_bus_volume_db(bus)
 	var to := DUCK_DB if duck else 0.0
 	if seconds <= 0.0:
-		AudioServer.set_bus_volume_db(bus, to)
+		amp.volume_db = to
 		return
 	_duck_tween = create_tween()
-	_duck_tween.tween_method(
-		func(v: float): AudioServer.set_bus_volume_db(bus, v), from, to, seconds
-	)
+	_duck_tween.tween_property(amp, "volume_db", to, seconds)
 
 
 func _on_transition_completed(now_in_dreamscape: bool) -> void:

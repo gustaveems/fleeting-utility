@@ -201,3 +201,15 @@ Decisions (2026-10-12):
 - **Dev key:** F9 wipes the save.
 - **Harness:** isolated save path plus `reboot()`. `probe_persistence`: 30/30. `run_all`: 15/15.
 - Decision pending T13: auto-continue on boot vs a Continue/New Game menu (auto-continue for now).
+
+## Status after Ticket-13 (2026-10-14)
+- **Boot:** `scenes/boot.tscn` is the main scene. A splash hides the sound synthesis, then the menu: Continue, New Game (confirms before erasing), Settings, Quit. Fully keyboard-navigable with a visible focus ring.
+- **Pause:** Esc pauses the game: Resume, Settings, Quit to Menu, Quit. Quitting saves at a checkpoint. Pause-aware timers mean pausing truly freezes the dream, visions and ambulance.
+- **Settings** (persisted, applied live from either menu):
+  - volumes: Master, Ambience, Effects, Interface
+  - screen motion and distortion (the T11 accessibility scales)
+  - meter colours: Default, Colour-blind (Okabe-Ito, banded at the thresholds), High contrast
+  - fullscreen
+- **HUD:** threshold tick marks on both meters, so they read without colour.
+- **Audio:** the ambience duck moved to an Amplify effect, so it never fights the player's volume setting.
+- `probe_menu`: 25/25. `run_all`: 16/16.

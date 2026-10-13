@@ -32,3 +32,8 @@ func _ready() -> void:
 func show_line(text: String) -> void:
 	if _ui != null:
 		_ui.show_line(text)
+
+
+func set_meter_palette(palette: GameSettings.MeterPalette) -> void:
+	if _ui != null:
+		_ui.set_meter_palette(palette)

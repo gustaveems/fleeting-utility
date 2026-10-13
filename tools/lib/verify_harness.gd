@@ -26,6 +26,7 @@ const TIMEOUT_SECONDS := 120.0
 
 ## Tests never touch the player's real save: every run gets its own, wiped first.
 const TEST_SAVE_PATH := "user://verify_save.json"
+const TEST_SETTINGS_PATH := "user://verify_settings.cfg"
 
 var ws: Node
 var passed := 0
@@ -35,18 +36,25 @@ var failed := 0
 func _initialize() -> void:
 	Persistence.save_path = TEST_SAVE_PATH
 	wipe_test_save()
-	var scene: PackedScene = load(MAIN_SCENE)
+	SettingsStore.path = TEST_SETTINGS_PATH
+	_remove(TEST_SETTINGS_PATH)
+	GameSettings.reset_current()
+	var scene: PackedScene = load(_scene_path())
 	ws = scene.instantiate()
 	root.add_child(ws)
+	current_scene = ws  # so change_scene_to_* works (menus, quit to menu)
 	create_timer(TIMEOUT_SECONDS).timeout.connect(_on_watchdog)
 	_drive()
 
 
 func wipe_test_save() -> void:
 	for suffix in ["", ".tmp", ".bad"]:
-		var path := ProjectSettings.globalize_path(TEST_SAVE_PATH + suffix)
-		if FileAccess.file_exists(path):
-			DirAccess.remove_absolute(path)
+		_remove(TEST_SAVE_PATH + suffix)
+
+
+func _remove(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 
 ## Quit-and-relaunch inside one test: free the whole game and boot it again (which
@@ -55,9 +63,10 @@ func reboot() -> void:
 	ws.queue_free()
 	await process_frame
 	await process_frame
-	var scene: PackedScene = load(MAIN_SCENE)
+	var scene: PackedScene = load(_scene_path())
 	ws = scene.instantiate()
 	root.add_child(ws)
+	current_scene = ws
 	await create_timer(SETTLE_SECONDS).timeout
 
 
@@ -84,6 +93,11 @@ func _on_watchdog() -> void:
 ## Override: the test body. May await.
 func _run() -> void:
 	pass
+
+
+## Override: the scene to boot (default: the game itself, skipping the menu).
+func _scene_path() -> String:
+	return MAIN_SCENE
 
 
 ## Override: the summary-line label.

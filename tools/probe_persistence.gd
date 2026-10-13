@@ -130,7 +130,6 @@ func _test_bad_saves() -> void:
 # ------------------------------------------------------------------ settings
 func _test_settings() -> void:
 	section("settings store")
-	SettingsStore.path = "user://verify_settings.cfg"
 	var s := SettingsStore.new()
 	s.set_value(&"audio", &"master_db", -6.0)
 	check("settings save", s.save() == OK)
@@ -138,7 +137,6 @@ func _test_settings() -> void:
 	check("settings reload", t.load() == OK)
 	check("value round-trips", is_equal_approx(t.get_value(&"audio", &"master_db", 0.0), -6.0))
 	check("default for unknown key", t.get_value(&"audio", &"missing", 3.0) == 3.0)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(SettingsStore.path))
 
 
 # ------------------------------------------------------------------ helpers

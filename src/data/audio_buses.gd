@@ -11,7 +11,8 @@ extends RefCounted
 ## World carries everything diegetic and holds the CRASH effects: a low-pass (index 0)
 ## and a distortion (index 1), both driven by AudioDirector from sensory overload. UI
 ## and Music bypass them, so menus and prompts stay clean while the world smears.
-## T13's volume sliders map 1:1 onto these bus names.
+## Bus VOLUMES belong to the player (GameSettings, T13). Game-driven level changes use
+## effects (crash low-pass/overdrive on World, the dream duck on Ambience).
 
 const MASTER := &"Master"
 const WORLD := &"World"
@@ -22,6 +23,11 @@ const UI := &"UI"
 
 const WORLD_LOWPASS := 0
 const WORLD_DISTORTION := 1
+
+## Ambience effect index 0: an Amplify that AudioDirector ducks during dream fades.
+## Ducking lives in an effect, not the bus volume, because the bus volume is the
+## player's setting (T13).
+const AMBIENCE_DUCK := 0
 
 ## Low-pass cutoff with no crash: above hearing, i.e. transparent.
 const OPEN_CUTOFF_HZ := 20000.0
@@ -44,6 +50,9 @@ static func register() -> void:
 		distortion.drive = 0.0
 		AudioServer.add_bus_effect(world, distortion, WORLD_DISTORTION)
 		AudioServer.set_bus_effect_enabled(world, WORLD_DISTORTION, false)
+	var ambience := AudioServer.get_bus_index(AMBIENCE)
+	if AudioServer.get_bus_effect_count(ambience) == 0:
+		AudioServer.add_bus_effect(ambience, AudioEffectAmplify.new(), AMBIENCE_DUCK)
 
 
 static func index(bus: StringName) -> int:

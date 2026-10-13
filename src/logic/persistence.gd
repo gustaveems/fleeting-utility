@@ -71,11 +71,16 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST and auto_save and _at_checkpoint():
-		save_game()
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_if_at_checkpoint()
 
 
 ## ----- PUBLIC API ---------------------------------------------------------------------
+
+
+## Save only if at a checkpoint (quit paths). Returns true if a save was written.
+func save_if_at_checkpoint() -> bool:
+	return auto_save and _at_checkpoint() and save_game()
 
 
 func has_save() -> bool:
@@ -83,8 +88,18 @@ func has_save() -> bool:
 
 
 func wipe() -> void:
-	if has_save():
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
+	delete_save()
+
+
+## Delete the save without a running game (the main menu's New Game).
+static func delete_save() -> void:
+	for suffix in ["", ".tmp"]:
+		if FileAccess.file_exists(save_path + suffix):
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path + suffix))
+
+
+static func save_exists() -> bool:
+	return FileAccess.file_exists(save_path)
 
 
 func save_game() -> bool:

@@ -19,7 +19,8 @@ extends Node3D
 ##              hesitation
 ##   audio      bus graph + AudioDirector (soundscape keyed off GameFlow)
 ##   vfx        VfxDirector: dust and falling leaves, frozen with their worlds
-##   ui         Core HUD
+##   ui         Core HUD + pause menu
+##   settings   applies the player's GameSettings (volumes, accessibility, palette)
 ##   persistence  save/load; last, so a save restores onto the finished world
 ##
 ## DEV RIG: TAB overload +20 · T entropy +20 · R entropy reset · N toggle dreamscape ·
@@ -34,6 +35,7 @@ const MODULES: Array[GDScript] = [
 	preload("res://src/bootstrap/modules/audio_module.gd"),
 	preload("res://src/bootstrap/modules/vfx_module.gd"),
 	preload("res://src/bootstrap/modules/ui_module.gd"),
+	preload("res://src/bootstrap/modules/settings_module.gd"),
 	preload("res://src/bootstrap/modules/persistence_module.gd"),
 ]
 

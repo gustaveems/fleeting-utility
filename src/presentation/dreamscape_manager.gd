@@ -363,4 +363,4 @@ func _fade_to(alpha: float, seconds: float) -> void:
 
 
 func _hold() -> void:
-	await get_tree().create_timer(fade_hold_seconds).timeout
+	await get_tree().create_timer(fade_hold_seconds, false).timeout

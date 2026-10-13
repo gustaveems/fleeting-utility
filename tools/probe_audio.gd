@@ -96,7 +96,12 @@ func _run() -> void:
 	check("room tone back", _audio.bed_audible(SoundBank.ROOM_TONE))
 	check("valley paused again", not _audio.bed_audible(SoundBank.VALLEY_AIR))
 	var ambience := AudioBuses.index(AudioBuses.AMBIENCE)
-	check("ambience un-ducked", AudioServer.get_bus_volume_db(ambience) > -1.0)
+	var duck := AudioServer.get_bus_effect(ambience, AudioBuses.AMBIENCE_DUCK) as AudioEffectAmplify
+	check("ambience un-ducked", duck.volume_db > -1.0)
+	check(
+		"player's bus volume untouched by the duck",
+		is_zero_approx(AudioServer.get_bus_volume_db(ambience))
+	)
 
 	section("walk and ransack")
 	park.transition_to_park()

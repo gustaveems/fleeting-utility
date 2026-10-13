@@ -1,5 +1,6 @@
 extends BootstrapModule
 ## The Core HUD (Ticket-07): meters, interaction prompt, dream state, loop flavor text.
+## And the Esc pause menu (Ticket-13).
 ## Its references are all assigned in wire(), before CoreHud._ready forwards them to
 ## HudUI, so the prompt and flavor-text signals connect.
 
@@ -7,6 +8,8 @@ extends BootstrapModule
 func create(ctx: BootstrapContext) -> void:
 	ctx.core_hud = CoreHud.new()
 	ctx.core_hud.name = "CoreHud"
+	ctx.pause_menu = PauseMenu.new()
+	ctx.pause_menu.name = "PauseMenu"
 
 
 func wire(ctx: BootstrapContext) -> void:
@@ -14,12 +17,14 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.core_hud.interaction_controller = ctx.interaction
 	ctx.core_hud.dreamscape_manager = ctx.dreamscape_manager
 	ctx.core_hud.endgame_loop_manager = ctx.endgame
+	ctx.pause_menu.persistence = ctx.persistence
 	# Narrative lines that must reach the player's eyes, not just stdout.
 	ctx.ransacked.betrayal_realized.connect(ctx.core_hud.show_line)
 
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.core_hud)
+	ctx.root.add_child(ctx.pause_menu)
 
 
 ## Statue narratives exist only after the valley module's post_attach (module order:
