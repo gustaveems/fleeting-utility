@@ -39,6 +39,8 @@ extends Node
 signal compulsion_started
 signal compulsion_ended
 
+const SOOTHE_PROMPT := "[E] Soothe — tap or hold"
+
 ## --- REFERENCES ----------------------------------------------------------------------
 
 @export var state_machine: PlayerStateMachine
@@ -67,6 +69,9 @@ signal compulsion_ended
 
 ## Seconds of no E input before overload starts spiking.
 @export var spike_delay: float = 1.5
+
+## Calm granted after soothing a compulsion out: the window to act (walk, medicate).
+@export var relief_seconds: float = 12.0
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
@@ -100,6 +105,8 @@ func _process(delta: float) -> void:
 		# In compulsion: handle input and check exit.
 		_handle_compulsion_input(delta, data)
 		if data.sensory_overload < recovery_threshold:
+			# Soothed out: earn a window of calm before withdrawal can bite again.
+			data.grant_relief(relief_seconds)
 			_exit_compulsion()
 
 
@@ -123,6 +130,8 @@ func _enter_compulsion() -> void:
 	# Repoint camera at the trivial object.
 	_previous_camera_target = camera.target_node
 	camera.set_target(trivial_object)
+	if interaction_controller != null:
+		interaction_controller.set_target(SOOTHE_PROMPT)
 
 	compulsion_started.emit()
 
@@ -141,6 +150,7 @@ func _exit_compulsion() -> void:
 		player.unlock_input(&"compulsion")
 	if interaction_controller != null:
 		interaction_controller.unlock(&"compulsion")
+		interaction_controller.clear_target(SOOTHE_PROMPT)
 
 	# Restore camera target.
 	if camera != null and _previous_camera_target != null:

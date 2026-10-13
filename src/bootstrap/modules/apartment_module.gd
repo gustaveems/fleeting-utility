@@ -21,7 +21,13 @@ const LAMP_RANGE := 3.5
 const TRIVIAL_OBJECT_POSITION := Vector3(1.5, 0.0, 1.0)  # near player start
 const DOOR_POSITION := Vector3(0.0, 0.0, -3.5)  # north edge of the room
 
+## Compounds seeded on the worktop: two doses. Finite on purpose (gentrification).
+const SEED_COMPOUND_CELLS: Array[Vector2i] = [
+	Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)
+]
+
 var _blockout: WorkspaceBlockout
+var _station: BenchStation
 
 
 func create(ctx: BootstrapContext) -> void:
@@ -71,6 +77,9 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.bench.name = "CraftingBench"
 	ctx.bench.recipe_database = RecipeDatabase.new()
 
+	_station = BenchStation.new()
+	_station.name = "BenchStation"
+
 	ctx.trivial_object = TrivialObject.new()
 	ctx.trivial_object.name = "TrivialObject"
 	ctx.trivial_object.position = TRIVIAL_OBJECT_POSITION
@@ -97,6 +106,11 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.bench.chemical_manager = ctx.state_data
 	ctx.bench.result_item_scene = ctx.pill_scene
 	ctx.bench.interaction_controller = ctx.interaction
+	_station.bench = ctx.bench
+	_station.spatial_grid = ctx.spatial_grid
+	_station.state_data = ctx.state_data
+	_station.player = ctx.player
+	_station.interaction_controller = ctx.interaction
 
 	ctx.trivial_object.state_machine = ctx.state_machine
 
@@ -117,12 +131,16 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.apartment.add_child(ctx.bench_area)
 	ctx.bench_area.add_child(ctx.spatial_grid)
 	ctx.bench_area.add_child(ctx.bench)
+	ctx.bench.add_child(_station)
 	ctx.apartment.add_child(ctx.trivial_object)
 	ctx.apartment.add_child(ctx.door)
 
 
 func post_attach(ctx: BootstrapContext) -> void:
-	# Seed two raw compounds so a craft can be tested immediately. The result (an amber
-	# pill cube) lands in the first free cell on completion.
-	ctx.spatial_grid.place_item(ctx.raw_compound_scene, Vector2i(0, 0))
-	ctx.spatial_grid.place_item(ctx.raw_compound_scene, Vector2i(1, 0))
+	# The bench's visible block belongs to the bench: suppressing the bench (ransack,
+	# scarred reset) must take its look with it. It used to stay standing.
+	if _blockout.bench_placeholder != null:
+		_blockout.bench_placeholder.reparent(ctx.bench)
+	# The stash: raw compounds for two doses. Cook at the bench (E), take the pill (E).
+	for cell in SEED_COMPOUND_CELLS:
+		ctx.spatial_grid.place_item(ctx.raw_compound_scene, cell)

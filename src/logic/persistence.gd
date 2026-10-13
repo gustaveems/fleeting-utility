@@ -34,6 +34,8 @@ signal saved(path: String)
 signal loaded(phase_name: String)
 
 const VERSION := 1
+## Calm granted when resuming a withdrawn save.
+const WAKE_RELIEF_SECONDS := 12.0
 const CHECKPOINTS: Array[GameFlow.Phase] = [
 	GameFlow.Phase.WORKSPACE, GameFlow.Phase.RANSACKED, GameFlow.Phase.SCARRED
 ]
@@ -191,6 +193,7 @@ func apply(data: Dictionary) -> void:
 	if state_machine != null and state_machine.state_data != null:
 		state_machine.state_data.chemical_level = float(meters.get("chemical", 0.5))
 		state_machine.state_data.sensory_overload = float(meters.get("overload", 0.0))
+		_wake_calm(state_machine.state_data)
 	var entropy: Dictionary = data.get("entropy", {})
 	if entropy_data != null and not entropy.is_empty():
 		entropy_data.entropy = float(entropy.get("value", entropy_data.entropy))
@@ -223,6 +226,15 @@ func apply(data: Dictionary) -> void:
 
 
 ## ----- INTERNALS -------------------------------------------------------------------------
+
+
+## A save made mid-withdrawal would otherwise resume straight into a compulsion or a
+## collapse dream (playtest 2026-10-14). Resume below the crash, in a relief window.
+func _wake_calm(data: PlayerStateData) -> void:
+	if data.sensory_overload >= data.crash_overload_threshold:
+		data.sensory_overload = data.crash_overload_threshold - 5.0
+	if data.chemical_level <= 0.0:
+		data.grant_relief(WAKE_RELIEF_SECONDS)
 
 
 func _on_phase_changed(_from: GameFlow.Phase, _to: GameFlow.Phase) -> void:

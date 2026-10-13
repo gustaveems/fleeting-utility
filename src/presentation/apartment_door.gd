@@ -44,6 +44,13 @@ func can_interact() -> bool:
 	return corporate_park_manager == null or not corporate_park_manager.walk_taken
 
 
+func blocked_prompt() -> String:
+	# After the betrayal, standing here is the hesitation: no words.
+	if corporate_park_manager != null and corporate_park_manager.walk_taken:
+		return ""
+	return "Not yet. The room isn't unbearable enough."
+
+
 func _on_interacted() -> void:
 	initiate_walk.emit()
 	if corporate_park_manager != null:

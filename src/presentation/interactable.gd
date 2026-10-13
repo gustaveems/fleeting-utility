@@ -43,7 +43,12 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if is_player_near and Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
+	if not is_player_near:
+		return
+	# Availability can change while standing here (a craft finishing, entropy rising).
+	# set_target de-duplicates, so this is cheap.
+	refresh_prompt()
+	if Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
 		try_interact()
 
 
@@ -70,7 +75,8 @@ func mark_used() -> void:
 	refresh_prompt()
 
 
-## Override: is the interaction available right now?
+## Override: is the interaction available right now? (No E press when false; the
+## blocked_prompt() explains instead.)
 func can_interact() -> bool:
 	return true
 
@@ -84,7 +90,13 @@ func _on_interacted() -> void:
 func current_prompt() -> String:
 	if one_shot and _used:
 		return ""
-	return prompt_text if can_interact() else ""
+	return prompt_text if can_interact() else blocked_prompt()
+
+
+## Override: what to show while standing here when E would do nothing ("" = nothing).
+## Silence reads as "broken" (playtest 2026-10-14), so say why when there is a reason.
+func blocked_prompt() -> String:
+	return ""
 
 
 ## Re-publish the prompt (call when can_interact() may have changed while near).

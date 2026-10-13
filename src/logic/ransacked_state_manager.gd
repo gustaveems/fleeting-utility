@@ -52,8 +52,8 @@ signal betrayal_realized(text: String)
 ## Room bounds for debris scatter (half-extents in XZ).
 @export var debris_scatter_bounds: Vector2 = Vector2(3.5, 2.8)
 
-## Position for the luxury shoes (near the window).
-@export var shoes_position: Vector3 = Vector3(2.0, 0.0, -2.5)
+## Where the friend in the luxury shoes stands: outside, beyond the window wall.
+@export var shoes_position: Vector3 = Vector3(2.2, 0.0, -5.5)
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 

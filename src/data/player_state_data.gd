@@ -56,8 +56,8 @@ var current_grid_position: Vector2i = Vector2i.ZERO
 var facing_direction: Vector2i = Vector2i(0, -1)  # NORTH by default
 
 ## 0..1 — how much of the focus-enhancing drug is in the system. 1.0 = fully medicated,
-## 0.0 = completely withdrawn. Depletes over time; replenished by taking the drug
-## (not yet implemented — Ticket-03 crafting bench or a consumable item).
+## 0.0 = completely withdrawn. Depletes over time; replenished by taking a pill cooked at
+## the bench (BenchStation).
 var chemical_level: float = 1.0
 
 ## 0..100 — how overwhelmed the nervous system is. Rises when unmedicated or when the
@@ -65,6 +65,12 @@ var chemical_level: float = 1.0
 ## in Ticket-04). Falls when medicated or when the protagonist engages in self-soothing
 ## (Ticket-03). When this exceeds a threshold, the Crash state triggers.
 var sensory_overload: float = 0.0
+
+## Seconds of calm left after a soothed compulsion (or a calm wake from a save): no
+## withdrawal flood, no outside pressure, the meter eases down. Without it a withdrawn
+## player re-entered the compulsion within a second of leaving it and could never act
+## (playtest 2026-10-14).
+var relief_seconds: float = 0.0
 
 
 ## Called every frame by PlayerStateMachine. Advances the meters based on current state.
@@ -76,6 +82,16 @@ func update_overload(delta: float) -> bool:
 
 	# Chemical depletes constantly. When it hits zero, the protagonist is fully withdrawn.
 	chemical_level = clampf(chemical_level - chemical_depletion_rate * delta, 0.0, 1.0)
+
+	if relief_seconds > 0.0:
+		relief_seconds = maxf(relief_seconds - delta, 0.0)
+		sensory_overload = clampf(sensory_overload - overload_decay_rate * delta, 0.0, 100.0)
+		if (
+			not is_equal_approx(old_overload, sensory_overload)
+			or not is_equal_approx(old_chemical, chemical_level)
+		):
+			state_changed.emit(self)
+		return false
 
 	# THREE-BAND OVERLOAD MODEL (Ticket-02):
 	#   chemical == 0.0       → overload floods at chemical_zero_accumulation_rate
@@ -110,6 +126,11 @@ func update_overload(delta: float) -> bool:
 	)
 	var chemical_crossed := old_chemical > 0.0 and chemical_level <= 0.0
 	return overload_crossed or chemical_crossed
+
+
+## Start (or extend) a relief window: see relief_seconds.
+func grant_relief(seconds: float) -> void:
+	relief_seconds = maxf(relief_seconds, seconds)
 
 
 ## Apply a change to chemical_level (positive = take drug, negative = metabolise faster).
@@ -152,6 +173,8 @@ func is_high_focus() -> bool:
 ## frame produces no signal spam.
 func apply_overload_pressure(amount: float) -> void:
 	if is_zero_approx(amount):
+		return
+	if amount > 0.0 and relief_seconds > 0.0:
 		return
 	var before := sensory_overload
 	sensory_overload = clampf(sensory_overload + amount, 0.0, 100.0)

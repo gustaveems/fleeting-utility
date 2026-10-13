@@ -26,7 +26,7 @@ func _run() -> void:
 	entropy.entropy = 40.0
 	await _walk_to(player, Vector3(0.0, 0.0, -3.0))
 	check("player near the door", door.is_player_near)
-	check("no prompt below threshold (got '%s')" % _prompt, _prompt.is_empty())
+	check("explains itself below threshold (got '%s')" % _prompt, _prompt.begins_with("Not yet"))
 	check("E refused below threshold", not door.try_interact())
 
 	section("door at the threshold")
@@ -47,27 +47,21 @@ func _run() -> void:
 	check("E returns to the apartment", return_door.try_interact())
 	check("ransack applied on return", ransacked.is_ransacked)
 
-	section("door after the betrayal")
+	section("door after the walk, before the window")
+	var flow := node("GameFlow") as GameFlow
 	await _walk_to(player, Vector3(0.0, 0.0, -3.0))
 	check("no second walk offered (got '%s')" % _prompt, _prompt.is_empty())
 	check("E refused: walk spent", not door.try_interact())
-	# Back at the door after the betrayal IS the hesitation: let the dual visions
-	# (which flicker the apartment, shoes included) play out first.
-	var visions := node("DualVisionController") as DualVisionController
-	check(
-		"the door triggered the hesitation",
-		(node("GameFlow") as GameFlow).phase == GameFlow.Phase.HESITATION
-	)
-	await visions.visions_ended
+	check("no hesitation before the betrayal is seen", flow.phase == GameFlow.Phase.RANSACKED)
 
-	section("luxury shoes are one-shot")
+	section("the window: look out, once")
 	var shoes := node("Apartment/LuxuryShoes") as LuxuryShoes
-	check("shoes placed", shoes != null)
+	check("friend placed outside", shoes != null)
 	if shoes == null:
 		return
 	var zone := shoes.get_node("ProximityArea") as Interactable
-	await _walk_to(player, shoes.global_position)
-	check("look prompt (got '%s')" % _prompt, _prompt == "[E] Look")
+	await _walk_to(player, Vector3(zone.global_position.x, 0.0, -2.9))
+	check("look prompt (got '%s')" % _prompt, _prompt == "[E] Look out the window")
 	check("first look realizes the betrayal", zone.try_interact() and shoes.is_realized())
 	var hud := node("CoreHud/HudUI") as HudUI
 	check(
@@ -76,6 +70,12 @@ func _run() -> void:
 	)
 	check("prompt gone after the look (got '%s')" % _prompt, _prompt.is_empty())
 	check("second look refused", not zone.try_interact())
+
+	section("back at the door: the hesitation")
+	await _walk_to(player, Vector3(0.0, 0.0, 0.0))
+	await _walk_to(player, Vector3(0.0, 0.0, -3.0))
+	check("the door triggers the hesitation", flow.phase == GameFlow.Phase.HESITATION)
+	await (node("DualVisionController") as DualVisionController).visions_ended
 	player.global_position = home
 
 

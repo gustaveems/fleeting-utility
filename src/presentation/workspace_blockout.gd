@@ -38,6 +38,10 @@ const NEAR_WALL_COLLISION_HEIGHT := 2.5
 ## wire time (it turns the floor glossy for the clinical reflections).
 var floor_material: StandardMaterial3D = _mat(COLOR_FLOOR, 0.9)
 
+## The bench's visible block. The apartment module hands it to the CraftingBench so
+## removing the bench (ransack, scarred reset) removes what the player actually sees.
+var bench_placeholder: MeshInstance3D
+
 
 func _ready() -> void:
 	if grid == null:
@@ -154,14 +158,13 @@ func _add_wall_collision(
 func _build_furniture_blocking() -> void:
 	var bench_cell := Vector2i(1, 1)
 	var bench_world := grid.cell_to_world(bench_cell)
-	add_child(
-		_box(
-			"CraftingBenchPlaceholder",
-			Vector3(0.95, 0.42, 0.95),
-			bench_world + Vector3(0.0, 0.21, 0.0),
-			COLOR_BENCH
-		)
+	bench_placeholder = _box(
+		"CraftingBenchPlaceholder",
+		Vector3(0.95, 0.42, 0.95),
+		bench_world + Vector3(0.0, 0.21, 0.0),
+		COLOR_BENCH
 	)
+	add_child(bench_placeholder)
 	var cot_cell := Vector2i(grid.width_cells - 2, grid.depth_cells - 2)
 	var cot_world := grid.cell_to_world(cot_cell)
 	add_child(

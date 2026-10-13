@@ -49,6 +49,11 @@ func _on_door_body_entered(body: Node3D) -> void:
 		return
 	if ransacked_state_manager == null or not ransacked_state_manager.is_ransacked:
 		return
+	# MASTER_BRIEF order: he freezes at the door only AFTER seeing his friend in the
+	# shoes. Without this gate, coming back from the walk near the door fired the
+	# visions (and the statue reveal) before the betrayal (playtest 2026-10-14).
+	if not ransacked_state_manager.is_betrayal_realized():
+		return
 	initiate_hesitation()
 
 

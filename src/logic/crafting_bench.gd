@@ -114,7 +114,11 @@ func _setup_timer() -> void:
 ## ----- INTERACTION -------------------------------------------------------------------
 
 
-## Called by the InteractionController when the player interacts with this bench.
+func is_crafting() -> bool:
+	return _is_crafting
+
+
+## Called by BenchStation when the player cooks a dose.
 ## Idempotent: if a craft is already in progress, the call is silently ignored.
 func interact() -> void:
 	if interaction_controller != null and not interaction_controller.try_interact():

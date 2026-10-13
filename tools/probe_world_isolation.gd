@@ -122,6 +122,8 @@ func _test_ransacked_colliders_survive_dual_vision() -> void:
 		return
 	ransacked._on_return_from_walk()
 	check("ransack disabled bench colliders", live_shapes(bench) == 0)
+	var block := bench.find_child("CraftingBenchPlaceholder", true, false) as Node3D
+	check("the bench you SEE is gone too", block != null and not block.is_visible_in_tree())
 	var ended := [false]
 	visions.visions_ended.connect(func(): ended[0] = true)
 	visions.start_visions()
