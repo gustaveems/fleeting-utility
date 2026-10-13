@@ -344,6 +344,7 @@ func _swap_worlds(to_dreamscape: bool) -> void:
 			player.room_half_extents = _apartment_extents
 	if camera != null:
 		camera.far = 150.0 if to_dreamscape else 45.0
+		camera.set_dream_framing(to_dreamscape)
 
 
 ## Plays a quick white flash (0.3 s) for the memory-trigger effect.

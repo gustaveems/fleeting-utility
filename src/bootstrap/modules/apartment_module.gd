@@ -91,6 +91,7 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.atmosphere.environment = ctx.apartment_environment
 	ctx.atmosphere.key_light = ctx.key_light
 	ctx.atmosphere.lamp = ctx.lamp
+	ctx.atmosphere.floor_material = _blockout.floor_material
 
 	ctx.bench.spatial_grid = ctx.spatial_grid
 	ctx.bench.chemical_manager = ctx.state_data

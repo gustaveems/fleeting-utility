@@ -185,3 +185,11 @@ Decisions (2026-10-12):
   - Stings and chimes.
 - `tools/probe_audio.gd`: 40/40. `run_all`: 12/12 green.
 - Known cost: synthesizing the placeholder bank takes ~0.55 s at boot. T13 can hide it behind the boot screen, or cache the WAVs.
+
+## Status after Ticket-11 (2026-10-13)
+- **Post-FX:** one screen pass. The separate vignette pass is merged in. Golden-angle blur, so no ghost copies. Salvaged High-Focus look. Shake now uses a shader UV offset. Accessibility scales added.
+  - Verified that 4.7 re-captures the screen texture per CanvasLayer, so the old two-pass setup was not hiding the crash FX.
+- **Particles:** dust (density follows entropy and phase; none in the clinical room; swirls faster under crash) and valley leaves that follow the player. Both freeze with their worlds.
+- **Clinical:** SSR on, plus a wet low-roughness floor; restored to matte after the reset.
+- **Dream framing:** pitch −12°, FOV 55, ×1.4 distance, so the 15 m statues fit whole. The fixed iso tilt made that geometrically impossible before.
+- `run_all`: 14/14 green (new: probe_post_fx 11, probe_vfx 19).

@@ -92,6 +92,11 @@ const CLINICAL_AMBIENT_ENERGY := 0.3
 const CLINICAL_KEY_ENERGY := 1.2
 const CLINICAL_KEY_COLOR := Color(0.85, 0.90, 1.0)
 
+## Ticket-11: wet, cold hospital floor for screen-space reflections.
+const CLINICAL_FLOOR_ROUGHNESS := 0.08
+const CLINICAL_FLOOR_COLOR := Color(0.22, 0.23, 0.25)
+const CLINICAL_SSR_STEPS := 64
+
 ## Tone mapping + exposure (Ticket-07 Task 3). ACES clamps highlights gracefully where
 ## Filmic left the old clinical value blowing to pure white. Exposure 0.8 is a one-stop
 ## pull that brings the whole room into readable range.
@@ -145,6 +150,10 @@ const BROKEN_FLICKER_DURATION := 0.08  # seconds each dropout lasts
 ## The dying desk lamp. Null-safe: if absent, only the environment degrades.
 @export var lamp: OmniLight3D
 
+## Ticket-11: the floor, polished to a wet sheen in CLINICAL mode so screen-space
+## reflections catch the cold light (sterile, hospital-lino).
+@export var floor_material: StandardMaterial3D
+
 ## --- TUNING ---------------------------------------------------------------------------
 
 ## Seconds to close ~95% of the atmosphere gap when entropy RISES (creep).
@@ -174,6 +183,8 @@ var _key_base_energy: float = 1.0
 var _key_base_color: Color = Color.WHITE
 var _key_base_shadow: bool = true
 var _key_base_bias: float = 0.0
+var _floor_base_roughness: float = 0.9
+var _floor_base_color: Color = Color.WHITE
 
 ## ----- LIFECYCLE ----------------------------------------------------------------------
 
@@ -188,6 +199,9 @@ func _ready() -> void:
 		# Capture the authored lamp brightness so decay and flicker scale from it,
 		# rather than from a hardcoded 1.0.
 		_lamp_base_energy = lamp.light_energy
+	if floor_material != null:
+		_floor_base_roughness = floor_material.roughness
+		_floor_base_color = floor_material.albedo_color
 	if key_light != null:
 		_key_base_energy = key_light.light_energy
 		_key_base_color = key_light.light_color
@@ -343,6 +357,8 @@ func _apply_atmosphere() -> void:
 				env.adjustment_saturation = 1.0
 				env.tonemap_exposure = 1.0
 
+	_apply_clinical_sheen()
+
 	if key_light != null:
 		match _mode:
 			Mode.CLINICAL:
@@ -428,3 +444,17 @@ func _update_broken_flicker(delta: float) -> void:
 
 	# Between dropouts: steady at the broken base energy.
 	key_light.light_energy = BROKEN_KEY_ENERGY
+
+
+## Ticket-11: clinical reflections. SSR only shows on glossy surfaces, so the floor's
+## roughness drops with it. Every other mode restores the authored matte floor.
+func _apply_clinical_sheen() -> void:
+	var clinical := _mode == Mode.CLINICAL
+	if environment != null:
+		environment.ssr_enabled = clinical
+		environment.ssr_max_steps = CLINICAL_SSR_STEPS
+		environment.ssr_fade_in = 0.15
+		environment.ssr_fade_out = 2.0
+	if floor_material != null:
+		floor_material.roughness = CLINICAL_FLOOR_ROUGHNESS if clinical else _floor_base_roughness
+		floor_material.albedo_color = CLINICAL_FLOOR_COLOR if clinical else _floor_base_color

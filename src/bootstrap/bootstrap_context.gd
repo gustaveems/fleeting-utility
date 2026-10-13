@@ -64,8 +64,9 @@ var dual_vision: DualVisionController
 var hesitation: HesitationController
 var game_flow: GameFlow
 
-## --- audio ---------------------------------------------------------------------------
+## --- audio + vfx ---------------------------------------------------------------------
 var audio_director: AudioDirector
+var vfx_director: VfxDirector
 
 ## --- ui ------------------------------------------------------------------------------
 var core_hud: CoreHud

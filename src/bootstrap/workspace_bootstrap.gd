@@ -18,6 +18,7 @@ extends Node3D
 ##   narrative  interaction gate, endgame loop, self-soothing, park, ransack, visions,
 ##              hesitation
 ##   audio      bus graph + AudioDirector (soundscape keyed off GameFlow)
+##   vfx        VfxDirector: dust and falling leaves, frozen with their worlds
 ##   ui         Core HUD
 ##
 ## DEV RIG: TAB overload +20 · T entropy +20 · R entropy reset · N toggle dreamscape.
@@ -29,6 +30,7 @@ const MODULES: Array[GDScript] = [
 	preload("res://src/bootstrap/modules/valley_module.gd"),
 	preload("res://src/bootstrap/modules/narrative_module.gd"),
 	preload("res://src/bootstrap/modules/audio_module.gd"),
+	preload("res://src/bootstrap/modules/vfx_module.gd"),
 	preload("res://src/bootstrap/modules/ui_module.gd"),
 ]
 

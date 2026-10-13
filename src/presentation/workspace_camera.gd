@@ -71,6 +71,17 @@ extends Camera3D
 ## the follow target, so the camera jitters slightly even when the player is still.
 @export var withdrawal_shake: float = 0.0
 
+## --- DREAM FRAMING (Ticket-11) -------------------------------------------------------
+## The fixed iso angle points the top of the frame 7.5° BELOW the horizon, so the
+## valley's 15 m monoliths could never fit at any distance. In the dream the view opens
+## up: shallower pitch, wider lens, a little further back. The statues stand whole on
+## the horizon. Applied at the world swap, under the white fade.
+
+@export var room_pitch_degrees: float = -30.0
+@export var dream_pitch_degrees: float = -12.0
+@export var dream_fov: float = 55.0
+@export var dream_offset_scale: float = 1.4
+
 ## --- CRASH STATE REACTION ------------------------------------------------------------
 
 ## If assigned, the camera reads `sensory_overload` from this node's `state_data`.
@@ -89,8 +100,11 @@ extends Camera3D
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
+var is_dream_framing: bool = false
+
 var _base_fov: float
 var _breath_phase: float = 0.0
+var _room_offset: Vector3
 
 ## ----- LIFECYCLE ---------------------------------------------------------------------
 
@@ -98,7 +112,8 @@ var _breath_phase: float = 0.0
 func _ready() -> void:
 	# Lock the rotation to the isometric angle. This is the camera's identity: it never
 	# changes, only follows.
-	rotation_degrees = Vector3(-30.0, 45.0, 0.0)
+	rotation_degrees = Vector3(room_pitch_degrees, 45.0, 0.0)
+	_room_offset = camera_offset
 
 	# Configure projection.
 	if is_orthographic:
@@ -175,6 +190,22 @@ func _get_sensory_overload() -> float:
 
 
 ## ----- PUBLIC API --------------------------------------------------------------------
+
+
+## Open the view for the valley (true) or return to the room's fixed iso angle (false).
+## Instant: callers switch it while the screen is white.
+func set_dream_framing(enabled: bool) -> void:
+	is_dream_framing = enabled
+	var pitch := dream_pitch_degrees if enabled else room_pitch_degrees
+	rotation_degrees = Vector3(pitch, 45.0, 0.0)
+	camera_offset = _room_offset * (dream_offset_scale if enabled else 1.0)
+	if not is_orthographic:
+		_base_fov = dream_fov if enabled else perspective_fov
+		fov = _base_fov
+	if target_node != null:
+		global_position = (
+			target_node.global_position + Vector3(0.0, framing_lift, 0.0) + camera_offset
+		)
 
 
 ## Assign the follow target at runtime (bootstrap uses this instead of the inspector).

@@ -34,6 +34,10 @@ const NEAR_WALL_COLLISION_HEIGHT := 2.5
 ## Thickness of the wall band, in metres. Thin so it reads as a room edge, not a maze.
 @export var wall_thickness: float = 0.12
 
+## The floor's material, created up front so AtmosphereController can be handed it at
+## wire time (it turns the floor glossy for the clinical reflections).
+var floor_material: StandardMaterial3D = _mat(COLOR_FLOOR, 0.9)
+
 
 func _ready() -> void:
 	if grid == null:
@@ -52,7 +56,7 @@ func _build_floor() -> void:
 		float(grid.width_cells) * grid.cell_size, float(grid.depth_cells) * grid.cell_size
 	)
 	floor_instance.mesh = mesh
-	floor_instance.material_override = _mat(COLOR_FLOOR, 0.9)
+	floor_instance.material_override = floor_material
 	add_child(floor_instance)
 
 

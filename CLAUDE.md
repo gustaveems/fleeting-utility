@@ -22,7 +22,7 @@ godot --path . -s tools/capture_states.gd       # windowed: PNG per lighting sta
 
 ## Architecture
 - `src/data` Resources · `src/logic` state machines/controllers · `src/presentation` visuals/audio/UI · `src/player` movement/camera · `src/bootstrap` composition root.
-- `scenes/workspace.tscn` is one Node3D running `workspace_bootstrap.gd`, which builds **everything in code** through modules in `src/bootstrap/modules/` (core, apartment, player, valley, narrative, ui). Each module overrides `create → wire → attach → post_attach` (`BootstrapModule`), and each phase runs across all modules before the next, so every export is set before any `_ready`. Register nodes on `BootstrapContext`. A new system (audio, VFX, persistence) gets a new module.
+- `scenes/workspace.tscn` is one Node3D running `workspace_bootstrap.gd`, which builds **everything in code** through modules in `src/bootstrap/modules/` (core, apartment, player, valley, narrative, audio, vfx, ui). Each module overrides `create → wire → attach → post_attach` (`BootstrapModule`), and each phase runs across all modules before the next, so every export is set before any `_ready`. Register nodes on `BootstrapContext`. A new system (audio, VFX, persistence) gets a new module.
 - **Worlds** (apartment, valley, park) are `WorldRoot`s: use `set_active()` to swap and `suppress(node)` to remove a prop for good. Never toggle `visible` or shapes by hand.
 - **Locks**: `player.lock_input(owner)` / `interaction.lock(owner)` with a named owner (`LockSet`). The bools are read-only.
 - **Physics layers**: `PhysicsLayers` consts only. Player sensors use `PhysicsLayers.make_player_sensor(area)`.
@@ -30,6 +30,8 @@ godot --path . -s tools/capture_states.gd       # windowed: PNG per lighting sta
 - Logic scripts emit signals and never own audio/VFX nodes. Presentation listens.
 - **Narrative phase**: `GameFlow.phase_changed` is the one arc signal (MASTER_BRIEF order; the ambulance is armed only by the dual visions).
 - **Audio** (T10): buses come from `AudioBuses.register()`. `World` carries Ambience and SFX plus the crash low-pass/overdrive; UI and Music bypass it. `AudioDirector` owns all sound. Ambient beds are children of their `WorldRoot` and pause with it. Cues come by name from a `SoundBank` (`ProceduralAudio.default_bank()` placeholders; a .tres of real files overrides per name). Audition the cues with `godot --headless --path . -s tools/export_sounds.gd`, which writes to `tools/out/sounds/`.
+- **Post-FX** (T11): `ScreenEffects` is the ONE screen pass: crash CA/blur/tremor, step shake, the High-Focus look, the soft-boundary vignette and grain. `motion_scale` / `distortion_scale` are the T13 accessibility knobs. Do not add a second screen-reading pass.
+- **VFX** (T11): `VfxDirector` parents dust (apartment) and leaves (valley) into their `WorldRoot`. Particles freeze via `speed_scale`, because GPU particles ignore `process_mode`. In the dream the camera switches to `set_dream_framing(true)`, so the statues fit in frame.
 - Soft boundaries (vignette/fog), never invisible walls.
 
 ## Testing
