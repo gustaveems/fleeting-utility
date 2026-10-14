@@ -89,14 +89,11 @@ var _timer: Timer
 var _message_layer: CanvasLayer
 var _message_label: Label
 var _loop_armed: bool = false
-var _original_entropy_rate: float = 0.0
 
 
 func _ready() -> void:
 	if dreamscape_manager != null:
 		dreamscape_manager.forced_return_completed.connect(_on_forced_return)
-	if entropy_data != null:
-		_original_entropy_rate = entropy_data.entropy_growth_rate
 
 
 func _on_forced_return() -> void:
@@ -113,6 +110,22 @@ func _on_forced_return() -> void:
 	_timer.timeout.connect(_execute_scarred_reset)
 	add_child(_timer)
 	_timer.start()
+
+
+## A new cycle (LeaseRenewal): lift everything the climax imposed. The entropy scar
+## (growth rate) is deliberately kept.
+func reset_cycle() -> void:
+	_loop_armed = false
+	if interaction_controller != null:
+		interaction_controller.unlock(CLIMAX_LOCK)
+	if player != null:
+		player.is_in_withdrawal = false
+	if screen_effects != null:
+		screen_effects.lucid_cap = 1.0
+	if camera != null:
+		camera.withdrawal_shake = 0.0
+	if atmosphere_controller != null:
+		atmosphere_controller.set_subdued_mode(false)
 
 
 ## Restore a saved SCARRED state without replaying the climax or the reset beat. The
@@ -176,8 +189,10 @@ func _execute_scarred_reset() -> void:
 		apartment_root.suppress(spatial_grid)
 
 	# 5. Accelerate entropy: the room decays faster each cycle.
+	# Compounds from the CURRENT rate, so each cycle's scar stacks on the last (and a
+	# reloaded SCARRED save, which already carries it, is never re-multiplied).
 	if entropy_data != null:
-		entropy_data.entropy_growth_rate = _original_entropy_rate * entropy_rate_multiplier
+		entropy_data.entropy_growth_rate *= entropy_rate_multiplier
 
 	# 6. Atmosphere: clinical → subdued (dim, flat, defeated silence).
 	if atmosphere_controller != null:

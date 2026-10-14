@@ -8,6 +8,10 @@ extends BootstrapModule
 func create(ctx: BootstrapContext) -> void:
 	ctx.core_hud = CoreHud.new()
 	ctx.core_hud.name = "CoreHud"
+	ctx.end_card = EndCard.new()
+	ctx.end_card.name = "EndCard"
+	ctx.lease_renewal = LeaseRenewal.new()
+	ctx.lease_renewal.name = "LeaseRenewal"
 	ctx.fader = ScreenFader.new()
 	ctx.fader.name = "ScreenFader"
 	ctx.pause_menu = PauseMenu.new()
@@ -21,6 +25,23 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.core_hud.endgame_loop_manager = ctx.endgame
 	ctx.pause_menu.persistence = ctx.persistence
 	ctx.park.fader = ctx.fader
+
+	# The end of each cycle: renew the lease or walk away.
+	ctx.end_card.game_flow = ctx.game_flow
+	ctx.end_card.lease_renewal = ctx.lease_renewal
+	ctx.end_card.entropy_data = ctx.entropy_data
+	var lease := ctx.lease_renewal
+	lease.game_flow = ctx.game_flow
+	lease.state_machine = ctx.state_machine
+	lease.entropy_data = ctx.entropy_data
+	lease.endgame = ctx.endgame
+	lease.ransacked = ctx.ransacked
+	lease.park = ctx.park
+	lease.hesitation = ctx.hesitation
+	lease.ambulance = ctx.ambulance
+	lease.spatial_grid = ctx.spatial_grid
+	lease.persistence = ctx.persistence
+	lease.compound_scene = ctx.raw_compound_scene
 	# Arrival lines for the walk: where you are, and what happened while you were out.
 	ctx.park.walk_started.connect(func(): ctx.core_hud.show_line(CorporateParkManager.ARRIVAL_TEXT))
 	ctx.ransacked.ransacked_applied.connect(
@@ -33,6 +54,8 @@ func wire(ctx: BootstrapContext) -> void:
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.core_hud)
 	ctx.root.add_child(ctx.fader)
+	ctx.root.add_child(ctx.lease_renewal)
+	ctx.root.add_child(ctx.end_card)
 	ctx.root.add_child(ctx.pause_menu)
 
 

@@ -68,6 +68,7 @@ var is_ransacked: bool = false
 var ransack_seed: int = 0
 
 var _luxury_shoes: LuxuryShoes = null
+var _debris: Array[Node3D] = []
 var _rng := RandomNumberGenerator.new()
 
 
@@ -100,6 +101,22 @@ func apply_ransack(seed_value: int = 0, announce: bool = true) -> void:
 		ransacked_applied.emit()
 
 
+## A new cycle (LeaseRenewal): clear the wreck and the friend, give the bench back.
+func reset_cycle() -> void:
+	for d in _debris:
+		if is_instance_valid(d):
+			d.queue_free()
+	_debris.clear()
+	if _luxury_shoes != null:
+		_luxury_shoes.queue_free()
+		_luxury_shoes = null
+	if apartment_root != null:
+		apartment_root.restore(crafting_bench)
+		apartment_root.restore(spatial_grid)
+	is_ransacked = false
+	ransack_seed = 0
+
+
 func is_betrayal_realized() -> bool:
 	return _luxury_shoes != null and _luxury_shoes.is_realized()
 
@@ -130,6 +147,7 @@ func _spawn_debris() -> void:
 	for i in count:
 		var debris := _make_debris_piece()
 		debris.name = "Debris_%d" % i
+		_debris.append(debris)
 		debris.position = Vector3(
 			_rng.randf_range(-debris_scatter_bounds.x, debris_scatter_bounds.x),
 			0.05,

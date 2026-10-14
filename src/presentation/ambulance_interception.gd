@@ -87,6 +87,17 @@ func _ready() -> void:
 	_build_lights()
 
 
+## A new cycle (LeaseRenewal): disarm, and unseal the memory anchors. WorldRoot.restore
+## re-enables their shapes only if the valley is active (Rule 2).
+func reset_cycle() -> void:
+	armed = false
+	if valley_root == null:
+		return
+	for anchor in valley_root.memory_anchors:
+		valley_root.restore(anchor)
+		anchor.monitoring = true
+
+
 ## The forced-detox beat is complete: the next dream is the climax.
 func arm() -> void:
 	armed = true

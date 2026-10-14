@@ -75,4 +75,6 @@ var persistence: Persistence
 var core_hud: CoreHud
 var settings_applier: SettingsApplier
 var fader: ScreenFader
+var end_card: EndCard
+var lease_renewal: LeaseRenewal
 var pause_menu: PauseMenu
