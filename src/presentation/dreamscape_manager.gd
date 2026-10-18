@@ -206,6 +206,11 @@ func _set_anchor_near(anchor: MemoryAnchor, near: bool) -> void:
 			interaction_controller.clear_target()
 
 
+## True while a fade sequence runs (requests are ignored meanwhile).
+func is_busy() -> bool:
+	return _transitioning
+
+
 func in_dreamscape() -> bool:
 	return _in_dreamscape
 

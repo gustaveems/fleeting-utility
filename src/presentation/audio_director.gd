@@ -69,6 +69,8 @@ const APARTMENT_BEDS: Array[StringName] = [
 @export var park_manager: CorporateParkManager
 @export var apartment: WorldRoot
 @export var valley: DreamscapeEnvironment
+@export var easel: Easel
+@export var day_cycle: DayCycle
 
 ## Where the 3D apartment emitters sit (room coordinates).
 @export var fluorescent_position: Vector3 = Vector3(0.0, 2.4, 0.0)
@@ -275,6 +277,10 @@ func _connect_signals() -> void:
 		ransacked.betrayal_realized.connect(
 			func(_text: String): play_one_shot(SoundBank.BETRAYAL_STING)
 		)
+	if easel != null:
+		easel.stroke.connect(play_one_shot.bind(SoundBank.BRUSH))
+	if day_cycle != null:
+		day_cycle.morning.connect(func(_day: int): play_one_shot(SoundBank.CHIME))
 	if valley != null:
 		for anchor in valley.memory_anchors:
 			anchor.memory_triggered.connect(play_one_shot.bind(SoundBank.CHIME))

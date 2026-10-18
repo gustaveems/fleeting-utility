@@ -57,6 +57,8 @@ static var save_path: String = "user://save.json"
 @export var endgame: EndgameLoopManager
 @export var spatial_grid: SpatialGrid
 @export var decals: SurfaceDegradation
+@export var day_cycle: DayCycle
+@export var easel: Easel
 
 ## item_id → scene, to rebuild the bench worktop.
 @export var item_scenes: Dictionary[StringName, PackedScene] = {}
@@ -111,7 +113,8 @@ func save_game() -> bool:
 		last_error = "cannot write %s (%s)" % [tmp, error_string(FileAccess.get_open_error())]
 		push_warning("Persistence: " + last_error)
 		return false
-	file.store_string(JSON.stringify(snapshot(), "\t"))
+	# full_precision: the default rounds floats, which drifted seeds and meters.
+	file.store_string(JSON.stringify(snapshot(), "\t", true, true))
 	file.close()
 	var err := DirAccess.rename_absolute(
 		ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(save_path)
@@ -182,6 +185,10 @@ func snapshot() -> Dictionary:
 	if decals != null:
 		data["decal_seed"] = decals.layout_seed
 	data["bench_items"] = _bench_items()
+	if day_cycle != null:
+		data["day"] = day_cycle.day
+	if easel != null:
+		data["painting"] = easel.snapshot()
 	return data
 
 
@@ -204,6 +211,10 @@ func apply(data: Dictionary) -> void:
 	if decals != null and int(data.get("decal_seed", 0)) != 0:
 		decals.relayout(int(data["decal_seed"]))
 	_restore_bench_items(data.get("bench_items", []))
+	if day_cycle != null:
+		day_cycle.restore(int(data.get("day", 1)))
+	if easel != null and data.has("painting"):
+		easel.restore(data["painting"])
 
 	if park != null:
 		park.walk_taken = bool(data.get("walk_taken", false))

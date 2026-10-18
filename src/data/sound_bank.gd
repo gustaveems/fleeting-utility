@@ -24,6 +24,7 @@ const DENIED := &"denied"
 const STATUE_STING := &"statue_sting"
 const BETRAYAL_STING := &"betrayal_sting"
 const CHIME := &"chime"
+const BRUSH := &"brush"
 
 @export var cues: Dictionary[StringName, SoundCue] = {}
 

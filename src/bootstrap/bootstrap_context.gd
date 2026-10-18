@@ -35,6 +35,8 @@ var bench_area: Node3D
 var spatial_grid: SpatialGrid
 var bench: CraftingBench
 var trivial_object: TrivialObject
+var easel: Easel
+var cot: Cot
 var door: ApartmentDoor
 
 ## --- runtime-packed stand-ins for real .tscn assets ----------------------------------
@@ -63,6 +65,7 @@ var ransacked: RansackedStateManager
 var dual_vision: DualVisionController
 var hesitation: HesitationController
 var game_flow: GameFlow
+var day_cycle: DayCycle
 
 ## --- audio + vfx ---------------------------------------------------------------------
 var audio_director: AudioDirector

@@ -20,6 +20,8 @@ func wire(ctx: BootstrapContext) -> void:
 	p.endgame = ctx.endgame
 	p.spatial_grid = ctx.spatial_grid
 	p.decals = ctx.decals
+	p.day_cycle = ctx.day_cycle
+	p.easel = ctx.easel
 	p.item_scenes = {&"raw_compound": ctx.raw_compound_scene, &"pill_bottle": ctx.pill_scene}
 
 

@@ -62,6 +62,9 @@ var _prompt_label: Label
 ## Top-center dreamscape label.
 var _fading_label: Label
 
+## Ticket-14: "DAY n" under the meters.
+var _day_label: Label
+
 ## Center-screen narrative line (show_line). Lives inside this HUD's CanvasLayer (50),
 ## above post-FX and the dream fade.
 var _flavor_layer: CenterContainer
@@ -134,6 +137,13 @@ func _build_meter_cluster() -> void:
 	_overload_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9, 0.85))
 	_overload_label.text = "OVERLOAD: 0%"
 	_meter_container.add_child(_overload_label)
+
+	_day_label = Label.new()
+	_day_label.name = "DayLabel"
+	_day_label.add_theme_font_size_override("font_size", 14)
+	_day_label.add_theme_color_override("font_color", Color(0.86, 0.74, 0.46, 0.9))
+	_day_label.text = "DAY 1"
+	_meter_container.add_child(_day_label)
 
 
 ## Create a StyleBoxFlat for the bar's background (dark grey) and foreground (tint).
@@ -401,3 +411,12 @@ func _remove_flavor() -> void:
 		_flavor_layer = null
 		_flavor_label = null
 		_flavor_tween = null
+
+
+func set_day(day: int) -> void:
+	if _day_label != null:
+		_day_label.text = "DAY %d" % day
+
+
+func day_text() -> String:
+	return _day_label.text if _day_label != null else ""

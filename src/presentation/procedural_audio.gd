@@ -43,6 +43,7 @@ static func default_bank() -> SoundBank:
 		SoundBank.STATUE_STING: SoundCue.make(statue_sting(), sfx, -6.0),
 		SoundBank.BETRAYAL_STING: SoundCue.make(betrayal_sting(), sfx, -4.0),
 		SoundBank.CHIME: SoundCue.make(chime(), sfx, -10.0),
+		SoundBank.BRUSH: SoundCue.make(brush(), sfx, -14.0, 0.15),
 	}
 	_default_bank = bank
 	return bank
@@ -154,6 +155,19 @@ static func betrayal_sting() -> AudioStreamWAV:
 
 
 ## Memory anchor / loop chime: a bell (fundamental + inharmonic partial).
+## Brush stroke: a soft swish of band-limited noise.
+static func brush() -> AudioStreamWAV:
+	var hi := _burst(0.3, 0.26, 0.6)
+	var buf := PackedFloat32Array()
+	buf.resize(hi.size())
+	var y := 0.0
+	for i in hi.size():
+		y += 0.25 * (hi[i] - y)
+		var t := float(i) / hi.size()
+		buf[i] = y * sin(t * PI)
+	return _wav(buf, false)
+
+
 static func chime() -> AudioStreamWAV:
 	var n := int(MIX_RATE * 2.0)
 	var buf := PackedFloat32Array()

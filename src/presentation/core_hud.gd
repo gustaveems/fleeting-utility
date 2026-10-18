@@ -37,3 +37,8 @@ func show_line(text: String) -> void:
 func set_meter_palette(palette: GameSettings.MeterPalette) -> void:
 	if _ui != null:
 		_ui.set_meter_palette(palette)
+
+
+func set_day(day: int) -> void:
+	if _ui != null:
+		_ui.set_day(day)

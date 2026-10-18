@@ -26,6 +26,12 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.pause_menu.persistence = ctx.persistence
 	ctx.park.fader = ctx.fader
 
+	# Ticket-14: the day on the HUD, the verdicts and the lease's notice.
+	ctx.day_cycle.day_changed.connect(ctx.core_hud.set_day)
+	ctx.day_cycle.morning.connect(func(day: int): ctx.core_hud.show_line("Day %d." % day))
+	ctx.easel.work_finished.connect(ctx.core_hud.show_line)
+	ctx.easel.works_reclaimed.connect(func(): ctx.core_hud.show_line(Easel.RECLAIM_TEXT))
+
 	# The end of each cycle: renew the lease or walk away.
 	ctx.end_card.game_flow = ctx.game_flow
 	ctx.end_card.lease_renewal = ctx.lease_renewal
@@ -42,6 +48,7 @@ func wire(ctx: BootstrapContext) -> void:
 	lease.spatial_grid = ctx.spatial_grid
 	lease.persistence = ctx.persistence
 	lease.compound_scene = ctx.raw_compound_scene
+	lease.day_cycle = ctx.day_cycle
 	# Arrival lines for the walk: where you are, and what happened while you were out.
 	ctx.park.walk_started.connect(func(): ctx.core_hud.show_line(CorporateParkManager.ARRIVAL_TEXT))
 	ctx.ransacked.ransacked_applied.connect(

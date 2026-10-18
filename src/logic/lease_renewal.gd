@@ -28,6 +28,7 @@ const MAX_START_ENTROPY := 65.0  # below the door's 70: the walk must still be e
 @export var spatial_grid: SpatialGrid
 @export var persistence: Persistence
 @export var compound_scene: PackedScene
+@export var day_cycle: DayCycle
 
 
 func renew() -> void:
@@ -54,6 +55,8 @@ func renew() -> void:
 		entropy_data.entropy = minf(BASE_ENTROPY + ENTROPY_PER_CYCLE * loops, MAX_START_ENTROPY)
 		entropy_data.entropy_changed.emit(entropy_data.entropy)
 	_restock(stash_compounds(loops))
+	if day_cycle != null:
+		day_cycle.reset_cycle()
 	if game_flow != null:
 		game_flow.restore(GameFlow.Phase.WORKSPACE, loops)
 

@@ -19,6 +19,8 @@ const LAMP_ENERGY := 1.4
 const LAMP_RANGE := 3.5
 
 const TRIVIAL_OBJECT_POSITION := Vector3(1.5, 0.0, 1.0)  # near player start
+const EASEL_POSITION := Vector3(3.3, 0.0, -0.6)  # east side, facing the room
+const COT_POSITION := Vector3(3.0, 0.0, 2.0)  # on the blockout's cot placeholder
 const DOOR_POSITION := Vector3(0.0, 0.0, -3.5)  # north edge of the room
 
 ## Compounds seeded on the worktop: two doses. Finite on purpose (gentrification).
@@ -84,6 +86,13 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.trivial_object.name = "TrivialObject"
 	ctx.trivial_object.position = TRIVIAL_OBJECT_POSITION
 
+	ctx.easel = Easel.new()
+	ctx.easel.name = "Easel"
+	ctx.easel.position = EASEL_POSITION
+	ctx.cot = Cot.new()
+	ctx.cot.name = "Cot"
+	ctx.cot.position = COT_POSITION
+
 	ctx.door = ApartmentDoor.new()
 	ctx.door.name = "ApartmentDoor"
 	ctx.door.position = DOOR_POSITION
@@ -114,6 +123,14 @@ func wire(ctx: BootstrapContext) -> void:
 
 	ctx.trivial_object.state_machine = ctx.state_machine
 
+	ctx.easel.state_data = ctx.state_data
+	ctx.easel.day_cycle = ctx.day_cycle
+	ctx.easel.player = ctx.player
+	ctx.easel.interaction_controller = ctx.interaction
+	ctx.cot.day_cycle = ctx.day_cycle
+	ctx.cot.player = ctx.player
+	ctx.cot.interaction_controller = ctx.interaction
+
 	ctx.door.entropy_data = ctx.entropy_data
 	ctx.door.corporate_park_manager = ctx.park
 	ctx.door.interaction_controller = ctx.interaction
@@ -134,6 +151,8 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.bench.add_child(_station)
 	ctx.apartment.add_child(ctx.trivial_object)
 	ctx.apartment.add_child(ctx.door)
+	ctx.apartment.add_child(ctx.easel)
+	ctx.apartment.add_child(ctx.cot)
 
 
 func post_attach(ctx: BootstrapContext) -> void:

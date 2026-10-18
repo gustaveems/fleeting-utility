@@ -29,6 +29,9 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.game_flow = GameFlow.new()
 	ctx.game_flow.name = "GameFlow"
 
+	ctx.day_cycle = DayCycle.new()
+	ctx.day_cycle.name = "DayCycle"
+
 
 func wire(ctx: BootstrapContext) -> void:
 	# Ticket-07: the scarred reset, plus the post-climax state it applies at the forced
@@ -98,6 +101,10 @@ func wire(ctx: BootstrapContext) -> void:
 	flow.hesitation = ctx.hesitation
 	flow.dual_vision = ctx.dual_vision
 
+	# Ticket-14: days. Sleep → night dream → morning.
+	ctx.day_cycle.dreamscape_manager = ctx.dreamscape_manager
+	ctx.day_cycle.state_machine = ctx.state_machine
+
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.interaction)
@@ -108,3 +115,4 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.dual_vision)
 	ctx.root.add_child(ctx.hesitation)
 	ctx.root.add_child(ctx.game_flow)
+	ctx.root.add_child(ctx.day_cycle)
