@@ -96,6 +96,12 @@ fenced stone in a parking lot back home.
 - The brand: one conglomerate behind the billboards, the campaign, the drug and the
   ambulance? (Proposed: yes.)
 - What "walk away" means: leaving, giving up or dying (currently ambiguous on purpose).
+- **Statues as human colossi** (from the Colossus of Rhodes refs): 50-foot figures on
+  stone plinths, arms raised, a last stand frozen; blood running down legs and plinths.
+  They replace the abstract monoliths. (Proposed.)
+- **A golden corporate colossus in the city**: the brand's polished mascot, the same
+  figure as the dream statues, straddling a canal in the prologue flyover. The detox
+  realisation becomes "the gold one is the lie". (Proposed.)
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).
 

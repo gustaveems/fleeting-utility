@@ -16,13 +16,24 @@ on why you picked it.
 | `in-page_image_002.jpg` (2049 Vegas outlets) | The dying town | Dead commerce in orange dust, rust and faded murals |
 | `one-thing…br2049…webp` (BR 1982 street) | Street-level arrival | Layered, filthy, hazy, neon in the dirt |
 
+### Batch 2 (2026-10-19)
+| File | Use | Take from it |
+|---|---|---|
+| `Colosse_de_Rhodes_(Barclay).jpg` (engraving) | Statues | Human colossus, arm raised, on a stone plinth above water; old-print rendering for how the dream "remembers" |
+| `images (3).jpeg` (gold Colossus render, skyline behind) | Statues / city | Gleaming giant straddling water before a modern skyline: proposed corporate golden colossus |
+| `images.jpeg` (Soviet beige tower) | His building / the town | Beige concrete, every balcony enclosed differently by tenants (irony vs. "No alterations"); overcast light |
+| `istockphoto-1135106441…jpg` (abandoned room) | **Apartment interior** | Two-tone walls split at a dado line (nicotine yellow over grey-green), hex patterned tiles, damp peeling ceiling, net curtain, cast-iron radiator, lone sink |
+| `images (1).jpeg` (hospital corridor) | Clinical ending | Cold teal, single bare bulb, a long corridor vanishing to a point, worn floor |
+| `images (2).jpeg` (blinding white) | Resuscitation | Full overexposure at the jolt, then the teal clinical room resolves |
+
 ## Palettes (starting values, to tune)
 | World | Base | Accent |
 |---|---|---|
 | City | teal-grey `#2E3B3F` → `#5F7478` | ad magenta `#E0329B`, cyan `#36D6E7` |
 | Decay (town, corporation, rotting room) | rust `#7A4A2E`, dust `#B9875A` | sodium `#E8A040` |
 | Dream | mist `#C9C4BA`, birch `#D9D4C8` | leaf gold `#C9822F` glowing through fog, not saturating the frame |
-| Clinical | cold white `#E6EEF2` | — |
+| Apartment interior | walls `#C8B46A` over `#6F7B6E` (dado split) | tiles `#8C3B3B`, `#3E4F66`; damp `#5A5240` |
+| Clinical | teal `#8FB3B5`, worn floor `#B9C4C2` | bare bulb `#FFF6E0`; the jolt: pure white overexposure |
 
 ## Still wanted
-Apartment interior · the statues · clinical/ambulance · sound and music · the friend's look.
+Sound and music · the friend's look · the fashion campaign itself (luxury ads using nature/heritage) · Alain's one-line notes per image.
