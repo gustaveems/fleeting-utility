@@ -1,7 +1,7 @@
 # Fleeting Utility — agent guide
 
 Narrative immersive sim, Godot 4.7 (GDScript 2.0), fixed angled isometric 2.5D.
-Narrative: `MASTER_BRIEF.md`. Mechanics: `GAME_SPEC.md`. Roadmap and plan: `docs/`.
+Story (canonical, read before any narrative work): `docs/STORY.md`. Look: `docs/references/notes.md`. Original brief: `MASTER_BRIEF.md`. Mechanics: `GAME_SPEC.md`. Roadmap and tickets: `docs/`.
 
 ## Commands
 ```bash
