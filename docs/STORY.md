@@ -16,6 +16,12 @@ sells misty birch forests, fallen leaves and old blood-marked stones as heritage
 "authenticity". Even his longing has been sold to him. The only real fragment is one
 fenced stone in a parking lot back home.
 
+**The colossi.** The dream statues are human colossi: 50-foot figures on stone
+plinths, arms raised, a last stand frozen in stone, with blood running down their legs
+and plinths. The city has its own: the corporation's **golden colossus**, the brand's
+polished mascot. It is the same figure, gleaming and straddling a canal, selling
+something. The real ones are stone and blood; the gold one is the lie.
+
 ## Prologue: Arrival
 1. **The town he leaves.** It is not pastoral: it is a smaller copy of the city, further
    along in its decay. Shuttered main street, one logistics depot, fields fenced and
@@ -26,7 +32,8 @@ fenced stone in a parking lot back home.
    older low blocks crammed beneath, haze. The billboards are the brightest thing in the
    sky: techno-futurist promises (*Upgrade your focus. Outperform yourself.*), and among
    them the luxury campaign: a model walking a misty autumn path past blood-marked
-   stones. (Players will see that image again in his dreams.)
+   stones. (Players will see that image again in his dreams.) Over a canal stands the
+   **golden colossus**, the brand's mascot, lit like a promise.
 3. **The building.** The camera drops to street level (dense, filthy, neon in the haze)
    and finds his building: a decaying sliver wedged between taller blocks.
 4. **The lease.** A bare, cramped room. The lease is presented and accepted. Its clauses
@@ -50,8 +57,9 @@ fenced stone in a parking lot back home.
    upgrades, subscriptions, corporate care. Can he trust them?
 9. **Devolution.** When the drug wears off, overload rises and he falls into compulsive
    self-soothing in his own captivity. Each relapse erodes his belief in himself.
-10. **Night.** He dreams of the valley and the 50-foot statues marked with blood, of
-    people who made a last stand for something. When he reaches for the meaning, it
+10. **Night.** He dreams of the valley and its colossi, 50-foot human figures in stone,
+    arms raised, marked with blood: people who made a last stand for something. They
+    look like the golden mascot, but they are not polished. When he reaches for the meaning, it
     slips away. He cannot imagine sacrificing himself, and he admits it: he is a selfish
     animal.
 11. **Morning.** The room is a little more decayed. He tries again.
@@ -73,8 +81,9 @@ fenced stone in a parking lot back home.
 17. Stuck in the ruined room with no drug, in withdrawal. Visions cut between the
     rotting room and the valley.
 18. Without the chemical ego shield, he finally sees past the advert: the stones were
-    never "heritage". The statues are **monuments** to a time when humans stood for
-    something greater than atomic self-interest. For the first time, the meaning stays.
+    never "heritage", and the golden colossus is the lie. The stone colossi are
+    **monuments** to a time when humans stood for something greater than atomic
+    self-interest. For the first time, the meaning stays.
 
 ## Act V: Technological interception
 19. He fades out, at peace.
@@ -96,16 +105,12 @@ fenced stone in a parking lot back home.
 - The brand: one conglomerate behind the billboards, the campaign, the drug and the
   ambulance? (Proposed: yes.)
 - What "walk away" means: leaving, giving up or dying (currently ambiguous on purpose).
-- **Statues as human colossi** (from the Colossus of Rhodes refs): 50-foot figures on
-  stone plinths, arms raised, a last stand frozen; blood running down legs and plinths.
-  They replace the abstract monoliths. (Proposed.)
-- **A golden corporate colossus in the city**: the brand's polished mascot, the same
-  figure as the dream statues, straddling a canal in the prologue flyover. The detox
-  realisation becomes "the gold one is the lie". (Proposed.)
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).
 
 ## Built vs. not yet (2026-10-19)
+Canon since 2026-10-19: human colossi, the golden corporate colossus.
+
 | Built | Not yet |
 |---|---|
-| 5 (Day 1), 6 (painting, reclaim), 9 (compulsion), 10 (dreams, without the forgetting), 11, 13–22 | Prologue 1–4; 7 (status, friend); 8 (promises); 9's self-belief; 10's forgetting and confession; 12 as a story beat; the advert link in 2, 6, 15 and 18 |
+| 5 (Day 1), 6 (painting, reclaim), 9 (compulsion), 10 (dreams, without the forgetting), 11, 13–22 | Prologue 1–4; 7 (status, friend); 8 (promises); 9's self-belief; 10's forgetting and confession; 12 as a story beat; the advert link in 2, 6, 15 and 18; colossus statues (the valley still has cylinder placeholders) and the golden colossus |
