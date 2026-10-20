@@ -1,7 +1,8 @@
 extends "res://tools/lib/verify_harness.gd"
-## Ticket-15 Phase A probe: the prologue film plays its shots in order, the train only
-## moves forward, all three gaze moments fire, and both the full run and a skip land in
-## the game. Runs at 8x speed.
+## Ticket-15 Phase A probe: the prologue film plays its shots in order, fully cinematic
+## (no first person), the train only moves forward, all three framed beats fire, the
+## metro shot shakes, the walk goes up to the top view and back to third person 3 m
+## before the corner, and both the full run and a skip land in the game. Runs at 8x.
 ##
 ## Run: godot --headless --path . -s tools/probe_prologue.gd
 
@@ -29,8 +30,8 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"fourteen shots, ~2.5 min (%.0f s)" % PrologueScript.total_duration(),
-		script.size() == 14 and absf(PrologueScript.total_duration() - 146.0) < 8.0
+		"fifteen shots, ~2.5 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 15 and absf(PrologueScript.total_duration() - 146.0) < 8.0
 	)
 	check(
 		"the train stops at the end of the line (%.1f m)" % p.route_length(),
@@ -39,13 +40,20 @@ func _run() -> void:
 	check("first shot already running", p.shot_index == 0)
 	_shots_seen.append(str(script[0]["name"]))
 	_modes_seen.append(int(script[0]["mode"]))
+	var avenue := p.find_child("Avenue", false, false) as PrologueAvenue
+	var camera := p.find_child("FilmCamera", false, false) as Camera3D
+	# Camera beats: the metro shake (max roll), the top view height, and how far he is
+	# from the corner when third person returns.
+	var cam := {"roll": 0.0, "top_y": 0.0, "back_at": -1.0}
 	p.shot_started.connect(
 		func(_i: int, n: String, m: PrologueScript.Mode):
 			_shots_seen.append(n)
 			_modes_seen.append(int(m))
+			if n == "corner_walk":
+				var corner := PrologueAvenue.PATH[PrologueAvenue.CORNER]
+				cam["back_at"] = avenue.hero.global_position.distance_to(corner)
 	)
 	p.gaze_started.connect(func(t: String): _gazes.append(t))
-	var avenue := p.find_child("Avenue", false, false) as PrologueAvenue
 	check("the avenue exists", avenue != null)
 	var crossings := [0]
 	avenue.suit_crossed.connect(func(): crossings[0] += 1)
@@ -72,6 +80,11 @@ func _run() -> void:
 		walked[0] = avenue.progress
 		end[0] = avenue.hero.global_position
 		street["crowd"] = street["crowd"] or avenue.crowd_arrived()
+		var shot_name := str(script[p.shot_index]["name"])
+		if shot_name == "metro_interior":
+			cam["roll"] = maxf(cam["roll"], absf(camera.global_transform.basis.x.y))
+		if shot_name == "avenue_top" and p.shot_time > 4.0:
+			cam["top_y"] = maxf(cam["top_y"], camera.global_position.y)
 		await process_frame
 	Engine.time_scale = 1.0
 	var names: Array[String] = []
@@ -79,16 +92,23 @@ func _run() -> void:
 		names.append(str(s["name"]))
 	check("every shot, in order (%s)" % str(_shots_seen), _shots_seen == names)
 	check(
-		"POV mixes first person and external",
-		_modes_seen.has(PrologueScript.Mode.FP) and _modes_seen.has(PrologueScript.Mode.EXT_FIXED)
+		"fully cinematic: fixed, travelling, train-riding and interior cameras",
+		(
+			_modes_seen.has(PrologueScript.Mode.EXT_FIXED)
+			and _modes_seen.has(PrologueScript.Mode.EXT_PATH)
+			and _modes_seen.has(PrologueScript.Mode.EXT_FOLLOW)
+			and _modes_seen.has(PrologueScript.Mode.INTERIOR)
+		)
 	)
+	check("the metro shot shakes (roll %.3f)" % cam["roll"], cam["roll"] > 0.004)
 	check("the train only moves forward", _monotonic)
 	check(
-		"the walk mixes in third person and an aisle shot",
-		(
-			_modes_seen.has(PrologueScript.Mode.WALK_FOLLOW)
-			and _modes_seen.has(PrologueScript.Mode.FP_AISLE)
-		)
+		"the walk glides up to a top view over the street (%.1f m)" % cam["top_y"],
+		_modes_seen.has(PrologueScript.Mode.TOP_TRACK) and cam["top_y"] > 15.0
+	)
+	check(
+		"third person returns 3 m before the corner (%.2f m)" % cam["back_at"],
+		absf(cam["back_at"] - PrologueScript.BACK_BEFORE_CORNER) < 0.4
 	)
 	check("he walks all the way to his door (%.2f)" % walked[0], walked[0] >= 0.99)
 	check(

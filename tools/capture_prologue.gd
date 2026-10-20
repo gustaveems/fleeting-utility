@@ -22,16 +22,15 @@ func _run() -> void:
 		while p.shot_index < i and not p.is_finished:
 			await process_frame
 		var shot: Dictionary = shots[i]
-		var gaze: Dictionary = shot.get("gaze", {})
-		var at := 0.55
-		if not gaze.is_empty():
-			at = (float(gaze["from"]) + float(gaze["to"])) * 0.5
-		var marks: Array[float] = [at]
+		# Shots glide, so catch each one early (mid-glide), middle and late.
+		var marks: Array[float] = [0.15, 0.55, 0.92]
 		match str(shot["name"]):
 			"curb_wait":
 				marks = [0.25, 0.44, 0.8, 0.98]  # waiting, the car, the crowd sets off
-			"avenue_walk":
-				marks = [0.06, 0.3, 0.6, 0.67, 0.7, 0.74, 0.8]  # crowd, avenue, the fight
+			"corner_walk":
+				marks = [0.05, 0.2, 0.3, 0.4, 0.6]  # back behind him, the fight, the turn
+			"his_door":
+				marks = [0.55]
 		for k in marks.size():
 			while p.shot_index == i and p.shot_time < float(shot["dur"]) * marks[k]:
 				await process_frame

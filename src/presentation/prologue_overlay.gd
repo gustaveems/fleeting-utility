@@ -1,37 +1,16 @@
 class_name PrologueOverlay
 extends CanvasLayer
-## PRESENTATION — the prologue's 2D layer: the carriage window frame and the packed
-## commuters (window shots), letterbox bars (external and walk shots), subtitles, his phone
-## (the lease notification), the end title and the skip hint.
+## PRESENTATION — the prologue's 2D layer: letterbox bars (the whole film is cinematic),
+## subtitles, his phone (the lease notification), the end title and the skip hint.
 
-enum View { WINDOW, BARE, LETTERBOX }
+enum View { BARE, LETTERBOX }
 
-const FRAME_SHADER := """
-shader_type canvas_item;
-// The carriage interior around a rounded window: dark everywhere except the glass,
-// with a faint grime vignette on the glass itself.
-uniform vec2 window_min = vec2(0.10, 0.16);
-uniform vec2 window_max = vec2(0.90, 0.78);
-uniform float radius = 0.05;
-void fragment() {
-	vec2 uv = UV;
-	vec2 c = clamp(uv, window_min + radius, window_max - radius);
-	float d = length(uv - c) - radius;
-	float glass = 1.0 - smoothstep(0.0, 0.004, d);
-	float grime = smoothstep(0.0, 0.25, length(uv - (window_min + window_max) * 0.5)) * 0.25;
-	COLOR = mix(vec4(0.025, 0.025, 0.03, 1.0), vec4(0.05, 0.06, 0.06, grime), glass);
-}
-"""
-
-var _frame: ColorRect
-var _crowd: Control
 var _bars: Control
 var _subtitle: Label
 var _phone: PanelContainer
 var _phone_label: Label
 var _title: Label
 var _skip: Label
-var _sway_time: float = 0.0
 
 
 func _ready() -> void:
@@ -43,18 +22,8 @@ func _ready() -> void:
 	set_skip_progress(0.0)
 
 
-func _process(delta: float) -> void:
-	# The commuters sway with the carriage.
-	_sway_time += delta
-	if _crowd.visible:
-		_crowd.position = Vector2(sin(_sway_time * 1.3) * 6.0, sin(_sway_time * 2.1) * 3.0)
-
-
-## WINDOW: the carriage frame and the commuters' silhouettes · BARE: nothing (the aisle
-## shot has its own 3D crowd) · LETTERBOX: cinema bars for the external shots.
+## BARE: nothing · LETTERBOX: cinema bars.
 func set_view(view: View) -> void:
-	_frame.visible = view == View.WINDOW
-	_crowd.visible = view == View.WINDOW
 	_bars.visible = view == View.LETTERBOX
 
 
@@ -88,42 +57,7 @@ func _phone_rest_y() -> float:
 
 func _build() -> void:
 	var theme := UiTheme.get_theme()
-	var shader := Shader.new()
-	shader.code = FRAME_SHADER
-	var mat := ShaderMaterial.new()
-	mat.shader = shader
-	_frame = ColorRect.new()
-	_frame.name = "WindowFrame"
-	_frame.material = mat
-	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_frame)
-
-	# Commuters: dark shoulders and heads crowding the frame's lower edge.
-	_crowd = Control.new()
-	_crowd.name = "Commuters"
-	_crowd.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_crowd.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_crowd)
-	for spec in [
-		[0.0, 0.62, 0.22, 0.5],
-		[0.16, 0.7, 0.18, 0.4],
-		[0.74, 0.6, 0.26, 0.55],
-		[0.6, 0.74, 0.16, 0.35]
-	]:
-		var body := Panel.new()
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.015, 0.015, 0.02)
-		style.set_corner_radius_all(120)
-		body.add_theme_stylebox_override("panel", style)
-		body.anchor_left = spec[0]
-		body.anchor_top = spec[1]
-		body.anchor_right = spec[0] + spec[2]
-		body.anchor_bottom = spec[1] + spec[3]
-		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_crowd.add_child(body)
-
-	# Letterbox for the external shots.
+	# Letterbox: the film is shot in cinema bars throughout.
 	_bars = Control.new()
 	_bars.name = "Letterbox"
 	_bars.mouse_filter = Control.MOUSE_FILTER_IGNORE

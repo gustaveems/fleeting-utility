@@ -107,3 +107,30 @@ Alain: everything else is fine, then:
   then the shove, the stagger, the first swing. He sees about two seconds of it, then
   turns away into his street. Its lines are timed from `PrologueAvenue.fight_progress()`.
 - Film: 14 shots, about 146 s.
+
+### A.3 cinematic camera (2026-10-20)
+Alain: make the film fully camera based; keep the shots. The decisions: the camera frames
+the three beats (no first person), and one camera glides between moves with few cuts.
+- **No POV.** The window overlay is gone. Every shot is cinematic and letterboxed.
+- **Glides:** each shot blends in from wherever the camera is (`blend`, default 2 s).
+  It cuts only where it must: the aerial, `through_train` (a glide down would pass
+  through the towers), the metro, the colossus reveal, the station, the door.
+- **Shots (15, about 146 s):**
+  1. `town_establishing`
+  2. `town_glide`: down beside the train, sliding back along it
+  3. `tunnel`: the chase
+  4. `aerial_canyon`: a travelling aerial
+  5. `through_train`: in at the left windows, through the packed carriage, out the
+     right, holding on the campaign
+  6. `metro_interior`: handheld, shaking with the train (scaled by the reduce-motion
+     setting). Down the aisle to him seated, then over his shoulder for the lease on
+     his phone.
+  7. `colossus_reveal`: a slow push
+  8. `through_statue`: chasing the train between its legs, tilting up to the head
+  9. `descent`
+  10. `station_exit` and 11. `curb_wait`: kept
+  12. `avenue_walk`: third person up the median
+  13. `avenue_top`: the camera glides off him to the metro side and up, looking down
+      on the whole street
+  14. `corner_walk`: back behind his shoulder 3 m before the corner; the fight, the turn
+  15. `his_door`

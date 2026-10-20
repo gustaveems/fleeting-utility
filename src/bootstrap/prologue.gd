@@ -3,9 +3,10 @@ extends Node3D
 ## COMPOSITION ROOT + DIRECTOR — the prologue film, Phase A previs (Ticket-15).
 ##
 ## scenes/prologue.tscn runs this. It builds a greybox world along the maglev route and
-## plays PrologueScript.shots(): train distance, camera mode, gaze moments, subtitles.
-## Only what the camera sees is built. Phases B–D replace the greybox; the director
-## and the shot data stay.
+## plays PrologueScript.shots(): train distance, camera moves, framed beats, subtitles.
+## Fully cinematic: one camera glides from each shot into the next (`blend` seconds)
+## unless the shot cuts. Only what the camera sees is built. Phases B–D replace the
+## greybox; the director and the shot data stay.
 ##
 ## Hold E (or Esc) for SKIP_HOLD seconds to skip. Either way it ends in the game.
 
@@ -18,9 +19,14 @@ const SKIP_HOLD := 1.0
 const CARRIAGES := 4
 const CARRIAGE_LENGTH := 18.0
 const CARRIAGE_GAP := 1.2
-## He sits in the second carriage, right-hand window.
+## He sits in the second carriage, by the right-hand window (carriage-local).
 const SEAT_CARRIAGE := 1
-const SEAT_OFFSET := Vector3(1.1, 1.25, 0.0)
+const SEAT_AT := Vector3(1.15, 0.5, 4.6)
+## A shot glides in over this long unless it sets `blend` or `cut`.
+const DEFAULT_BLEND := 2.0
+## Handheld shake inside the metro: metres and radians at full motion_scale.
+const SHAKE_MOVE := 0.035
+const SHAKE_TURN := 0.018
 ## The carriage's window band, centred at head height (seated and standing).
 const WINDOW_Y := 1.35
 const WINDOW_H := 0.9
@@ -42,14 +48,20 @@ var _world_env: WorldEnvironment
 var _env_town: Environment
 var _env_city: Environment
 var _carriages: Array[Node3D] = []
-## His carriage's window glass: hidden in first person (the camera sits behind it).
+## His carriage's window glass: hidden for the interior shot (it would glow in the way).
 var _seat_glass: Array[MeshInstance3D] = []
 var _gaze_targets: Dictionary = {}
 var _avenue: PrologueAvenue
-## His carriage's interior (aisle shot only: from inside it would hide the window view).
+## His carriage's interior: shown for the interior and fly-through shots only.
 var _interior: Array[Node3D] = []
-var _gaze_fired: bool = false
 var _events_fired: int = 0
+## The glide into the current shot: where the camera was, and over how long.
+var _blend_from: Transform3D
+var _blend_fov_from: float = 60.0
+var _blend_dur: float = 0.0
+## The third-person rig's smoothed position (kept apart from the blended camera).
+var _follow_pos: Vector3
+var _follow_snap: bool = true
 var _skip_held: float = 0.0
 var _rng := RandomNumberGenerator.new()
 
@@ -129,29 +141,29 @@ func gaze_target_position(target: String) -> Vector3:
 
 
 func _start_shot(index: int) -> void:
+	var previous: Dictionary = _shots[shot_index] if shot_index >= 0 else {}
 	shot_index = index
 	shot_time = 0.0
-	_gaze_fired = false
 	_events_fired = 0
 	var shot := _shots[index]
 	var mode: PrologueScript.Mode = shot["mode"]
-	_camera.fov = float(shot.get("fov", 60.0))
-	_overlay.set_view(_view_for(mode))
+	# Glide from wherever the camera is, unless this shot cuts (or it is the first).
+	_blend_from = _camera.global_transform
+	_blend_fov_from = _camera.fov
+	var cut: bool = index == 0 or shot.get("cut", false)
+	_blend_dur = 0.0 if cut else float(shot.get("blend", DEFAULT_BLEND))
+	if previous.get("mode", -1) != PrologueScript.Mode.WALK_FOLLOW:
+		_follow_snap = true
+	_overlay.set_view(PrologueOverlay.View.LETTERBOX)
+	_overlay.set_phone(0.0)
 	for pane in _seat_glass:
-		pane.visible = mode != PrologueScript.Mode.FP
+		pane.visible = mode != PrologueScript.Mode.INTERIOR
 	for n in _interior:
-		n.visible = mode == PrologueScript.Mode.FP_AISLE
+		n.visible = mode == PrologueScript.Mode.INTERIOR or shot.get("interior", false)
 	_world_env.environment = _env_town if index < 2 else _env_city
 	shot_started.emit(index, str(shot["name"]), mode)
-
-
-func _view_for(mode: PrologueScript.Mode) -> PrologueOverlay.View:
-	match mode:
-		PrologueScript.Mode.FP:
-			return PrologueOverlay.View.WINDOW
-		PrologueScript.Mode.FP_AISLE:
-			return PrologueOverlay.View.BARE
-	return PrologueOverlay.View.LETTERBOX
+	if shot.has("gaze"):
+		gaze_started.emit(str(shot["gaze"]))
 
 
 func _update_camera(shot: Dictionary, u: float) -> void:
@@ -159,61 +171,99 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 	if shot.has("w"):
 		var w: Array = shot["w"]
 		_avenue.set_walk_progress(lerpf(float(w[0]), float(w[1]), u))
+	var eased := u * u * (3.0 - 2.0 * u)
+	var fov := float(shot.get("fov", 60.0))
 	match mode:
-		PrologueScript.Mode.FP_AISLE:
-			# Standing in the aisle, looking down the packed carriage.
-			var car := _carriages[SEAT_CARRIAGE].global_transform
-			var sway := Vector3(sin(shot_time * 1.4) * 0.04, sin(shot_time * 2.3) * 0.02, 0)
-			_camera.global_position = car * (Vector3(0.35, 1.65, 7.2) + sway)
-			_camera.look_at(car * Vector3(0.0, 1.45, -8.0), car.basis.y)
+		PrologueScript.Mode.EXT_FIXED:
+			_aim(shot["cam"], _look_point(shot, eased), Vector3.UP)
+		PrologueScript.Mode.EXT_PATH:
+			_aim(_along(shot["cam"], eased), _look_point(shot, eased), Vector3.UP)
+		PrologueScript.Mode.EXT_FOLLOW:
+			var car := _carriages[int(shot.get("car", 0))].global_transform
+			_aim(car * _along(shot["cam"], eased), _look_point(shot, eased), Vector3.UP)
+		PrologueScript.Mode.INTERIOR:
+			_update_interior(shot, eased)
 		PrologueScript.Mode.WALK_FOLLOW:
 			# Behind his shoulder, turning with him round the corner.
 			var head := _avenue.hero_head()
 			var facing := _avenue.hero_basis()
 			var target := head + facing * WALK_CAM_OFFSET
-			var w := 1.0 - exp(-get_process_delta_time() * 4.0)
-			_camera.global_position = (
-				target if shot_time < 0.05 else _camera.global_position.lerp(target, w)
-			)
-			_camera.look_at(head + facing * Vector3(0, -0.2, -4.0), Vector3.UP)
-		PrologueScript.Mode.EXT_FIXED:
-			_camera.global_position = shot["cam"]
-			var look: Vector3 = shot.get("look", _carriages[0].global_position)
-			_camera.look_at(look, Vector3.UP)
-		PrologueScript.Mode.EXT_FOLLOW:
-			var car := _carriages[0]
-			_camera.global_position = car.global_transform * (shot["cam"] as Vector3)
-			_camera.look_at(car.global_position, Vector3.UP)
-		PrologueScript.Mode.FP:
-			_update_first_person(shot, u)
+			var k := 1.0 - exp(-get_process_delta_time() * 4.0)
+			_follow_pos = target if _follow_snap else _follow_pos.lerp(target, k)
+			_follow_snap = false
+			_aim(_follow_pos, head + facing * Vector3(0, -0.2, -4.0), Vector3.UP)
+		PrologueScript.Mode.TOP_TRACK:
+			# High over the metro side, sliding along the street with him.
+			var z := _avenue.hero.global_position.z
+			var cam: Vector3 = shot["cam"]
+			var look: Vector3 = shot["look"]
+			_aim(Vector3(cam.x, cam.y, z + cam.z), Vector3(look.x, look.y, z + look.z), Vector3.UP)
+	_camera.fov = fov
+	if shot_time < _blend_dur:
+		var t := shot_time / _blend_dur
+		t = t * t * (3.0 - 2.0 * t)
+		_camera.global_transform = _blend_from.interpolate_with(_camera.global_transform, t)
+		_camera.fov = lerpf(_blend_fov_from, fov, t)
 
 
-func _update_first_person(shot: Dictionary, u: float) -> void:
-	var seat := _carriages[SEAT_CARRIAGE].global_transform
-	var eye := seat * SEAT_OFFSET
-	var right := seat.basis.x.normalized()
-	var forward := -seat.basis.z.normalized()
-	# Resting gaze: out of the right-hand window, a little ahead and down.
-	var rest := Basis.looking_at(right + forward * 0.25 - Vector3.UP * 0.12, Vector3.UP)
-	var basis := rest
-	var phone := 0.0
-	var gaze: Dictionary = shot.get("gaze", {})
-	if not gaze.is_empty():
-		var w := _gaze_weight(u, float(gaze["from"]), float(gaze["to"]))
-		var target := str(gaze["target"])
-		if w > 0.0 and not _gaze_fired:
-			_gaze_fired = true
-			gaze_started.emit(target)
-		var look_dir: Vector3
-		if target == "phone":
-			look_dir = forward * 0.35 + right * 0.2 - Vector3.UP * 1.0
-			phone = w
-		else:
-			look_dir = gaze_target_position(target) - eye
-		var gaze_basis := Basis.looking_at(look_dir.normalized(), Vector3.UP)
-		basis = Basis(rest.get_rotation_quaternion().slerp(gaze_basis.get_rotation_quaternion(), w))
-	_camera.global_transform = Transform3D(basis, eye)
-	_overlay.set_phone(phone, PrologueScript.LEASE_TEXT)
+## Handheld inside his carriage: down the packed aisle to him, over his shoulder at the
+## phone, shaking with the train (scaled by the reduce-motion setting).
+func _update_interior(shot: Dictionary, eased: float) -> void:
+	var car := _carriages[SEAT_CARRIAGE].global_transform
+	var motion := GameSettings.current().motion_scale
+	var t := shot_time
+	var jolt := maxf(sin(t * 0.9) - 0.85, 0.0) * 6.0  # the odd hard bump over a joint
+	var shake := (
+		Vector3(
+			sin(t * 13.1) * 0.6 + sin(t * 7.3) * 0.4,
+			sin(t * 17.7) * 0.5 + sin(t * 9.1) * 0.5 + jolt,
+			sin(t * 5.3) * 0.3
+		)
+		* SHAKE_MOVE
+		* motion
+	)
+	var eye := car * (_along(shot["cam"], eased) + shake)
+	var look := car * _along(shot["look"], eased)
+	_aim(eye, look, car.basis.y)
+	_camera.rotate_object_local(Vector3.FORWARD, sin(t * 11.3) * SHAKE_TURN * motion)
+	_camera.rotate_object_local(Vector3.RIGHT, (sin(t * 8.7) + jolt) * SHAKE_TURN * 0.6 * motion)
+	if shot.has("phone"):
+		var span: Array = shot["phone"]
+		var shown := _gaze_weight(shot_time / float(shot["dur"]), float(span[0]), float(span[1]))
+		_overlay.set_phone(shown, PrologueScript.LEASE_TEXT)
+
+
+func _aim(eye: Vector3, at: Vector3, up: Vector3) -> void:
+	_camera.global_position = eye
+	if eye.distance_to(at) > 0.01:
+		_camera.look_at(at, up)
+
+
+## A point, or a path of points travelled at `t` (0..1) with smooth corners.
+func _along(points: Variant, t: float) -> Vector3:
+	if points is Vector3:
+		return points
+	var path: Array = points
+	if path.size() == 1:
+		return path[0]
+	var f := clampf(t, 0.0, 1.0) * (path.size() - 1)
+	var i := mini(int(f), path.size() - 2)
+	var local := f - i
+	local = local * local * (3.0 - 2.0 * local)
+	return (path[i] as Vector3).lerp(path[i + 1], local)
+
+
+## Where a shot looks: a world point, a path of points, or a named target.
+func _look_point(shot: Dictionary, t: float) -> Vector3:
+	var look: Variant = shot.get("look", "train")
+	if look is String:
+		match look:
+			"train":
+				return _carriages[0].global_position
+			"hero":
+				return _avenue.hero_head()
+		return gaze_target_position(look)
+	return _along(look, t)
 
 
 ## Ease in over the first 20% of the window, hold, ease out over the last 20%.
@@ -425,13 +475,14 @@ func _build_interior(car: Node3D) -> void:
 	warning.modulate = Color(1.0, 0.55, 0.12)
 	warning.position = Vector3(0, 2.0, -half + 0.15)
 	parts.add_child(warning)
-	# The packed crowd standing in the aisle, and a few on the seats.
+	# The packed crowd standing in the aisle (leaving the camera a lane on the right),
+	# and a few on the seats, facing the aisle.
 	var dresses := [StreetFigure.Dress.MIDDLE, StreetFigure.Dress.POOR, StreetFigure.Dress.MIDDLE]
-	for c in 7:
+	for c in 9:
 		var f := StreetFigure.new()
 		f.dress = dresses[c % 3]
 		f.pose = StreetFigure.Pose.STAND
-		f.position = Vector3(_rng.randf_range(-0.5, 0.5), 0.0, -half + 2.0 + c * 1.9)
+		f.position = Vector3(_rng.randf_range(-0.65, -0.15), 0.0, -half + 1.6 + c * 1.6)
 		f.rotation_degrees.y = _rng.randf_range(0, 360)
 		parts.add_child(f)
 	for c in 4:
@@ -439,8 +490,28 @@ func _build_interior(car: Node3D) -> void:
 		f.dress = dresses[(c + 1) % 3]
 		f.pose = StreetFigure.Pose.SLUMP
 		f.position = Vector3(1.15 if c % 2 == 0 else -1.15, 0.5, -half + 3.0 + c * 3.5)
-		f.rotation_degrees.y = -90.0 if c % 2 == 0 else 90.0
+		f.rotation_degrees.y = 90.0 if c % 2 == 0 else -90.0
 		parts.add_child(f)
+	# Him, by the right-hand window, bag in his lap, the lease lighting up his phone.
+	var hero := StreetFigure.new()
+	hero.name = "SeatedHero"
+	hero.dress = StreetFigure.Dress.HERO
+	hero.pose = StreetFigure.Pose.SLUMP
+	hero.position = SEAT_AT
+	hero.rotation_degrees.y = 90.0
+	parts.add_child(hero)
+	var screen := _mat(Color(0.6, 0.95, 1.0), 0.3)
+	screen.emission_enabled = true
+	screen.emission = Color(0.2, 0.84, 0.9)
+	screen.emission_energy_multiplier = 2.5
+	var phone := _box_in(hero, Vector3(0.0, 0.45, -0.38), Vector3(0.08, 0.02, 0.15), screen)
+	phone.rotation_degrees.x = 35.0
+	var glow := OmniLight3D.new()
+	glow.light_color = Color(0.4, 0.9, 1.0)
+	glow.light_energy = 0.6
+	glow.omni_range = 1.2
+	glow.position = Vector3(0.0, 0.6, -0.4)
+	hero.add_child(glow)
 
 
 func _place_train() -> void:
@@ -701,9 +772,15 @@ func _billboard_anchor(i: int) -> Vector3:
 func _sightlines() -> Array[PackedVector2Array]:
 	var lines: Array[PackedVector2Array] = []
 	for shot in _shots:
-		if shot["mode"] == PrologueScript.Mode.EXT_FIXED and shot.has("look"):
-			var cam: Vector3 = shot["cam"]
-			var look: Vector3 = shot["look"]
+		var mode: PrologueScript.Mode = shot["mode"]
+		var world_cam := (
+			mode == PrologueScript.Mode.EXT_FIXED or mode == PrologueScript.Mode.EXT_PATH
+		)
+		if not world_cam or not shot.get("look") is Vector3:
+			continue
+		var look: Vector3 = shot["look"]
+		var cams: Array = shot["cam"] if shot["cam"] is Array else [shot["cam"]]
+		for cam: Vector3 in cams:
 			lines.append(PackedVector2Array([Vector2(cam.x, cam.z), Vector2(look.x, look.z)]))
 	for i in PrologueScript.BILLBOARDS.size():
 		var spec: Array = PrologueScript.BILLBOARDS[i]
