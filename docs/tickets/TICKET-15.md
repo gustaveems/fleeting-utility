@@ -60,3 +60,25 @@ B: city layout · C: look dev (`docs/references/notes.md` palettes) · D: sound 
 - the full run lands in the game
 
 Windowed captures at each shot go to `tools/out/prologue_*.png` for review.
+
+## Phase A.2: train look, carriage interior, the avenue walk (2026-10-20)
+Alain's review: the train moves correctly; the flying shots, the ad and the notification
+work (graphics can come later). He asked for a short walk from the metro stop to the
+building.
+
+- **Maglev exterior** (ref: Shanghai Transrapid): sleek white body, rounded nose, blue and
+  orange stripes, an elevated T-beam guideway. The future as advertised.
+- **Carriage interior** (ref: grimy subway car): one new shot down the packed aisle:
+  steel poles, ads above the windows, graffiti and litter, harsh fluorescent light, a
+  neon "DO NOT CROSS THE LINE". The future as lived.
+- **The avenue walk:** third person, the camera following him, still a film. A short
+  avenue from Block 31 station to his building door:
+  - he walks the **median line**, the same "DO NOT CROSS THE LINE" glyph as in the
+    carriage, between the classes
+  - **left (rich):** a clean, lit Heritage Collection boutique (the campaign's own store),
+    a guard and a rope line, suits going in
+  - **right (poor):** tents, a trash fire, people slumped, a dealer huddle, two men fighting
+  - **suits cross his path twice**; middle-class commuters pass with their heads down
+- **Ends** at the beige sliver's door: a low angle, then the title.
+- **Shot list** becomes 13 (~2 min): `carriage_interior` is added after the tunnel;
+  `his_tower` is replaced by `station_exit`, `avenue_walk` and `his_door`.

@@ -26,6 +26,12 @@ on why you picked it.
 | `images (1).jpeg` (hospital corridor) | Clinical ending | Cold teal, single bare bulb, a long corridor vanishing to a point, worn floor |
 | `images (2).jpeg` (blinding white) | Resuscitation | Full overexposure at the jolt, then the teal clinical room resolves |
 
+### Batch 3 (2026-10-20)
+| File | Use | Take from it |
+|---|---|---|
+| `images (4).jpeg` (Shanghai Transrapid) | Maglev exterior | Sleek white, rounded nose, blue + orange stripes, T-beam guideway: the future as advertised |
+| `sonat-samir-cp-sub2.jpg` (grimy subway car) | Maglev interior | Ads over the windows, steel poles, graffiti and litter, fluorescent strip, neon "DO NOT CROSS THE LINE": the future as lived |
+
 ## Palettes (starting values, to tune)
 | World | Base | Accent |
 |---|---|---|

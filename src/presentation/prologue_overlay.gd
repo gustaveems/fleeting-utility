@@ -1,8 +1,10 @@
 class_name PrologueOverlay
 extends CanvasLayer
 ## PRESENTATION — the prologue's 2D layer: the carriage window frame and the packed
-## commuters (first-person shots), letterbox bars (external shots), subtitles, his phone
+## commuters (window shots), letterbox bars (external and walk shots), subtitles, his phone
 ## (the lease notification), the end title and the skip hint.
+
+enum View { WINDOW, BARE, LETTERBOX }
 
 const FRAME_SHADER := """
 shader_type canvas_item;
@@ -35,7 +37,7 @@ var _sway_time: float = 0.0
 func _ready() -> void:
 	layer = 40
 	_build()
-	set_first_person(false)
+	set_view(View.LETTERBOX)
 	set_phone(0.0)
 	set_title(0.0)
 	set_skip_progress(0.0)
@@ -48,10 +50,12 @@ func _process(delta: float) -> void:
 		_crowd.position = Vector2(sin(_sway_time * 1.3) * 6.0, sin(_sway_time * 2.1) * 3.0)
 
 
-func set_first_person(fp: bool) -> void:
-	_frame.visible = fp
-	_crowd.visible = fp
-	_bars.visible = not fp
+## WINDOW: the carriage frame and the commuters' silhouettes · BARE: nothing (the aisle
+## shot has its own 3D crowd) · LETTERBOX: cinema bars for the external shots.
+func set_view(view: View) -> void:
+	_frame.visible = view == View.WINDOW
+	_crowd.visible = view == View.WINDOW
+	_bars.visible = view == View.LETTERBOX
 
 
 func set_subtitle(text: String) -> void:

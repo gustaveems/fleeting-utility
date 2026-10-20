@@ -29,8 +29,8 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"ten shots, ~90 s",
-		script.size() == 10 and absf(PrologueScript.total_duration() - 88.0) < 6.0
+		"thirteen shots, ~2 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 13 and absf(PrologueScript.total_duration() - 121.0) < 8.0
 	)
 	check("first shot already running", p.shot_index == 0)
 	_shots_seen.append(str(script[0]["name"]))
@@ -41,6 +41,11 @@ func _run() -> void:
 			_modes_seen.append(int(m))
 	)
 	p.gaze_started.connect(func(t: String): _gazes.append(t))
+	var avenue := p.find_child("Avenue", false, false) as PrologueAvenue
+	check("the avenue exists", avenue != null)
+	var crossings := [0]
+	avenue.suit_crossed.connect(func(): crossings[0] += 1)
+	var walked := [0.0]
 	check("gaze targets exist", p.gaze_target_position("campaign") != Vector3.ZERO)
 	check("colossus head target exists", p.gaze_target_position("colossus") != Vector3.ZERO)
 
@@ -50,6 +55,7 @@ func _run() -> void:
 		if p.train_distance < _last_d - 0.01 and p.shot_time > 0.05:
 			_monotonic = false
 		_last_d = p.train_distance
+		walked[0] = avenue.walk_distance
 		await process_frame
 	Engine.time_scale = 1.0
 	var names: Array[String] = []
@@ -61,6 +67,18 @@ func _run() -> void:
 		_modes_seen.has(PrologueScript.Mode.FP) and _modes_seen.has(PrologueScript.Mode.EXT_FIXED)
 	)
 	check("the train only moves forward", _monotonic)
+	check(
+		"the walk mixes in third person and an aisle shot",
+		(
+			_modes_seen.has(PrologueScript.Mode.WALK_FOLLOW)
+			and _modes_seen.has(PrologueScript.Mode.FP_AISLE)
+		)
+	)
+	check(
+		"he walks the avenue to his door (%.1f m)" % walked[0],
+		walked[0] >= PrologueAvenue.LENGTH - 0.5
+	)
+	check("suits cross his path twice (%d)" % crossings[0], crossings[0] == 2)
 	check(
 		"gaze moments: ad, lease, colossus (%s)" % str(_gazes),
 		_gazes == ["campaign", "phone", "colossus"]

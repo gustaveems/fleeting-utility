@@ -21,7 +21,10 @@ const CARRIAGE_GAP := 1.2
 ## He sits in the second carriage, right-hand window.
 const SEAT_CARRIAGE := 1
 const SEAT_OFFSET := Vector3(1.1, 1.75, 0.0)
-const HIS_TOWER := Vector3(458, 0, -78)
+## Ground area kept free of generated towers for the avenue walk.
+const AVENUE_CLEAR := Rect2(Vector2(392, -145), Vector2(80, 108))
+## Third-person follow: behind and over his right shoulder.
+const WALK_CAM_OFFSET := Vector3(1.3, 2.3, 4.8)
 
 var shot_index: int = -1
 var shot_time: float = 0.0
@@ -39,6 +42,9 @@ var _carriages: Array[Node3D] = []
 ## His carriage's window glass: hidden in first person (the camera sits behind it).
 var _seat_glass: Array[MeshInstance3D] = []
 var _gaze_targets: Dictionary = {}
+var _avenue: PrologueAvenue
+## His carriage's interior (aisle shot only: from inside it would hide the window view).
+var _interior: Array[Node3D] = []
 var _gaze_fired: bool = false
 var _skip_held: float = 0.0
 var _rng := RandomNumberGenerator.new()
@@ -57,7 +63,9 @@ func _ready() -> void:
 	_build_city()
 	_build_billboards()
 	_build_colossus()
-	_build_his_tower()
+	_avenue = PrologueAvenue.new()
+	_avenue.name = "Avenue"
+	add_child(_avenue)
 	_build_train()
 	_camera = Camera3D.new()
 	_camera.name = "FilmCamera"
@@ -117,16 +125,44 @@ func _start_shot(index: int) -> void:
 	var shot := _shots[index]
 	var mode: PrologueScript.Mode = shot["mode"]
 	_camera.fov = float(shot.get("fov", 60.0))
-	_overlay.set_first_person(mode == PrologueScript.Mode.FP)
+	_overlay.set_view(_view_for(mode))
 	for pane in _seat_glass:
 		pane.visible = mode != PrologueScript.Mode.FP
+	for n in _interior:
+		n.visible = mode == PrologueScript.Mode.FP_AISLE
 	_world_env.environment = _env_town if index < 2 else _env_city
 	shot_started.emit(index, str(shot["name"]), mode)
 
 
+func _view_for(mode: PrologueScript.Mode) -> PrologueOverlay.View:
+	match mode:
+		PrologueScript.Mode.FP:
+			return PrologueOverlay.View.WINDOW
+		PrologueScript.Mode.FP_AISLE:
+			return PrologueOverlay.View.BARE
+	return PrologueOverlay.View.LETTERBOX
+
+
 func _update_camera(shot: Dictionary, u: float) -> void:
 	var mode: PrologueScript.Mode = shot["mode"]
+	if shot.has("w"):
+		var w: Array = shot["w"]
+		_avenue.set_walk_distance(lerpf(float(w[0]), float(w[1]), u))
 	match mode:
+		PrologueScript.Mode.FP_AISLE:
+			# Standing in the aisle, looking down the packed carriage.
+			var car := _carriages[SEAT_CARRIAGE].global_transform
+			var sway := Vector3(sin(shot_time * 1.4) * 0.04, sin(shot_time * 2.3) * 0.02, 0)
+			_camera.global_position = car * (Vector3(0.35, 1.65, 7.2) + sway)
+			_camera.look_at(car * Vector3(0.0, 1.45, -8.0), car.basis.y)
+		PrologueScript.Mode.WALK_FOLLOW:
+			var head := _avenue.hero_head()
+			var target := head + WALK_CAM_OFFSET
+			var w := 1.0 - exp(-get_process_delta_time() * 4.0)
+			_camera.global_position = (
+				target if shot_time < 0.05 else _camera.global_position.lerp(target, w)
+			)
+			_camera.look_at(head + Vector3(0, -0.2, -4.0), Vector3.UP)
 		PrologueScript.Mode.EXT_FIXED:
 			_camera.global_position = shot["cam"]
 			var look: Vector3 = shot.get("look", _carriages[0].global_position)
@@ -224,8 +260,12 @@ func _frame_at(d: float) -> Transform3D:
 	return Transform3D(Basis(right, up, -forward), p)
 
 
+## Outside: the Transrapid look, sleek white, blue and orange stripes, a rounded nose.
+## The future as advertised. Inside his carriage: the future as lived (_build_interior).
 func _build_train() -> void:
-	var body := _mat(Color(0.62, 0.64, 0.66), 0.5)
+	var body := _mat(Color(0.92, 0.93, 0.94), 0.35)
+	var blue := _mat(Color(0.12, 0.28, 0.62), 0.4)
+	var orange := _mat(Color(0.92, 0.48, 0.16), 0.4)
 	var glass := _mat(Color(0.95, 0.88, 0.62), 0.3)
 	glass.emission_enabled = true
 	glass.emission = Color(0.95, 0.85, 0.55)
@@ -241,8 +281,132 @@ func _build_train() -> void:
 			)
 			if i == SEAT_CARRIAGE:
 				_seat_glass.append(pane)
+			_box_in(car, Vector3(side * 1.61, 1.25, 0), Vector3(0.04, 0.16, CARRIAGE_LENGTH), blue)
+			_box_in(
+				car, Vector3(side * 1.61, 1.05, 0), Vector3(0.04, 0.08, CARRIAGE_LENGTH), orange
+			)
+		if i == 0:
+			_build_nose(car, body)
+		if i == SEAT_CARRIAGE:
+			_build_interior(car)
 		_carriages.append(car)
 	_place_train()
+
+
+func _build_nose(car: Node3D, body: Material) -> void:
+	var nose := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 1.6
+	sphere.height = 3.4
+	nose.mesh = sphere
+	nose.material_override = body
+	nose.scale = Vector3(1.0, 1.0, 2.0)
+	nose.position = Vector3(0, 1.7, -CARRIAGE_LENGTH * 0.5)
+	car.add_child(nose)
+	var screen := _mat(Color(0.05, 0.07, 0.1), 0.15)
+	_box_in(car, Vector3(0, 2.35, -CARRIAGE_LENGTH * 0.5 - 2.2), Vector3(2.0, 0.7, 0.9), screen)
+
+
+## The grimy subway interior (ref sonat-samir-cp-sub2.jpg): poles, ads over the windows,
+## graffiti and litter, a fluorescent strip, a neon warning, the packed standing crowd.
+## Rendered from inside (front faces culled), visible only during the aisle shot.
+func _build_interior(car: Node3D) -> void:
+	var shell := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(3.1, 3.3, CARRIAGE_LENGTH - 0.2)
+	shell.mesh = box
+	var wall := _mat(Color(0.34, 0.36, 0.33), 0.9)
+	wall.cull_mode = BaseMaterial3D.CULL_FRONT
+	shell.material_override = wall
+	shell.position = Vector3(0, 1.7, 0)
+	car.add_child(shell)
+	_interior.append(shell)
+	var parts := Node3D.new()
+	parts.name = "Interior"
+	car.add_child(parts)
+	_interior.append(parts)
+	var steel := _mat(Color(0.7, 0.72, 0.74), 0.25)
+	steel.metallic = 0.8
+	var seat := _mat(Color(0.42, 0.46, 0.44), 0.7)
+	var half := CARRIAGE_LENGTH * 0.5
+	var z := -half + 1.5
+	while z < half - 1.0:
+		for side in [-1.0, 1.0]:
+			_box_in(parts, Vector3(side * 1.2, 0.45, z), Vector3(0.6, 0.12, 1.4), seat)
+		var pole := MeshInstance3D.new()
+		var cyl := CylinderMesh.new()
+		cyl.top_radius = 0.03
+		cyl.bottom_radius = 0.03
+		cyl.height = 3.2
+		pole.mesh = cyl
+		pole.material_override = steel
+		pole.position = Vector3(0.0, 1.6, z)
+		parts.add_child(pole)
+		z += 2.6
+	var colors := [Color(0.9, 0.2, 0.6), Color(0.2, 0.84, 0.9), Color(0.95, 0.8, 0.2)]
+	var k := 0
+	z = -half + 1.2
+	while z < half - 1.0:
+		for side in [-1.0, 1.0]:
+			var ad := _mat(colors[k % 3], 0.5)
+			ad.emission_enabled = true
+			ad.emission = colors[k % 3]
+			ad.emission_energy_multiplier = 0.9
+			_box_in(parts, Vector3(side * 1.48, 2.85, z), Vector3(0.04, 0.4, 1.8), ad)
+			k += 1
+		z += 2.2
+	var tube := _mat(Color(0.95, 0.97, 1.0), 0.5)
+	tube.emission_enabled = true
+	tube.emission = Color(0.9, 0.95, 1.0)
+	tube.emission_energy_multiplier = 2.0
+	_box_in(parts, Vector3(0, 3.28, 0), Vector3(0.2, 0.04, CARRIAGE_LENGTH - 1.0), tube)
+	var light := OmniLight3D.new()
+	light.light_color = Color(0.85, 0.92, 1.0)
+	light.light_energy = 1.6
+	light.omni_range = 12.0
+	light.position = Vector3(0, 3.0, 0)
+	parts.add_child(light)
+	var graffiti := _mat(Color(0.95, 0.85, 0.2), 0.8)
+	graffiti.emission_enabled = true
+	graffiti.emission = Color(0.6, 0.5, 0.1)
+	for g in 6:
+		var stroke := _box_in(
+			parts,
+			Vector3(_rng.randf_range(-0.8, 0.8), 0.06, _rng.randf_range(-half + 1, half - 1)),
+			Vector3(_rng.randf_range(0.6, 1.4), 0.01, 0.06),
+			graffiti
+		)
+		stroke.rotation_degrees.y = _rng.randf_range(0, 180)
+	for g in 8:
+		_box_in(
+			parts,
+			Vector3(_rng.randf_range(-1.1, 1.1), 0.08, _rng.randf_range(-half + 1, half - 1)),
+			Vector3(0.12, 0.08, 0.16),
+			_mat(Color(0.85, 0.85, 0.8), 0.9)
+		)
+	var warning := Label3D.new()
+	warning.text = "DO NOT\nCROSS\nTHE LINE"
+	warning.font_size = 64
+	warning.pixel_size = 0.006
+	warning.modulate = Color(1.0, 0.55, 0.12)
+	warning.position = Vector3(0, 2.0, -half + 0.15)
+	parts.add_child(warning)
+	# The packed crowd standing in the aisle, and a few on the seats.
+	var dresses := [StreetFigure.Dress.MIDDLE, StreetFigure.Dress.POOR, StreetFigure.Dress.MIDDLE]
+	for c in 7:
+		var f := StreetFigure.new()
+		f.dress = dresses[c % 3]
+		f.pose = StreetFigure.Pose.STAND
+		f.position = Vector3(_rng.randf_range(-0.5, 0.5), 0.0, -half + 2.0 + c * 1.9)
+		f.rotation_degrees.y = _rng.randf_range(0, 360)
+		parts.add_child(f)
+	for c in 4:
+		var f := StreetFigure.new()
+		f.dress = dresses[(c + 1) % 3]
+		f.pose = StreetFigure.Pose.SLUMP
+		f.position = Vector3(1.15 if c % 2 == 0 else -1.15, 0.5, -half + 3.0 + c * 3.5)
+		f.rotation_degrees.y = -90.0 if c % 2 == 0 else 90.0
+		parts.add_child(f)
 
 
 func _place_train() -> void:
@@ -311,11 +475,19 @@ func _build_track() -> void:
 		var f := _frame_at(d)
 		var seg := MeshInstance3D.new()
 		var box := BoxMesh.new()
-		box.size = Vector3(2.6, 0.8, 6.4)
+		box.size = Vector3(3.6, 0.3, 6.4)
 		seg.mesh = box
 		seg.material_override = beam_mat
 		add_child(seg)
-		seg.global_transform = Transform3D(f.basis, f.origin - f.basis.y * 0.6)
+		seg.global_transform = Transform3D(f.basis, f.origin - f.basis.y * 0.35)
+		# T-beam: the web under the plate the train wraps around.
+		var web := MeshInstance3D.new()
+		var web_box := BoxMesh.new()
+		web_box.size = Vector3(1.2, 1.6, 6.4)
+		web.mesh = web_box
+		web.material_override = beam_mat
+		add_child(web)
+		web.global_transform = Transform3D(f.basis, f.origin - f.basis.y * 1.3)
 		if fmod(d, 30.0) < 6.0:
 			var pylon := MeshInstance3D.new()
 			var cyl := CylinderMesh.new()
@@ -407,7 +579,7 @@ func _build_city() -> void:
 					continue
 				if at.distance_to(Vector3(colossus.x, 0, colossus.z)) < 42.0:
 					continue
-				if at.distance_to(HIS_TOWER) < 48.0:
+				if AVENUE_CLEAR.has_point(Vector2(at.x, at.z)):
 					continue
 				if _blocks_view(at, sightlines, boards):
 					continue
@@ -546,16 +718,6 @@ func _build_colossus() -> void:
 	# Straddle the track: its legs either side, facing along the line.
 	figure.global_transform = Transform3D(f.basis, Vector3(f.origin.x, 0.0, f.origin.z))
 	_gaze_targets["colossus"] = figure.head
-
-
-## His building: a beige sliver wedged between two bigger blocks, by the last station.
-func _build_his_tower() -> void:
-	var at := HIS_TOWER
-	_box(at + Vector3(0, 24, 0), Vector3(8, 48, 12), _mat(Color(0.72, 0.64, 0.52), 0.95))
-	var block := _mat(Color(0.22, 0.27, 0.29), 0.9)
-	_box(at + Vector3(-20, 36, 0), Vector3(32, 72, 30), block)
-	_box(at + Vector3(20, 30, 0), Vector3(32, 60, 30), block)
-	_box(Vector3(440, 3.2, -52), Vector3(10, 1, 26), _mat(Color(0.3, 0.3, 0.3), 0.9))  # station
 
 
 ## ----- HELPERS -----------------------------------------------------------------------

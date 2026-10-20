@@ -43,7 +43,8 @@ func _initialize() -> void:
 	ws = scene.instantiate()
 	root.add_child(ws)
 	current_scene = ws  # so change_scene_to_* works (menus, quit to menu)
-	create_timer(TIMEOUT_SECONDS).timeout.connect(_on_watchdog)
+	# Real seconds (ignore_time_scale): probes may run the game faster than real time.
+	create_timer(TIMEOUT_SECONDS, true, false, true).timeout.connect(_on_watchdog)
 	_drive()
 
 

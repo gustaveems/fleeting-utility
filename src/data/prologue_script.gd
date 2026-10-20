@@ -4,14 +4,16 @@ extends RefCounted
 ## and the lines. Everything about timing and framing is here, so tuning the film is
 ## editing this file. See docs/tickets/TICKET-15.md.
 ##
-## Distances are metres along the track. Camera modes:
+## Distances are metres along the track (`d`) or along the avenue walk (`w`). Modes:
 ##   FP           first person from his seat, looking out the right-hand window
+##   FP_AISLE     first person, standing in the packed aisle looking down the carriage
 ##   EXT_FIXED    a static camera at `cam`, looking at `look` (or the train if absent)
 ##   EXT_FOLLOW   a camera riding with the train at train-local offset `cam`
+##   WALK_FOLLOW  third person, following him down the avenue
 ## A shot may carry one gaze moment: the first-person view turns to `target` for
 ## [`from`, `to`] of the shot (0..1), easing in and out.
 
-enum Mode { FP, EXT_FIXED, EXT_FOLLOW }
+enum Mode { FP, FP_AISLE, EXT_FIXED, EXT_FOLLOW, WALK_FOLLOW }
 
 ## Track control points (metres; y is the elevated rail height).
 const ROUTE: Array[Vector3] = [
@@ -48,6 +50,9 @@ const BILLBOARDS: Array = [
 ]
 const CAMPAIGN_BILLBOARD := 2
 
+## Where the train stops (the end of the line).
+const END_OF_LINE := 1107.0
+
 const LEASE_TEXT := "LEASE CONFIRMED\nUnit 7-14B, Block 31\nTerms apply. Renewal at discretion."
 const TITLE := "FLEETING UTILITY"
 
@@ -82,10 +87,18 @@ static func shots() -> Array[Dictionary]:
 			"lines": [[3.5, "RADIO: …lease rates in the inner districts rose again overnight…"]],
 		},
 		{
+			"name": "carriage_interior",
+			"mode": Mode.FP_AISLE,
+			"dur": 7.0,
+			"d": [400.0, 450.0],
+			"fov": 70.0,
+			"lines": [[1.0, "PA: For your safety, do not cross the line."]],
+		},
+		{
 			"name": "aerial_canyon",
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
-			"d": [400.0, 500.0],
+			"d": [450.0, 530.0],
 			"cam": Vector3(-60, 230, 330),
 			"look": Vector3(40, 15, -30),
 			"fov": 55.0,
@@ -95,7 +108,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "canyon_campaign",
 			"mode": Mode.FP,
 			"dur": 14.0,
-			"d": [500.0, 700.0],
+			"d": [530.0, 700.0],
 			"fov": 62.0,
 			"gaze": {"target": "campaign", "from": 0.25, "to": 0.8},
 			"lines":
@@ -136,19 +149,45 @@ static func shots() -> Array[Dictionary]:
 			"name": "descent",
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 8.0,
-			"d": [960.0, 1090.0],
+			"d": [960.0, END_OF_LINE],
 			"cam": Vector3(-14, 6, 18),
 			"fov": 58.0,
 			"lines": [[2.0, "PA: Block 31. Mind the gap. Mind your lease."]],
 		},
 		{
-			"name": "his_tower",
+			"name": "station_exit",
+			"mode": Mode.EXT_FIXED,
+			"dur": 6.0,
+			"d": [END_OF_LINE, END_OF_LINE],
+			"w": [0.0, 9.0],
+			"cam": Vector3(424, 3.2, -57),
+			"look": Vector3(431, 1.0, -82),
+			"fov": 55.0,
+			"lines": [[1.0, "SPEAKER: Residents remain on their side of the line."]],
+		},
+		{
+			"name": "avenue_walk",
+			"mode": Mode.WALK_FOLLOW,
+			"dur": 20.0,
+			"d": [END_OF_LINE, END_OF_LINE],
+			"w": [9.0, 44.0],
+			"fov": 58.0,
+			"lines":
+			[
+				[2.0, "VENDOR: Focus! Fresh focus, cheap, cheaper than theirs."],
+				[9.0, "BOUTIQUE: Heritage Collection. By appointment."],
+				[15.0, "…get off me — get OFF me…"],
+			],
+		},
+		{
+			"name": "his_door",
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
-			"d": [1090.0, 1110.0],
-			"cam": Vector3(452, 16, -36),
-			"look": Vector3(458, 26, -78),
-			"fov": 45.0,
+			"d": [END_OF_LINE, END_OF_LINE],
+			"w": [44.0, 50.0],
+			"cam": Vector3(433.5, 0.7, -104),
+			"look": Vector3(430, 22, -124),
+			"fov": 60.0,
 			"lines": [],
 			"title": true,
 		},
