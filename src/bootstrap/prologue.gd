@@ -124,6 +124,7 @@ func finish() -> void:
 		return
 	is_finished = true
 	finished.emit()
+	LeaseSigning.pending = true  # he signs the lease as the game begins
 	get_tree().change_scene_to_file(GAME_SCENE_PATH)
 
 

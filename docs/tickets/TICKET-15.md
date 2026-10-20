@@ -134,3 +134,11 @@ the three beats (no first person), and one camera glides between moves with few 
       on the whole street
   14. `corner_walk`: back behind his shoulder 3 m before the corner; the fight, the turn
   15. `his_door`
+
+### Phase E: lease signing (2026-10-20)
+`LeaseSigning` (ui module): when the prologue hands over, the lease lies over the bare
+room. He can't move or interact until you hold E for 1.2 s. It takes a fresh press, so
+E still held from skipping the prologue doesn't sign it. Its six clauses are the
+mechanics he will live under: decay, productivity review, works reclaimed, sanctioned
+focus, renewal at discretion, stay on your side of the line. It is gated by a static
+`pending` flag, so Continue and tests never see it. Verified by `tools/probe_lease.gd`.
