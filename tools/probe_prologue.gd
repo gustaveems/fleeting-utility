@@ -30,12 +30,21 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"fifteen shots, ~2.5 min (%.0f s)" % PrologueScript.total_duration(),
-		script.size() == 15 and absf(PrologueScript.total_duration() - 146.0) < 8.0
+		"fifteen shots, ~2 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 15 and absf(PrologueScript.total_duration() - 120.0) < 8.0
 	)
 	check(
 		"the train stops at the end of the line (%.1f m)" % p.route_length(),
 		absf(p.route_length() - PrologueScript.END_OF_LINE) < 2.0
+	)
+	var speeds: Array[int] = []
+	for s in script:
+		var span: Array = s["d"]
+		if s["mode"] != PrologueScript.Mode.INTERIOR and float(span[1]) > float(span[0]):
+			speeds.append(roundi((float(span[1]) - float(span[0])) / float(s["dur"])))
+	check(
+		"the train runs steadily wherever it is seen: 15 then ~20 m/s (%s)" % str(speeds),
+		speeds.min() >= 14 and speeds.max() <= 25
 	)
 	check("first shot already running", p.shot_index == 0)
 	_shots_seen.append(str(script[0]["name"]))

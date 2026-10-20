@@ -74,7 +74,8 @@ const TOP_AFTER_MEDIAN := 6.0
 const BACK_BEFORE_CORNER := 3.0
 
 
-## The shot list. `d` = [train distance at start, at end].
+## The shot list. `d` = [train distance at start, at end]. The train runs at a steady
+## ~15 m/s out of the town, then ~20–22 m/s wherever it is seen from outside.
 static func shots() -> Array[Dictionary]:
 	# Walk marks come from the avenue's path (metres → fractions and durations).
 	var total := PrologueAvenue.walk_length()
@@ -89,7 +90,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "town_establishing",
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
-			"d": [0.0, 40.0],
+			"d": [0.0, 120.0],
 			"cam": Vector3(-560, 9, 34),
 			"look": Vector3(-610, 10, 0),
 			"fov": 50.0,
@@ -99,9 +100,9 @@ static func shots() -> Array[Dictionary]:
 			# Glide down beside the train and slide back along it over the dying town.
 			"name": "town_glide",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 10.0,
+			"dur": 8.0,
 			"blend": 3.0,
-			"d": [40.0, 230.0],
+			"d": [120.0, 290.0],
 			"cam": [Vector3(9, 1.5, -14), Vector3(10, 3.0, 34)],
 			"look": "train",
 			"fov": 55.0,
@@ -110,9 +111,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "tunnel",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 7.0,
+			"dur": 5.0,
 			"blend": 2.0,
-			"d": [230.0, 400.0],
+			"d": [290.0, 400.0],
 			"cam": [Vector3(0, 3.6, 30), Vector3(0, 3.0, 18)],
 			"look": "train",
 			"fov": 60.0,
@@ -121,9 +122,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "aerial_canyon",
 			"mode": Mode.EXT_PATH,
-			"dur": 9.0,
+			"dur": 6.0,
 			"cut": true,
-			"d": [400.0, 530.0],
+			"d": [400.0, 520.0],
 			"cam": [Vector3(-60, 230, 330), Vector3(-20, 150, 200)],
 			"look": Vector3(40, 15, -30),
 			"fov": 55.0,
@@ -134,9 +135,9 @@ static func shots() -> Array[Dictionary]:
 			# the right, holding on the campaign.
 			"name": "through_train",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 14.0,
+			"dur": 8.0,
 			"cut": true,  # a glide down from the aerial would pass through the towers
-			"d": [560.0, 690.0],
+			"d": [520.0, 680.0],
 			"car": 1,
 			"cam":
 			[Vector3(-9, 2.2, 6), Vector3(-2.5, 1.7, 2), Vector3(2.5, 1.7, -1), Vector3(9, 3, -3)],
@@ -147,7 +148,7 @@ static func shots() -> Array[Dictionary]:
 			"lines":
 			[
 				[1.0, "RADIO: The Heritage Collection. Walk where your ancestors stood."],
-				[8.0, "RADIO: Authenticity, now available on lease."],
+				[4.5, "RADIO: Authenticity, now available on lease."],
 			],
 		},
 		{
@@ -155,9 +156,9 @@ static func shots() -> Array[Dictionary]:
 			# shoulder, the lease on his phone.
 			"name": "metro_interior",
 			"mode": Mode.INTERIOR,
-			"dur": 12.0,
+			"dur": 8.0,
 			"cut": true,
-			"d": [690.0, 790.0],
+			"d": [680.0, 760.0],
 			"cam": [Vector3(0.45, 1.75, -8.2), Vector3(0.5, 1.68, 1.2), Vector3(1.0, 1.9, 3.7)],
 			"look": [Vector3(0.2, 1.4, 8.0), Vector3(0.9, 1.0, 4.6), Vector3(0.77, 0.92, 4.55)],
 			"gaze": "phone",
@@ -168,9 +169,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "colossus_reveal",
 			"mode": Mode.EXT_PATH,
-			"dur": 10.0,
+			"dur": 6.0,
 			"cut": true,
-			"d": [790.0, 880.0],
+			"d": [760.0, 880.0],
 			"cam": [Vector3(150, 20, 120), Vector3(172, 26, 98)],
 			"look": Vector3(230, 30, 30),
 			"fov": 48.0,
@@ -180,9 +181,9 @@ static func shots() -> Array[Dictionary]:
 			# Through the statue: chasing the train between its legs, tilting up to the head.
 			"name": "through_statue",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 8.0,
+			"dur": 5.0,
 			"blend": 2.5,
-			"d": [880.0, 960.0],
+			"d": [880.0, 980.0],
 			"cam": [Vector3(2, 7, 30), Vector3(1.5, 3.5, 4)],
 			"look": "colossus",
 			"gaze": "colossus",
@@ -192,9 +193,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "descent",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 8.0,
+			"dur": 6.0,
 			"blend": 1.5,
-			"d": [960.0, END_OF_LINE],
+			"d": [980.0, END_OF_LINE],
 			"cam": Vector3(10, 30, 34),
 			"look": "train",
 			"fov": 58.0,
