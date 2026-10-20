@@ -91,3 +91,19 @@ the median → up the avenue (rundown block on the right) → right at the corne
 fight → the cross street → his complex's door. The follow camera turns with his heading.
 `w` in the shot list is now a fraction of the walk. Walk shots: `station_exit` 8 s,
 `avenue_walk` 36 s, `his_door` 8 s (film ≈ 139 s).
+
+### A.2 review pass 2 (2026-10-20)
+Alain: everything else is fine, then:
+- **Metro windows at head height.** The window band is centred at 1.35 m (it was 2.0 m).
+  The stripes moved below it, his seated eye is at 1.25 m, and the aisle shot now has
+  night glass at the same height.
+- **A shoulder bag** at his right hip, the strap across his chest.
+- **He waits at the curb** (new shot `curb_wait`, 7 s): a car rides past, then a group
+  of ten crosses toward the metro around him and climbs to the platform.
+- **The street is packed** (81 figures): commuters stream both ways on each sidewalk,
+  along the median and in his street, plus a stall, the fire, the queue, the slumped and
+  people by his door. Cables, laundry, AC units and more neon close in overhead.
+- **The fight starts at the left corner of his street** (a lit liquor store). They argue,
+  then the shove, the stagger, the first swing. He sees about two seconds of it, then
+  turns away into his street. Its lines are timed from `PrologueAvenue.fight_progress()`.
+- Film: 14 shots, about 146 s.

@@ -27,8 +27,11 @@ func _run() -> void:
 		if not gaze.is_empty():
 			at = (float(gaze["from"]) + float(gaze["to"])) * 0.5
 		var marks: Array[float] = [at]
-		if shot["mode"] == PrologueScript.Mode.WALK_FOLLOW:
-			marks = [0.12, 0.45, 0.75, 0.95]  # the stairs' foot, avenue, fight, corner
+		match str(shot["name"]):
+			"curb_wait":
+				marks = [0.25, 0.44, 0.8, 0.98]  # waiting, the car, the crowd sets off
+			"avenue_walk":
+				marks = [0.06, 0.3, 0.6, 0.67, 0.7, 0.74, 0.8]  # crowd, avenue, the fight
 		for k in marks.size():
 			while p.shot_index == i and p.shot_time < float(shot["dur"]) * marks[k]:
 				await process_frame

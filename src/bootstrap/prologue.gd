@@ -20,7 +20,10 @@ const CARRIAGE_LENGTH := 18.0
 const CARRIAGE_GAP := 1.2
 ## He sits in the second carriage, right-hand window.
 const SEAT_CARRIAGE := 1
-const SEAT_OFFSET := Vector3(1.1, 1.75, 0.0)
+const SEAT_OFFSET := Vector3(1.1, 1.25, 0.0)
+## The carriage's window band, centred at head height (seated and standing).
+const WINDOW_Y := 1.35
+const WINDOW_H := 0.9
 ## Ground area kept free of generated towers for the avenue walk.
 const AVENUE_CLEAR := Rect2(Vector2(366, -155), Vector2(136, 120))
 ## Third-person follow: behind and over his right shoulder.
@@ -46,6 +49,7 @@ var _avenue: PrologueAvenue
 ## His carriage's interior (aisle shot only: from inside it would hide the window view).
 var _interior: Array[Node3D] = []
 var _gaze_fired: bool = false
+var _events_fired: int = 0
 var _skip_held: float = 0.0
 var _rng := RandomNumberGenerator.new()
 
@@ -98,6 +102,7 @@ func _process(delta: float) -> void:
 	_place_train()
 	_update_camera(shot, u)
 	_update_lines(shot)
+	_update_events(shot)
 	_overlay.set_title(clampf((u - 0.3) / 0.4, 0.0, 1.0) if shot.get("title", false) else 0.0)
 
 
@@ -127,6 +132,7 @@ func _start_shot(index: int) -> void:
 	shot_index = index
 	shot_time = 0.0
 	_gaze_fired = false
+	_events_fired = 0
 	var shot := _shots[index]
 	var mode: PrologueScript.Mode = shot["mode"]
 	_camera.fov = float(shot.get("fov", 60.0))
@@ -229,6 +235,14 @@ func _update_lines(shot: Dictionary) -> void:
 	_overlay.set_subtitle(text)
 
 
+## A shot's street events ([time, name], in time order) cue the avenue: the car, the crowd.
+func _update_events(shot: Dictionary) -> void:
+	var events: Array = shot.get("events", [])
+	while _events_fired < events.size() and shot_time >= float(events[_events_fired][0]):
+		_avenue.trigger(str(events[_events_fired][1]))
+		_events_fired += 1
+
+
 func _update_skip(delta: float) -> void:
 	var holding := (
 		Input.is_action_pressed(InputActionData.ACTION_INTERACT)
@@ -284,14 +298,15 @@ func _build_train() -> void:
 		_box_in(car, Vector3(0, 1.7, 0), Vector3(3.2, 3.4, CARRIAGE_LENGTH), body)
 		for side in [-1.0, 1.0]:
 			var pane := _box_in(
-				car, Vector3(side * 1.62, 2.0, 0), Vector3(0.05, 0.9, CARRIAGE_LENGTH - 2.0), glass
+				car,
+				Vector3(side * 1.62, WINDOW_Y, 0),
+				Vector3(0.05, WINDOW_H, CARRIAGE_LENGTH - 2.0),
+				glass
 			)
 			if i == SEAT_CARRIAGE:
 				_seat_glass.append(pane)
-			_box_in(car, Vector3(side * 1.61, 1.25, 0), Vector3(0.04, 0.16, CARRIAGE_LENGTH), blue)
-			_box_in(
-				car, Vector3(side * 1.61, 1.05, 0), Vector3(0.04, 0.08, CARRIAGE_LENGTH), orange
-			)
+			_box_in(car, Vector3(side * 1.61, 0.7, 0), Vector3(0.04, 0.16, CARRIAGE_LENGTH), blue)
+			_box_in(car, Vector3(side * 1.61, 0.5, 0), Vector3(0.04, 0.08, CARRIAGE_LENGTH), orange)
 		if i == 0:
 			_build_nose(car, body)
 		if i == SEAT_CARRIAGE:
@@ -349,6 +364,18 @@ func _build_interior(car: Node3D) -> void:
 		pole.material_override = steel
 		pole.position = Vector3(0.0, 1.6, z)
 		parts.add_child(pole)
+		z += 2.6
+	# The windows from inside: night glass at head height, between the poles.
+	var night := _mat(Color(0.06, 0.09, 0.12), 0.1)
+	night.emission_enabled = true
+	night.emission = Color(0.1, 0.16, 0.2)
+	night.emission_energy_multiplier = 0.6
+	z = -half + 1.5
+	while z < half - 1.0:
+		for side in [-1.0, 1.0]:
+			_box_in(
+				parts, Vector3(side * 1.5, WINDOW_Y, z + 1.3), Vector3(0.03, WINDOW_H, 2.0), night
+			)
 		z += 2.6
 	var colors := [Color(0.9, 0.2, 0.6), Color(0.2, 0.84, 0.9), Color(0.95, 0.8, 0.2)]
 	var k := 0

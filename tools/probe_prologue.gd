@@ -29,8 +29,8 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"thirteen shots, ~2 min 20 (%.0f s)" % PrologueScript.total_duration(),
-		script.size() == 13 and absf(PrologueScript.total_duration() - 139.0) < 8.0
+		"fourteen shots, ~2.5 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 14 and absf(PrologueScript.total_duration() - 146.0) < 8.0
 	)
 	check(
 		"the train stops at the end of the line (%.1f m)" % p.route_length(),
@@ -51,6 +51,15 @@ func _run() -> void:
 	avenue.suit_crossed.connect(func(): crossings[0] += 1)
 	var walked := [0.0]
 	var end := [Vector3.ZERO]
+	# Street beats: where he is when the car passes and when the fight starts.
+	var street := {"car_hero": Vector3.ZERO, "fight_hero": Vector3.ZERO, "crowd": false}
+	avenue.car_passed.connect(func(): street["car_hero"] = avenue.hero.global_position)
+	avenue.altercation_started.connect(func(): street["fight_hero"] = avenue.hero.global_position)
+	var people := 0
+	for c in avenue.get_children():
+		if c is StreetFigure:
+			people += 1
+	check("the street is packed (%d people)" % people, people >= 70)
 	check("gaze targets exist", p.gaze_target_position("campaign") != Vector3.ZERO)
 	check("colossus head target exists", p.gaze_target_position("colossus") != Vector3.ZERO)
 
@@ -62,6 +71,7 @@ func _run() -> void:
 		_last_d = p.train_distance
 		walked[0] = avenue.progress
 		end[0] = avenue.hero.global_position
+		street["crowd"] = street["crowd"] or avenue.crowd_arrived()
 		await process_frame
 	Engine.time_scale = 1.0
 	var names: Array[String] = []
@@ -93,6 +103,17 @@ func _run() -> void:
 		PrologueAvenue.PATH[0].y > 5.0 and PrologueAvenue.PATH[-1].y < 0.5
 	)
 	check("suits cross his path twice (%d)" % crossings[0], crossings[0] == 2)
+	var curb := PrologueAvenue.PATH[PrologueAvenue.CURB]
+	check(
+		"a car rides past while he waits at the curb (%s)" % str(street["car_hero"]),
+		(street["car_hero"] as Vector3).distance_to(curb) < 0.1
+	)
+	check("the group of ten crosses to the metro platform", street["crowd"])
+	var fight_hero: Vector3 = street["fight_hero"]
+	check(
+		"the fight starts at the corner, before he turns into his street (%s)" % str(fight_hero),
+		fight_hero != Vector3.ZERO and fight_hero.z < -103.0 and fight_hero.x < 436.0
+	)
 	check(
 		"gaze moments: ad, lease, colossus (%s)" % str(_gazes),
 		_gazes == ["campaign", "phone", "colossus"]

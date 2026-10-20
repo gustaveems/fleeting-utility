@@ -5,26 +5,33 @@ extends Node3D
 ##
 ##   left    the metro's last stretch on its viaduct, in front of massive blocks that hide
 ##           everything behind them
-##   then    he comes down the station stairs (+X) to the road and onto the median
+##   then    he comes down the station stairs (+X) and waits at the curb: a car rides past,
+##           then a group of ten crosses toward the metro, around him
 ##   up      he walks the avenue (−Z) on the glowing median, "DO NOT CROSS THE LINE",
-##           between the classes, the rundown block on his right
-##   corner  he turns right (+X) into the cross street
+##           between the classes, the rundown block on his right; the street is packed
+##   corner  at the left corner of his street an argument turns into a fight (a shove, a
+##           stagger, the first swing); he turns right (+X) and leaves it behind
 ##   end     his apartment complex: the beige tower, one weak bulb over the door
 ##
 ## Left (−X): the clean, lit Heritage Collection boutique, a guard, a rope line, suits.
-## Right (+X): tents, a trash fire, people slumped, a dealer huddle, two men fighting.
-## Middle-class commuters pass; two suits cross his path without looking at him.
-## The director drives it with set_walk_progress(0..1); everything else animates itself.
+## Right (+X): tents, a trash fire, a stall, people slumped, a dealer huddle.
+## Commuters stream past both ways; two suits cross his path without looking at him.
+## The director drives it with set_walk_progress(0..1) and trigger("car" / "crowd").
 
 ## Emitted when a suit crosses in front of him (tests).
 signal suit_crossed
+## Emitted when the car passes him at the curb (tests).
+signal car_passed
+## Emitted on the shove that starts the fight (tests).
+signal altercation_started
 
-## His route: platform → top of the stairs → foot of the stairs → the median → the end
-## of the avenue → round the corner → along the cross street → his door.
+## His route: platform → top of the stairs → foot of the stairs → the curb (he waits) →
+## the median → the end of the avenue → round the corner → the cross street → his door.
 const PATH: Array[Vector3] = [
 	Vector3(408.5, 6.0, -70),
 	Vector3(411.0, 6.0, -70),
 	Vector3(419.0, 0.24, -70),
+	Vector3(421.8, 0.24, -70.8),
 	Vector3(430.0, 0.05, -74),
 	Vector3(430.0, 0.05, -103),
 	Vector3(433.5, 0.05, -109.5),
@@ -32,6 +39,9 @@ const PATH: Array[Vector3] = [
 	Vector3(452.0, 0.05, -111),
 	Vector3(452.0, 0.05, -116.5),
 ]
+## PATH index where he waits at the curb, and where he starts turning the corner.
+const CURB := 3
+const CORNER := 5
 
 const AVENUE_X := 430.0
 const AVENUE_START_Z := -60.0
@@ -45,33 +55,72 @@ const COMPLEX := Vector3(452, 0, -130)
 ## The station platform beside the viaduct (top at the carriage floor, y 6).
 const PLATFORM := Vector3(408, 5.5, -70)
 ## Crossing suits: [walk progress that sends them, z where they cross].
-const CROSSINGS: Array = [[0.18, -82.0], [0.35, -96.0]]
+const CROSSINGS: Array = [[0.22, -83.3], [0.37, -96.0]]
 const CROSS_SPEED := 2.2
+## The car: its lane (between the curb and the median), start z and speed.
+const CAR_X := 425.5
+const CAR_START_Z := -118.0
+const CAR_SPEED := 16.0
+## The group of ten crossing to the metro.
+const CROWD_SIZE := 10
+const CROWD_SPEED := 1.7
+## The fight at the left corner of his street; the shove comes this far past the corner.
+const FIGHT_AT := Vector3(436.4, 0.24, -117.6)
+const FIGHT_SHOVE_PAST_CORNER := 3.0
 
 var hero: StreetFigure
 var progress: float = 0.0
 
-var _lengths: PackedFloat32Array = PackedFloat32Array()
-var _total: float = 0.0
 var _crossers: Array[StreetFigure] = []
 var _crossing_started: Array[bool] = []
-var _commuters: Array[Dictionary] = []
+var _walkers: Array[Dictionary] = []
+var _crowd: Array[Dictionary] = []
+var _crowd_started: bool = false
+var _car: Node3D
+var _car_moving: bool = false
+var _car_passed: bool = false
+var _fighters: Array[StreetFigure] = []
+var _fight_t: float = -1.0
+var _fight_stage: int = 0
 var _fire_light: OmniLight3D
 var _t: float = 0.0
 
 
+## Distance along PATH to point `index`.
+static func path_distance(index: int) -> float:
+	var d := 0.0
+	for i in mini(index, PATH.size() - 1):
+		d += PATH[i].distance_to(PATH[i + 1])
+	return d
+
+
+static func walk_length() -> float:
+	return path_distance(PATH.size() - 1)
+
+
+## Walk progress (0..1) at PATH point `index`.
+static func progress_at(index: int) -> float:
+	return path_distance(index) / walk_length()
+
+
+## Walk progress at which the fight starts (just as he begins turning the corner).
+static func fight_progress() -> float:
+	return (path_distance(CORNER) + FIGHT_SHOVE_PAST_CORNER) / walk_length()
+
+
 func _ready() -> void:
-	for i in PATH.size() - 1:
-		var seg := PATH[i].distance_to(PATH[i + 1])
-		_lengths.append(seg)
-		_total += seg
 	_build_street()
 	_build_station()
 	_build_left_side()
 	_build_right_side()
+	_build_overhead()
 	_build_cross_street()
 	_build_complex()
 	_build_people()
+	_build_walkers()
+	_build_crowd()
+	_build_fight()
+	_build_car()
 	_build_lights()
 	set_walk_progress(0.0)
 
@@ -80,42 +129,42 @@ func _process(delta: float) -> void:
 	_t += delta
 	if _fire_light != null:
 		_fire_light.light_energy = 2.2 + sin(_t * 13.0) * 0.4 + sin(_t * 7.3) * 0.3
-	for c in _commuters:
-		var f: StreetFigure = c["figure"]
-		f.position.z += float(c["speed"]) * delta
-		if f.position.z > AVENUE_START_Z:
-			f.position.z = AVENUE_END_Z
-	for i in _crossers.size():
-		if not _crossing_started[i]:
-			continue
-		var s := _crossers[i]
-		if s.position.x > RICH_X + 2.0:
-			s.position.x -= CROSS_SPEED * delta
-			if s.position.x <= AVENUE_X and not s.has_meta("crossed"):
-				s.set_meta("crossed", true)
-				suit_crossed.emit()
-
-
-## His route's length in metres.
-func walk_length() -> float:
-	return _total
+	_update_walkers(delta)
+	_update_crossers(delta)
+	_update_crowd(delta)
+	_update_car(delta)
+	_update_fight(delta)
 
 
 ## Place him `p` (0..1) of the way along his route, facing where he walks; send the
-## crossing suits as he passes their marks.
+## crossing suits and start the fight as he passes their marks.
 func set_walk_progress(p: float) -> void:
+	var was := progress
 	progress = clampf(p, 0.0, 1.0)
 	if hero != null:
-		var at := _sample(progress * _total)
-		var ahead := _sample(minf(progress * _total + 1.5, _total)) - at
+		var total := walk_length()
+		var at := _sample(progress * total)
+		var ahead := _sample(minf(progress * total + 1.5, total)) - at
 		ahead.y = 0.0
 		hero.position = at
 		if ahead.length() > 0.05:
 			hero.rotation.y = lerp_angle(hero.rotation.y, atan2(-ahead.x, -ahead.z), 0.2)
-		hero.moving = progress < 0.999
+		hero.moving = progress > was + 0.00001 and progress < 0.999
 	for i in CROSSINGS.size():
 		if not _crossing_started[i] and progress >= float(CROSSINGS[i][0]):
 			_crossing_started[i] = true
+	if _fight_t < 0.0 and progress >= fight_progress():
+		_fight_t = 0.0
+
+
+## Street events cued by the shot list: "car" rides past the curb, "crowd" crosses.
+func trigger(event: String) -> void:
+	match event:
+		"car":
+			_car.visible = true
+			_car_moving = true
+		"crowd":
+			_crowd_started = true
 
 
 func hero_head() -> Vector3:
@@ -127,13 +176,121 @@ func hero_basis() -> Basis:
 	return Basis(Vector3.UP, hero.rotation.y)
 
 
+## True once every member of the crossing group has climbed to the platform.
+func crowd_arrived() -> bool:
+	for m in _crowd:
+		if int(m["i"]) < (m["points"] as Array).size():
+			return false
+	return _crowd_started
+
+
 func _sample(d: float) -> Vector3:
 	var rest := d
-	for i in _lengths.size():
-		if rest <= _lengths[i] or i == _lengths.size() - 1:
-			return PATH[i].lerp(PATH[i + 1], clampf(rest / maxf(_lengths[i], 0.001), 0.0, 1.0))
-		rest -= _lengths[i]
+	for i in PATH.size() - 1:
+		var seg := PATH[i].distance_to(PATH[i + 1])
+		if rest <= seg or i == PATH.size() - 2:
+			return PATH[i].lerp(PATH[i + 1], clampf(rest / maxf(seg, 0.001), 0.0, 1.0))
+		rest -= seg
 	return PATH[PATH.size() - 1]
+
+
+## Ground height under x near the station: platform, stairs, sidewalk, road.
+func _ground_y(x: float) -> float:
+	if x <= PATH[1].x:
+		return PATH[1].y
+	if x < PATH[2].x:
+		return lerpf(PATH[1].y, PATH[2].y, (x - PATH[1].x) / (PATH[2].x - PATH[1].x))
+	return 0.24 if x < AVENUE_X - ROAD_HALF else 0.05
+
+
+## ----- UPDATE --------------------------------------------------------------------------
+
+
+func _update_walkers(delta: float) -> void:
+	for w in _walkers:
+		var f: StreetFigure = w["figure"]
+		var step := float(w["dir"]) * float(w["speed"]) * delta
+		if w["axis"] == "z":
+			f.position.z += step
+			if f.position.z > float(w["max"]):
+				f.position.z = float(w["min"])
+			elif f.position.z < float(w["min"]):
+				f.position.z = float(w["max"])
+		else:
+			f.position.x += step
+			if f.position.x > float(w["max"]):
+				f.position.x = float(w["min"])
+			elif f.position.x < float(w["min"]):
+				f.position.x = float(w["max"])
+
+
+func _update_crossers(delta: float) -> void:
+	for i in _crossers.size():
+		if not _crossing_started[i]:
+			continue
+		var s := _crossers[i]
+		if s.position.x > RICH_X + 2.0:
+			s.position.x -= CROSS_SPEED * delta
+			if s.position.x <= AVENUE_X and not s.has_meta("crossed"):
+				s.set_meta("crossed", true)
+				suit_crossed.emit()
+
+
+func _update_crowd(delta: float) -> void:
+	if not _crowd_started:
+		return
+	for m in _crowd:
+		var f: StreetFigure = m["figure"]
+		var points: Array = m["points"]
+		m["delay"] = float(m["delay"]) - delta
+		if float(m["delay"]) > 0.0 or int(m["i"]) >= points.size():
+			continue
+		f.moving = true
+		var target: Vector3 = points[int(m["i"])]
+		var flat := Vector3(f.position.x, 0, f.position.z)
+		var to := Vector3(target.x, 0, target.z) - flat
+		var step := CROWD_SPEED * delta
+		if to.length() <= step:
+			flat = Vector3(target.x, 0, target.z)
+			m["i"] = int(m["i"]) + 1
+			if int(m["i"]) >= points.size():
+				f.moving = false
+		else:
+			flat += to.normalized() * step
+			f.rotation.y = atan2(-to.x, -to.z)
+		f.position = Vector3(flat.x, _ground_y(flat.x), flat.z)
+
+
+func _update_car(delta: float) -> void:
+	if not _car_moving:
+		return
+	_car.position.z += CAR_SPEED * delta
+	if not _car_passed and _car.position.z > PATH[CURB].z:
+		_car_passed = true
+		car_passed.emit()
+	if _car.position.z > AVENUE_START_Z + 25.0:
+		_car_moving = false
+		_car.visible = false
+
+
+## The beat: A shoves B, B staggers back, then swings back, and they're fighting.
+func _update_fight(delta: float) -> void:
+	if _fight_t < 0.0:
+		return
+	_fight_t += delta
+	var a := _fighters[0]
+	var b := _fighters[1]
+	if _fight_stage == 0:
+		_fight_stage = 1
+		a.shove()
+		altercation_started.emit()
+	elif _fight_stage == 1 and _fight_t > 0.12:
+		_fight_stage = 2
+		b.stagger(a.position)
+	elif _fight_stage == 2 and _fight_t > 1.0:
+		_fight_stage = 3
+		b.set_pose(StreetFigure.Pose.FIGHT)
+		a.set_pose(StreetFigure.Pose.FIGHT)
 
 
 ## ----- BUILD ---------------------------------------------------------------------------
@@ -239,18 +396,22 @@ func _build_left_side() -> void:
 ## Right: the rundown block all the way to the corner.
 func _build_right_side() -> void:
 	_box(Vector3(POOR_X + 9, 22, -82), Vector3(18, 44, 42), _mat(Color(0.2, 0.21, 0.2), 1.0))
-	# Rundown floors: dark window bands, a few lit ones.
+	# Rundown floors: dark window bands, a few lit ones, rusted AC units.
 	var dark := _mat(Color(0.05, 0.05, 0.06), 0.9)
 	var lit := _mat(Color(0.9, 0.7, 0.35), 0.6)
 	lit.emission_enabled = true
 	lit.emission = Color(0.9, 0.62, 0.3)
 	lit.emission_energy_multiplier = 0.8
+	var rust := _mat(Color(0.32, 0.22, 0.16), 0.9)
 	for floor_i in 12:
 		var y := 4.0 + floor_i * 3.4
 		_box(Vector3(POOR_X - 0.02, y, -82), Vector3(0.05, 1.2, 40), dark)
 		_box(Vector3(POOR_X + 9, y, -103.02), Vector3(16, 1.2, 0.05), dark)
 		if floor_i % 3 == 1:
 			_box(Vector3(POOR_X - 0.04, y, -70 - floor_i * 1.7), Vector3(0.05, 1.1, 2.2), lit)
+		for k in 3:
+			var z := -66.0 - k * 13.0 - (floor_i % 4) * 2.5
+			_box(Vector3(POOR_X - 0.35, y - 1.1, z), Vector3(0.7, 0.6, 0.9), rust)
 	var canvas := _mat(Color(0.28, 0.3, 0.26), 1.0)
 	for z in [-66.0, -86.0, -99.0]:
 		var tent := MeshInstance3D.new()
@@ -271,22 +432,48 @@ func _build_right_side() -> void:
 	_fire_light.omni_range = 9.0
 	_fire_light.position = Vector3(POOR_X - 6.5, 2.0, -78)
 	add_child(_fire_light)
+	# The Focus+ stall: a counter under a striped awning.
+	_box(Vector3(POOR_X - 2.2, 0.75, -81), Vector3(1.2, 1.0, 2.6), _mat(Color(0.3, 0.26, 0.2), 0.9))
+	var awning := _mat(Color(0.2, 0.7, 0.75), 0.7)
+	_box(Vector3(POOR_X - 2.6, 2.5, -81), Vector3(2.2, 0.08, 3.0), awning)
 	var neons: Array = [
-		[-68.0, Color(0.9, 0.2, 0.6), "ROOMS · HOURLY"],
-		[-96.0, Color(0.2, 0.84, 0.9), "FOCUS+ CHEAP"],
+		[-68.0, 5.0, Color(0.9, 0.2, 0.6), "ROOMS · HOURLY"],
+		[-81.0, 3.2, Color(0.2, 0.84, 0.9), "FOCUS+"],
+		[-90.0, 8.5, Color(0.95, 0.8, 0.2), "PAWN · CASH · LEASES"],
+		[-96.0, 5.0, Color(0.2, 0.84, 0.9), "FOCUS+ CHEAP"],
+		[-75.0, 12.0, Color(0.9, 0.2, 0.6), "CLINIC 24H"],
 	]
 	for spec in neons:
 		var neon := Label3D.new()
-		neon.text = spec[2]
+		neon.text = spec[3]
 		neon.font_size = 96
 		neon.pixel_size = 0.018
-		neon.modulate = spec[1]
+		neon.modulate = spec[2]
 		neon.rotation_degrees = Vector3(0, -90, 0)
-		neon.position = Vector3(POOR_X - 0.2, 5.0, spec[0])
+		neon.position = Vector3(POOR_X - 0.2, float(spec[1]), float(spec[0]))
 		add_child(neon)
 	var bag := _mat(Color(0.05, 0.05, 0.05), 0.4)
 	for k in 5:
 		_box(Vector3(POOR_X - 1.2, 0.5, -63 - k * 8.0), Vector3(0.6, 0.5, 0.5), bag)
+
+
+## Cramped overhead: cables and laundry lines strung across the avenue.
+func _build_overhead() -> void:
+	var cable := _mat(Color(0.04, 0.04, 0.04), 0.6)
+	var z := AVENUE_START_Z - 3.0
+	var k := 0
+	while z > AVENUE_END_Z:
+		var y := 9.0 + float(k % 3) * 1.6
+		var wire := _box(
+			Vector3(AVENUE_X + 2, y, z), Vector3(POOR_X - RICH_X + 4, 0.04, 0.04), cable
+		)
+		wire.rotation.y = 0.08 * float((k % 3) - 1)
+		z -= 5.5
+		k += 1
+	var cloth: Array[Color] = [Color(0.7, 0.2, 0.2), Color(0.8, 0.8, 0.7), Color(0.2, 0.3, 0.6)]
+	for i in 9:
+		var hang := _mat(cloth[i % 3], 0.95)
+		_box(Vector3(POOR_X - 1.0 - i * 0.7, 8.4, -71.0), Vector3(0.5, 0.7, 0.03), hang)
 
 
 ## The corner and the cross street he turns into; blocks framing his complex.
@@ -316,51 +503,170 @@ func _build_complex() -> void:
 	add_child(bulb)
 
 
+## Him, and the people who stay put: the queue, the guard, the slumped, the huddle.
 func _build_people() -> void:
 	hero = _figure(StreetFigure.Dress.HERO, StreetFigure.Pose.WALK, PATH[0], -90.0)
 	hero.name = "Hero"
-	_figure(
-		StreetFigure.Dress.GUARD, StreetFigure.Pose.STAND, Vector3(RICH_X + 5.6, 0.24, -94), -90.0
-	)
-	for k in 3:
-		var at := Vector3(RICH_X + 3.4, 0.24, -90.5 - k * 1.8)
+	var guard_at := Vector3(RICH_X + 5.6, 0.24, -94)
+	_figure(StreetFigure.Dress.GUARD, StreetFigure.Pose.STAND, guard_at, -90.0)
+	for k in 5:
+		var at := Vector3(RICH_X + 3.4, 0.24, -89.0 - k * 1.5)
 		_figure(StreetFigure.Dress.SUIT, StreetFigure.Pose.STAND, at, 180.0)
-	for z in [-73.0, -97.0]:
-		_figure(
-			StreetFigure.Dress.POOR, StreetFigure.Pose.SLUMP, Vector3(POOR_X - 1.0, 0.24, z), 90.0
-		)
-	for k in 3:
-		var a := TAU * k / 3.0
+	var poor := StreetFigure.Dress.POOR
+	for z in [-64.0, -73.0, -84.0, -97.0, -101.0]:
+		_figure(poor, StreetFigure.Pose.SLUMP, Vector3(POOR_X - 0.9, 0.24, z), 90.0)
+	for k in 4:
+		var a := TAU * k / 4.0
 		var at := Vector3(POOR_X - 5.0 + cos(a) * 0.8, 0.24, -89 + sin(a) * 0.8)
 		var dress := StreetFigure.Dress.POOR if k > 0 else StreetFigure.Dress.MIDDLE
 		var f := _figure(dress, StreetFigure.Pose.HUDDLE, at, 0.0)
 		f.look_at(Vector3(POOR_X - 5.0, 0.24, -89.001), Vector3.UP)
-	# The fight, at the corner where he turns.
-	var fight := StreetFigure.Pose.FIGHT
-	var poor := StreetFigure.Dress.POOR
-	var fighter_a := _figure(poor, fight, Vector3(POOR_X - 6.0, 0.24, -101.5), 0.0)
-	var fighter_b := _figure(poor, fight, Vector3(POOR_X - 4.8, 0.24, -102.3), 0.0)
-	fighter_a.fight_target = fighter_b
-	fighter_b.fight_target = fighter_a
-	fighter_a.look_at(fighter_b.position, Vector3.UP)
-	fighter_b.look_at(fighter_a.position, Vector3.UP)
-	_figure(
-		StreetFigure.Dress.MIDDLE,
-		StreetFigure.Pose.STAND,
-		Vector3(POOR_X - 8.5, 0.24, -99.5),
-		120.0
-	)
-	for k in 4:
-		var x := AVENUE_X + (-3.0 if k % 2 == 0 else 3.2)
-		var at := Vector3(x, 0, AVENUE_START_Z - 8.0 - k * 10.0)
-		var f := _figure(StreetFigure.Dress.MIDDLE, StreetFigure.Pose.WALK, at, 180.0)
-		_commuters.append({"figure": f, "speed": 1.4 + k * 0.1})
+	# Warming at the fire; the stall's vendor and his customers.
+	for k in 3:
+		var a := TAU * k / 3.0 + 0.4
+		var at := Vector3(POOR_X - 6.5 + cos(a) * 1.1, 0.24, -78 + sin(a) * 1.1)
+		var f := _figure(poor, StreetFigure.Pose.STAND, at, 0.0)
+		f.look_at(Vector3(POOR_X - 6.5, 0.24, -78.001), Vector3.UP)
+	_figure(poor, StreetFigure.Pose.HUDDLE, Vector3(POOR_X - 1.3, 0.24, -81), 90.0)
+	for z in [-80.2, -81.8]:
+		var at := Vector3(POOR_X - 3.6, 0.24, z)
+		_figure(StreetFigure.Dress.MIDDLE, StreetFigure.Pose.STAND, at, -90.0)
 	for c in CROSSINGS:
 		var at := Vector3(POOR_X - 2.0, 0, float(c[1]))
 		_crossers.append(_figure(StreetFigure.Dress.SUIT, StreetFigure.Pose.WALK, at, 90.0))
 		_crossing_started.append(false)
-	# Someone asleep against the wall beside his door.
+	# By his door: someone asleep against the wall, two smoking.
 	_figure(poor, StreetFigure.Pose.SLUMP, COMPLEX + Vector3(-5, 0.24, 12.6), 180.0)
+	_figure(
+		StreetFigure.Dress.MIDDLE, StreetFigure.Pose.STAND, COMPLEX + Vector3(4, 0.24, 13), 150.0
+	)
+	_figure(poor, StreetFigure.Pose.STAND, COMPLEX + Vector3(4.8, 0.24, 13.6), -60.0)
+
+
+## The stream: commuters both ways on each sidewalk, along the median, and in his street.
+## [axis, lane, dir, count, dress cycle, min, max]
+func _build_walkers() -> void:
+	var suit := StreetFigure.Dress.SUIT
+	var mid := StreetFigure.Dress.MIDDLE
+	var poor := StreetFigure.Dress.POOR
+	var lanes: Array = [
+		["z", RICH_X + 7.6, 1.0, 5, [suit, mid]],
+		["z", RICH_X + 8.6, -1.0, 5, [mid, suit, suit]],
+		["z", POOR_X - 9.0, 1.0, 6, [poor, mid, poor]],
+		["z", POOR_X - 8.1, -1.0, 6, [mid, poor]],
+		["z", AVENUE_X - 1.6, 1.0, 5, [mid]],
+		["z", AVENUE_X + 1.6, -1.0, 5, [mid, poor]],
+		["x", CROSS_Z + 2.6, 1.0, 4, [mid, poor]],
+		["x", -115.0, -1.0, 4, [poor, mid]],
+	]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 31
+	for lane in lanes:
+		var along_z: bool = lane[0] == "z"
+		var lo := AVENUE_END_Z - 8.0 if along_z else AVENUE_X + 8.0
+		var hi := AVENUE_START_Z if along_z else 484.0
+		var count := int(lane[3])
+		var dresses: Array = lane[4]
+		var dir := float(lane[2])
+		for k in count:
+			var along := lerpf(lo, hi, (k + rng.randf_range(0.1, 0.9)) / count)
+			# Sidewalk lanes stand on the kerb height; road lanes on the asphalt.
+			var on_road := not along_z or absf(float(lane[1]) - AVENUE_X) < ROAD_HALF
+			var y := 0.05 if on_road else 0.24
+			var at := (
+				Vector3(float(lane[1]), y, along) if along_z else Vector3(along, y, float(lane[1]))
+			)
+			var yaw := (0.0 if dir < 0 else 180.0) if along_z else (90.0 if dir < 0 else -90.0)
+			var f := _figure(dresses[k % dresses.size()], StreetFigure.Pose.WALK, at, yaw)
+			var axis := "z" if along_z else "x"
+			var speed := rng.randf_range(1.2, 1.7)
+			_walkers.append(
+				{"figure": f, "axis": axis, "dir": dir, "speed": speed, "min": lo, "max": hi}
+			)
+
+
+## The group of ten waiting across the road; on "crowd" they cross to the metro around
+## him, up the stairs, onto the platform.
+func _build_crowd() -> void:
+	var dresses := [StreetFigure.Dress.MIDDLE, StreetFigure.Dress.POOR, StreetFigure.Dress.MIDDLE]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 10
+	for k in CROWD_SIZE:
+		# Two clusters either side of his line to the median, so they pass around him.
+		var north := k % 2 == 0
+		var z := rng.randf_range(-68.6, -64.5) if north else rng.randf_range(-80.0, -75.8)
+		var at := Vector3(rng.randf_range(431.5, 435.5), 0.05, z)
+		var f := _figure(dresses[k % 3], StreetFigure.Pose.WALK, at, 90.0)
+		f.moving = false
+		var lane_z := -70.0 + clampf((z + 70.0) * 0.25, -1.2, 1.2)
+		var points: Array = [
+			Vector3(PATH[CURB].x + 0.6, 0, z),
+			Vector3(PATH[2].x, 0, lane_z),
+			Vector3(PATH[1].x, 0, lane_z),
+			Vector3(PLATFORM.x - rng.randf_range(0.5, 2.0), 0, lane_z + rng.randf_range(-6, 6)),
+		]
+		_crowd.append({"figure": f, "points": points, "i": 0, "delay": rng.randf_range(0, 0.9)})
+
+
+## Two men squared up at the left corner of his street, arguing until the shove.
+func _build_fight() -> void:
+	var a := _figure(StreetFigure.Dress.POOR, StreetFigure.Pose.ARGUE, FIGHT_AT, 0.0)
+	var b_at := FIGHT_AT + Vector3(1.0, 0, -0.3)
+	var b := _figure(StreetFigure.Dress.MIDDLE, StreetFigure.Pose.ARGUE, b_at, 0.0)
+	a.look_at(b.position, Vector3.UP)
+	b.look_at(a.position, Vector3.UP)
+	a.fight_target = b
+	b.fight_target = a
+	_fighters = [a, b]
+	# The corner store they spilled out of: a buzzing sign and a hard white light.
+	var lamp := OmniLight3D.new()
+	lamp.light_color = Color(0.95, 0.95, 1.0)
+	lamp.light_energy = 3.0
+	lamp.omni_range = 8.0
+	lamp.position = FIGHT_AT + Vector3(0.5, 3.6, 1.2)
+	add_child(lamp)
+	var sign := Label3D.new()
+	sign.text = "LIQUOR · 24H"
+	sign.font_size = 96
+	sign.pixel_size = 0.014
+	sign.modulate = Color(0.95, 0.25, 0.2)
+	sign.position = FIGHT_AT + Vector3(0.5, 3.4, -1.3)
+	add_child(sign)
+	# Onlookers turning to watch.
+	for offset in [Vector3(-0.5, 0, -1.1), Vector3(1.9, 0, 1.3)]:
+		var f := _figure(StreetFigure.Dress.POOR, StreetFigure.Pose.STAND, FIGHT_AT + offset, 0.0)
+		f.look_at(FIGHT_AT + Vector3(0.5, 0, -0.15), Vector3.UP)
+
+
+## The car that rides past him at the curb: a boxy cab, headlights, tail lights.
+func _build_car() -> void:
+	_car = Node3D.new()
+	_car.name = "Car"
+	_car.position = Vector3(CAR_X, 0.0, CAR_START_Z)
+	_car.visible = false
+	add_child(_car)
+	var paint := _mat(Color(0.75, 0.6, 0.15), 0.4)
+	_box_in(_car, Vector3(0, 0.6, 0), Vector3(1.9, 0.75, 4.4), paint)
+	_box_in(
+		_car, Vector3(0, 1.22, -0.2), Vector3(1.7, 0.55, 2.3), _mat(Color(0.05, 0.06, 0.08), 0.1)
+	)
+	var head := _mat(Color(1, 1, 0.9), 0.3)
+	head.emission_enabled = true
+	head.emission = Color(1, 0.97, 0.85)
+	head.emission_energy_multiplier = 4.0
+	var tail := _mat(Color(0.8, 0.05, 0.05), 0.3)
+	tail.emission_enabled = true
+	tail.emission = Color(0.9, 0.05, 0.05)
+	tail.emission_energy_multiplier = 2.5
+	for side in [-0.7, 0.7]:
+		_box_in(_car, Vector3(side, 0.7, 2.21), Vector3(0.35, 0.15, 0.04), head)
+		_box_in(_car, Vector3(side, 0.75, -2.21), Vector3(0.35, 0.12, 0.04), tail)
+	var beam := OmniLight3D.new()
+	beam.light_color = Color(1, 0.95, 0.85)
+	beam.light_energy = 3.0
+	beam.omni_range = 9.0
+	beam.position = Vector3(0, 1.0, 4.0)
+	_car.add_child(beam)
 
 
 ## Street light tells the split: bright, even, white on the left; sparse sodium (one dead)
@@ -394,12 +700,13 @@ func _build_lights() -> void:
 		)
 		z -= 10.0
 		k += 1
-	var cross := OmniLight3D.new()
-	cross.light_color = Color(1.0, 0.62, 0.25)
-	cross.light_energy = 1.2
-	cross.omni_range = 12.0
-	cross.position = Vector3(442, 5.0, CROSS_Z + 2)
-	add_child(cross)
+	for at in [Vector3(440, 5.0, CROSS_Z + 2), Vector3(462, 5.0, CROSS_Z - 3)]:
+		var cross := OmniLight3D.new()
+		cross.light_color = Color(1.0, 0.62, 0.25)
+		cross.light_energy = 1.4
+		cross.omni_range = 12.0
+		cross.position = at
+		add_child(cross)
 	var key := OmniLight3D.new()
 	key.name = "HeroKey"
 	key.light_color = Color(0.9, 0.92, 1.0)
@@ -422,13 +729,17 @@ func _figure(
 
 
 func _box(at: Vector3, size: Vector3, mat: Material) -> MeshInstance3D:
+	return _box_in(self, at, size, mat)
+
+
+func _box_in(parent: Node3D, at: Vector3, size: Vector3, mat: Material) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var b := BoxMesh.new()
 	b.size = size
 	mi.mesh = b
 	mi.material_override = mat
 	mi.position = at
-	add_child(mi)
+	parent.add_child(mi)
 	return mi
 
 

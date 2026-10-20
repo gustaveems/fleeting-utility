@@ -58,9 +58,18 @@ const END_OF_LINE := 1108.0
 const LEASE_TEXT := "LEASE CONFIRMED\nUnit 7-14B, Block 31\nTerms apply. Renewal at discretion."
 const TITLE := "FLEETING UTILITY"
 
+## The avenue walk: how long it takes and where (walk fraction) it hands to the door shot.
+const WALK_DUR := 36.0
+const WALK_END := 0.9
 
-## The shot list. `d` = [train distance at start, at end].
+
+## The shot list. `d` = [train distance at start, at end]. A shot's `events` cue the
+## avenue ([time, name]).
 static func shots() -> Array[Dictionary]:
+	# Walk marks come from the avenue's path: the curb where he waits, and the moment
+	# (seconds into the walk) the fight at the corner starts, for its lines.
+	var curb := PrologueAvenue.progress_at(PrologueAvenue.CURB)
+	var fight := (PrologueAvenue.fight_progress() - curb) / (WALK_END - curb) * WALK_DUR
 	return [
 		{
 			"name": "town_establishing",
@@ -161,24 +170,36 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
 			"d": [END_OF_LINE, END_OF_LINE],
-			"w": [0.0, 0.15],
+			"w": [0.0, curb],
 			"cam": Vector3(427, 1.6, -58),
 			"look": Vector3(413, 3.5, -71),
 			"fov": 55.0,
 			"lines": [[1.0, "SPEAKER: Residents remain on their side of the line."]],
 		},
 		{
+			# He waits at the curb; a car rides past, then ten people cross to the metro.
+			"name": "curb_wait",
+			"mode": Mode.WALK_FOLLOW,
+			"dur": 7.0,
+			"d": [END_OF_LINE, END_OF_LINE],
+			"w": [curb, curb],
+			"fov": 58.0,
+			"events": [[0.2, "car"], [3.6, "crowd"]],
+			"lines": [],
+		},
+		{
 			"name": "avenue_walk",
 			"mode": Mode.WALK_FOLLOW,
-			"dur": 36.0,
+			"dur": WALK_DUR,
 			"d": [END_OF_LINE, END_OF_LINE],
-			"w": [0.15, 0.9],
+			"w": [curb, WALK_END],
 			"fov": 58.0,
 			"lines":
 			[
-				[2.0, "VENDOR: Focus! Fresh focus, cheap, cheaper than theirs."],
-				[10.0, "BOUTIQUE: Heritage Collection. By appointment."],
-				[20.0, "…get off me — get OFF me…"],
+				[3.0, "VENDOR: Focus! Fresh focus, cheap, cheaper than theirs."],
+				[11.0, "BOUTIQUE: Heritage Collection. By appointment."],
+				[fight - 0.6, "— you calling me a liar? — "],
+				[fight + 0.4, "…get off me — get OFF me…"],
 			],
 		},
 		{
@@ -186,7 +207,7 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
 			"d": [END_OF_LINE, END_OF_LINE],
-			"w": [0.9, 1.0],
+			"w": [WALK_END, 1.0],
 			"cam": Vector3(452.6, 0.6, -107),
 			"look": Vector3(452, 9, -126),
 			"fov": 60.0,
