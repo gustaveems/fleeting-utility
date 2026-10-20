@@ -22,7 +22,7 @@ const CARRIAGE_GAP := 1.2
 const SEAT_CARRIAGE := 1
 const SEAT_OFFSET := Vector3(1.1, 1.75, 0.0)
 ## Ground area kept free of generated towers for the avenue walk.
-const AVENUE_CLEAR := Rect2(Vector2(392, -145), Vector2(80, 108))
+const AVENUE_CLEAR := Rect2(Vector2(366, -155), Vector2(136, 120))
 ## Third-person follow: behind and over his right shoulder.
 const WALK_CAM_OFFSET := Vector3(1.3, 2.3, 4.8)
 
@@ -110,6 +110,11 @@ func finish() -> void:
 	get_tree().change_scene_to_file(GAME_SCENE_PATH)
 
 
+## The track's full length (the train stops at its end).
+func route_length() -> float:
+	return _curve.get_baked_length()
+
+
 func gaze_target_position(target: String) -> Vector3:
 	var n: Node3D = _gaze_targets.get(target)
 	return n.global_position if n != null else Vector3.ZERO
@@ -147,7 +152,7 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 	var mode: PrologueScript.Mode = shot["mode"]
 	if shot.has("w"):
 		var w: Array = shot["w"]
-		_avenue.set_walk_distance(lerpf(float(w[0]), float(w[1]), u))
+		_avenue.set_walk_progress(lerpf(float(w[0]), float(w[1]), u))
 	match mode:
 		PrologueScript.Mode.FP_AISLE:
 			# Standing in the aisle, looking down the packed carriage.
@@ -156,13 +161,15 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 			_camera.global_position = car * (Vector3(0.35, 1.65, 7.2) + sway)
 			_camera.look_at(car * Vector3(0.0, 1.45, -8.0), car.basis.y)
 		PrologueScript.Mode.WALK_FOLLOW:
+			# Behind his shoulder, turning with him round the corner.
 			var head := _avenue.hero_head()
-			var target := head + WALK_CAM_OFFSET
+			var facing := _avenue.hero_basis()
+			var target := head + facing * WALK_CAM_OFFSET
 			var w := 1.0 - exp(-get_process_delta_time() * 4.0)
 			_camera.global_position = (
 				target if shot_time < 0.05 else _camera.global_position.lerp(target, w)
 			)
-			_camera.look_at(head + Vector3(0, -0.2, -4.0), Vector3.UP)
+			_camera.look_at(head + facing * Vector3(0, -0.2, -4.0), Vector3.UP)
 		PrologueScript.Mode.EXT_FIXED:
 			_camera.global_position = shot["cam"]
 			var look: Vector3 = shot.get("look", _carriages[0].global_position)

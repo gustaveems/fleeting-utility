@@ -82,3 +82,12 @@ building.
 - **Ends** at the beige sliver's door: a low angle, then the title.
 - **Shot list** becomes 13 (~2 min): `carriage_interior` is added after the tunnel;
   `his_tower` is replaced by `station_exit`, `avenue_walk` and `his_door`.
+
+### A.2 layout pass: Alain's sketch (2026-10-20)
+`docs/references/sketch_walk_layout.png`. The line's last stretch now runs north along the
+avenue's left side, in front of massive blocks; the train stops at a platform beside the
+avenue. The walk is a path (`PrologueAvenue.PATH`): platform → stairs down to the road →
+the median → up the avenue (rundown block on the right) → right at the corner by the
+fight → the cross street → his complex's door. The follow camera turns with his heading.
+`w` in the shot list is now a fraction of the walk. Walk shots: `station_exit` 8 s,
+`avenue_walk` 36 s, `his_door` 8 s (film ≈ 139 s).

@@ -32,6 +32,11 @@ on why you picked it.
 | `images (4).jpeg` (Shanghai Transrapid) | Maglev exterior | Sleek white, rounded nose, blue + orange stripes, T-beam guideway: the future as advertised |
 | `sonat-samir-cp-sub2.jpg` (grimy subway car) | Maglev interior | Ads over the windows, steel poles, graffiti and litter, fluorescent strip, neon "DO NOT CROSS THE LINE": the future as lived |
 
+## Batch 4: the walk layout (Alain's sketch, 2026-10-20)
+| File | For | Take |
+|---|---|---|
+| `sketch_walk_layout.png` | Prologue walk, top-down | Left: the metro line and its path, in front of massive buildings (nothing visible behind them). He descends from the station to the road, walks up it past the rundown buildings on his right, turns right at the corner, and arrives at his apartment complex. Built as `PrologueAvenue.PATH`. |
+
 ## Palettes (starting values, to tune)
 | World | Base | Accent |
 |---|---|---|

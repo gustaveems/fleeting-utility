@@ -36,13 +36,15 @@ over visible seams, straddling a canal and selling something. The real ones are 
    stones. (Players will see that image again in his dreams.) Over a canal stands the
    **golden colossus**, the brand's cheap copy of Rhodes, lit like a promise; the
    maglev runs between its legs. On his phone: *LEASE CONFIRMED. Terms apply.*
-3. **The walk.** He gets off at Block 31 and walks a short avenue (third person). The
+3. **The walk.** He gets off at Block 31, where the line runs along the avenue in front
+   of massive blocks that hide everything behind them. He comes down the station stairs
+   to the road and walks the avenue (third person), rundown buildings on his right. The
    classes are split by a glowing median line, "DO NOT CROSS THE LINE", the same warning
    as in the carriage, and he walks right down it. Left: the clean, lit Heritage
    Collection boutique, a guard, a rope line, suits queuing. Right: tents, a trash fire,
    people slumped, a dealer huddle, two men fighting. Suits cross his path without
-   looking at him; commuters pass with their heads down. At the end: his building, a
-   decaying beige sliver wedged between taller blocks, one weak bulb over the door.
+   looking at him; commuters pass with their heads down. He turns the corner by the
+   fight, into a cross street. At the end: his building, a decaying beige sliver wedged between taller blocks, one weak bulb over the door.
 4. **The lease.** A bare, cramped room. The lease is presented and accepted. Its clauses
    are the rules of his life and teach the game diegetically:
    - *No alterations.* His works are reclaimed.

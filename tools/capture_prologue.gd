@@ -26,10 +26,15 @@ func _run() -> void:
 		var at := 0.55
 		if not gaze.is_empty():
 			at = (float(gaze["from"]) + float(gaze["to"])) * 0.5
-		while p.shot_index == i and p.shot_time < float(shot["dur"]) * at:
-			await process_frame
-		Engine.time_scale = 0.0001
-		await capture("prologue_%02d_%s.png" % [i + 1, shot["name"]])
-		Engine.time_scale = SPEED
+		var marks: Array[float] = [at]
+		if shot["mode"] == PrologueScript.Mode.WALK_FOLLOW:
+			marks = [0.12, 0.45, 0.75, 0.95]  # the stairs' foot, avenue, fight, corner
+		for k in marks.size():
+			while p.shot_index == i and p.shot_time < float(shot["dur"]) * marks[k]:
+				await process_frame
+			Engine.time_scale = 0.0001
+			var suffix := "" if marks.size() == 1 else "_%d" % k
+			await capture("prologue_%02d_%s%s.png" % [i + 1, shot["name"], suffix])
+			Engine.time_scale = SPEED
 	Engine.time_scale = 1.0
 	p.finish()
