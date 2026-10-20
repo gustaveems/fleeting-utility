@@ -172,7 +172,8 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 	if shot.has("w"):
 		var w: Array = shot["w"]
 		_avenue.set_walk_progress(lerpf(float(w[0]), float(w[1]), u))
-	var eased := u * u * (3.0 - 2.0 * u)
+	# Constant speed through each move: no easing in or out (it read as slow-fast-slow).
+	var eased := u
 	var fov := float(shot.get("fov", 60.0))
 	match mode:
 		PrologueScript.Mode.EXT_FIXED:
@@ -202,7 +203,7 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 	_camera.fov = fov
 	if shot_time < _blend_dur:
 		var t := shot_time / _blend_dur
-		t = t * t * (3.0 - 2.0 * t)
+		t = 1.0 - (1.0 - t) * (1.0 - t)  # glide: fast off the mark, settling at the end
 		_camera.global_transform = _blend_from.interpolate_with(_camera.global_transform, t)
 		_camera.fov = lerpf(_blend_fov_from, fov, t)
 
@@ -240,18 +241,24 @@ func _aim(eye: Vector3, at: Vector3, up: Vector3) -> void:
 		_camera.look_at(at, up)
 
 
-## A point, or a path of points travelled at `t` (0..1) with smooth corners.
+## A point, or a path of points travelled at `t` (0..1) at constant speed (by distance,
+## so short and long segments move alike).
 func _along(points: Variant, t: float) -> Vector3:
 	if points is Vector3:
 		return points
 	var path: Array = points
 	if path.size() == 1:
 		return path[0]
-	var f := clampf(t, 0.0, 1.0) * (path.size() - 1)
-	var i := mini(int(f), path.size() - 2)
-	var local := f - i
-	local = local * local * (3.0 - 2.0 * local)
-	return (path[i] as Vector3).lerp(path[i + 1], local)
+	var total := 0.0
+	for i in path.size() - 1:
+		total += (path[i] as Vector3).distance_to(path[i + 1])
+	var rest := clampf(t, 0.0, 1.0) * total
+	for i in path.size() - 1:
+		var seg := (path[i] as Vector3).distance_to(path[i + 1])
+		if rest <= seg or i == path.size() - 2:
+			return (path[i] as Vector3).lerp(path[i + 1], clampf(rest / maxf(seg, 0.001), 0.0, 1.0))
+		rest -= seg
+	return path[path.size() - 1]
 
 
 ## Where a shot looks: a world point, a path of points, or a named target.
