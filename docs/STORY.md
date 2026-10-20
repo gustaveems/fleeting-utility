@@ -18,9 +18,9 @@ fenced stone in a parking lot back home.
 
 **The colossi.** The dream statues are human colossi: 50-foot figures on stone
 plinths, arms raised, a last stand frozen in stone, with blood running down their legs
-and plinths. The city has its own: the corporation's **golden colossus**, the brand's
-polished mascot. It is the same figure, gleaming and straddling a canal, selling
-something. The real ones are stone and blood; the gold one is the lie.
+and plinths. The city has its own: the corporation's **golden colossus**, a cheap copy of the
+Colossus of Rhodes and the brand's mascot. It is the same figure, gaudy gold paint
+over visible seams, straddling a canal and selling something. The real ones are stone and blood; the gold one is the lie.
 
 ## Prologue: Arrival
 1. **The town he leaves.** It is not pastoral: it is a smaller copy of the city, further
@@ -28,12 +28,14 @@ something. The real ones are stone and blood; the gold one is the lie.
    leased to an agri-corp, the same billboards older and peeling, dead commerce under
    orange dust. In a parking lot stands one old stone, fenced, with a corporate logo
    bolted to it. Nobody looks at it.
-2. **The city.** A cinematic flyover at dusk: teal-grey monolith blocks, megatowers over
+2. **The city.** He rides in on a packed commuter maglev at dusk (first-person window
+   views mixed with external shots): teal-grey monolith blocks, megatowers over
    older low blocks crammed beneath, haze. The billboards are the brightest thing in the
    sky: techno-futurist promises (*Upgrade your focus. Outperform yourself.*), and among
    them the luxury campaign: a model walking a misty autumn path past blood-marked
    stones. (Players will see that image again in his dreams.) Over a canal stands the
-   **golden colossus**, the brand's mascot, lit like a promise.
+   **golden colossus**, the brand's cheap copy of Rhodes, lit like a promise; the
+   maglev runs between its legs. On his phone: *LEASE CONFIRMED. Terms apply.*
 3. **The building.** The camera drops to street level (dense, filthy, neon in the haze)
    and finds his building: a decaying sliver wedged between taller blocks.
 4. **The lease.** A bare, cramped room. The lease is presented and accepted. Its clauses

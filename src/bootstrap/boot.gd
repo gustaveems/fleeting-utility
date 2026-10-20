@@ -20,6 +20,7 @@ extends Control
 signal menu_ready
 
 const GAME_SCENE := preload("res://scenes/workspace.tscn")
+const PROLOGUE_SCENE_PATH := "res://scenes/prologue.tscn"
 const TAGLINE := "The utility is fleeting. The lease renews."
 
 var _menu: VBoxContainer
@@ -81,9 +82,10 @@ func new_game() -> void:
 	_start_fresh()
 
 
+## A new game starts with the prologue film (Ticket-15), which ends in the game.
 func _start_fresh() -> void:
 	Persistence.delete_save()
-	get_tree().change_scene_to_packed(GAME_SCENE)
+	get_tree().change_scene_to_file(PROLOGUE_SCENE_PATH)
 
 
 ## ----- BUILD ---------------------------------------------------------------------------

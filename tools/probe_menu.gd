@@ -49,6 +49,11 @@ func _run() -> void:
 
 	section("New Game starts the game with the settings applied")
 	new_game.pressed.emit()
+	await _wait_for_scene("Prologue")
+	check("New Game opens with the prologue film", current_scene.name == "Prologue")
+	Input.action_press(InputActionData.ACTION_INTERACT)
+	await wait(1.3)
+	Input.action_release(InputActionData.ACTION_INTERACT)
 	await _wait_for_scene("Workspace")
 	check("in the game", current_scene != null and current_scene.name == "Workspace")
 	var fx := _find("ScreenEffects") as ScreenEffects
