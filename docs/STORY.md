@@ -28,8 +28,8 @@ over visible seams, straddling a canal and selling something. The real ones are 
    leased to an agri-corp, the same billboards older and peeling, dead commerce under
    orange dust. In a parking lot stands one old stone, fenced, with a corporate logo
    bolted to it. Nobody looks at it.
-2. **The city.** He rides in on a packed commuter maglev at dusk (first-person window
-   views mixed with external shots): teal-grey monolith blocks, megatowers over
+2. **The city.** He rides in on a packed commuter maglev at dusk (a gliding cinematic
+   camera that rides beside the train, flies through his carriage, and shakes inside it): teal-grey monolith blocks, megatowers over
    older low blocks crammed beneath, haze. The billboards are the brightest thing in the
    sky: techno-futurist promises (*Upgrade your focus. Outperform yourself.*), and among
    them the luxury campaign: a model walking a misty autumn path past blood-marked
