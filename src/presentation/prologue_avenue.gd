@@ -121,6 +121,7 @@ func _ready() -> void:
 	_build_fight()
 	_build_car()
 	_build_facades()
+	_build_props()
 	_build_lights()
 	set_walk_progress(0.0)
 
@@ -501,6 +502,7 @@ func _build_complex() -> void:
 func _build_people() -> void:
 	hero = _figure(StreetFigure.Dress.HERO, StreetFigure.Pose.WALK, PATH[0], -90.0)
 	hero.name = "Hero"
+	hero.anim_speed = 1.6  # he walks briskly (2.3 m/s)
 	var guard_at := Vector3(RICH_X + 5.6, 0.24, -94)
 	_figure(StreetFigure.Dress.GUARD, StreetFigure.Pose.STAND, guard_at, -90.0)
 	for k in 5:
@@ -653,6 +655,65 @@ func _build_facades() -> void:
 	kit.build(self)
 
 
+## Real props (Poly Haven, Quaternius cars; CC0) dressing the street. Missing packs skip.
+func _build_props() -> void:
+	var ph := CityKit.polyhaven("exterior_aircon_unit")
+	# The rundown block: rusted AC units up the facade, roller shutters with graffiti over
+	# the dead ground-floor shops, a utility box, pipes by the corner.
+	for k in 9:
+		var at := Vector3(POOR_X - 0.2, 5.5 + (k % 3) * 6.0, -66.0 - k * 4.3)
+		CityKit.prop(ph, self, at, -90.0)
+	for z in [-63.5, -84.0, -95.5]:
+		CityKit.prop(
+			CityKit.polyhaven("rollershutter_window_03"),
+			self,
+			Vector3(POOR_X - 0.05, 0.6, z),
+			-90.0
+		)
+	CityKit.prop(
+		CityKit.polyhaven("rollershutter_window_01"), self, Vector3(POOR_X - 0.1, 0.4, -70.5), -90.0
+	)
+	for z in [-72.0, -93.0]:
+		CityKit.prop(
+			CityKit.polyhaven("utility_box_02"), self, Vector3(POOR_X - 0.3, 0.24, z), -90.0
+		)
+	for y in [2.0, 4.0]:
+		CityKit.prop(
+			CityKit.polyhaven("modular_industrial_pipes_01"),
+			self,
+			Vector3(POOR_X - 0.15, y, -101.5),
+			-90.0
+		)
+	# Street clutter: barriers at the dead end, rims and cigarette packs in the gutter.
+	for x in [426.0, 428.0, 430.0, 432.0]:
+		CityKit.prop(
+			CityKit.polyhaven("concrete_road_barrier"), self, Vector3(x, 0.05, -118.5), 0.0
+		)
+	for at in [Vector3(441.5, 0.24, -67), Vector3(446.2, 0.24, -98.5), Vector3(439, 0.05, -112)]:
+		CityKit.prop(CityKit.polyhaven("rusted_wheel_rim_02"), self, at + Vector3(0, 0.17, 0), 30.0)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for k in 14:
+		var at := Vector3(rng.randf_range(438.5, 447.5), 0.24, rng.randf_range(-104, -62))
+		var pack := CityKit.prop(
+			CityKit.polyhaven("cigarette_pack"), self, at, rng.randf_range(0, 360)
+		)
+		if pack != null:
+			pack.rotation_degrees.x = 90.0  # dropped, lying flat
+	# Parked on the rich side; one dumped in his street.
+	CityKit.prop(CityKit.car("SportsCar"), self, Vector3(423.2, 0.05, -86), 180.0)
+	CityKit.prop(CityKit.car("SUV"), self, Vector3(423.2, 0.05, -101), 180.0)
+	CityKit.prop(CityKit.car("NormalCar2"), self, Vector3(470, 0.05, -108.6), 95.0)
+	# The boutique's entrance: a marble bust on a plinth, gilt frames either side of the
+	# window. Heritage, on display.
+	var plinth := _mat(Color(0.12, 0.11, 0.1), 0.3)
+	_box(Vector3(RICH_X + 1.2, 0.74, -87), Vector3(0.5, 1.0, 0.5), plinth)
+	CityKit.prop(CityKit.polyhaven("marble_bust_01"), self, Vector3(RICH_X + 1.2, 1.24, -87), 90.0)
+	for z in [-86.6, -101.4]:
+		var frame := CityKit.polyhaven("fancy_picture_frame_01")
+		CityKit.prop(frame, self, Vector3(RICH_X + 0.1, 2.4, z), 90.0)
+
+
 ## The car that rides past him at the curb: a boxy cab, headlights, tail lights.
 func _build_car() -> void:
 	_car = Node3D.new()
@@ -660,11 +721,12 @@ func _build_car() -> void:
 	_car.position = Vector3(CAR_X, 0.0, CAR_START_Z)
 	_car.visible = false
 	add_child(_car)
-	var paint := _mat(Color(0.75, 0.6, 0.15), 0.4)
-	_box_in(_car, Vector3(0, 0.6, 0), Vector3(1.9, 0.75, 4.4), paint)
-	_box_in(
-		_car, Vector3(0, 1.22, -0.2), Vector3(1.7, 0.55, 2.3), _mat(Color(0.05, 0.06, 0.08), 0.1)
-	)
+	# A real taxi if the car pack is installed; a box cab otherwise.
+	if CityKit.prop(CityKit.car("Taxi"), _car, Vector3.ZERO) == null:
+		var paint := _mat(Color(0.75, 0.6, 0.15), 0.4)
+		_box_in(_car, Vector3(0, 0.6, 0), Vector3(1.9, 0.75, 4.4), paint)
+		var cab := _mat(Color(0.05, 0.06, 0.08), 0.1)
+		_box_in(_car, Vector3(0, 1.22, -0.2), Vector3(1.7, 0.55, 2.3), cab)
 	var head := _mat(Color(1, 1, 0.9), 0.3)
 	head.emission_enabled = true
 	head.emission = Color(1, 0.97, 0.85)

@@ -95,6 +95,28 @@ static func _merge(n: Node, parent_xf: Transform3D, into: ArrayMesh) -> void:
 		_merge(c, xf, into)
 
 
+## A third-party prop scene (Poly Haven / Quaternius cars), placed under `parent`; null
+## (and nothing placed) if the pack isn't installed.
+static func prop(path: String, parent: Node3D, at: Vector3, yaw_deg: float = 0.0) -> Node3D:
+	if not ResourceLoader.exists(path):
+		return null
+	var n := (load(path) as PackedScene).instantiate() as Node3D
+	n.position = at
+	n.rotation_degrees.y = yaw_deg
+	parent.add_child(n)
+	return n
+
+
+## Poly Haven model path by asset id.
+static func polyhaven(id: String) -> String:
+	return "res://assets/third_party/polyhaven/%s/%s.gltf" % [id, id]
+
+
+## Quaternius car path by model name.
+static func car(model: String) -> String:
+	return "res://assets/third_party/quaternius_cars/%s.fbx" % model
+
+
 ## Place one piece.
 func add(piece: String, xf: Transform3D) -> void:
 	if not _batches.has(piece):

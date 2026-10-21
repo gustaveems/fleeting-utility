@@ -1,7 +1,12 @@
 class_name StreetFigure
 extends Node3D
-## PRESENTATION — a greybox person for the prologue streets (Ticket-15 A.2). Primitives
-## only; character art replaces it later. Faces local −Z.
+## PRESENTATION — a person on the prologue streets (Ticket-15). Faces local −Z.
+##
+## With the Quaternius Universal Animation Library present (assets/third_party, CC0) it is
+## a rigged mannequin, tinted by class (faceless, as the story wants: voices, no faces),
+## playing real clips: Walk / Walk_Formal, Idle, Sitting_Idle, Idle_Talking, Idle_No,
+## Push, Punch_Jab / Punch_Cross, Hit_Knockback. Without the pack it falls back to the
+## primitive greybox figure below.
 ##
 ##   Dress    SUIT (the rich: charcoal, a white collar), MIDDLE (muted coat),
 ##            POOR (ragged brown), HERO (him: grey-green parka, a shoulder bag at his hip),
@@ -15,6 +20,28 @@ enum Dress { SUIT, MIDDLE, POOR, HERO, GUARD }
 enum Pose { STAND, WALK, SLUMP, FIGHT, HUDDLE, ARGUE }
 
 const HEIGHT := 1.78
+const RIG := "res://assets/third_party/quaternius_anim/UAL1_Standard.glb"
+const RIG_EXTRA := "res://assets/third_party/quaternius_anim/UAL2_Standard.glb"
+## Clips that loop (the rest play once).
+const LOOPING: Array[String] = [
+	"Idle",
+	"Walk",
+	"Walk_Formal",
+	"Sitting_Idle",
+	"Idle_Talking",
+	"Sitting_Talking",
+	"ual2/Idle_No",
+	"ual2/Idle_FoldArms",
+	"ual2/Idle_TalkingPhone",
+	"ual2/Walk_Carry",
+]
+## Sitting clips put the pelvis at chair height above the root: drop the root to sit.
+const SIT_DROP := 0.47
+
+static var _rig_scene: PackedScene
+static var _rig_extra: AnimationLibrary
+static var _rig_checked: bool = false
+static var _tints: Dictionary = {}
 
 @export var dress: Dress = Dress.MIDDLE
 @export var pose: Pose = Pose.STAND
@@ -22,6 +49,8 @@ const HEIGHT := 1.78
 ## Walking: legs swing while true (callers move the figure).
 var moving: bool = false
 var fight_target: Node3D
+## Walk clip speed (1 = the clip's own pace); the hero walks briskly.
+var anim_speed: float = 1.0
 
 var _body: Node3D
 var _legs: Array[Node3D] = []
@@ -30,10 +59,20 @@ var _head: Node3D
 var _bag: Node3D
 var _phase: float = 0.0
 var _home: Vector3
+var _anim: AnimationPlayer
+var _model: Node3D
+var _punch: int = 0
 
 
 func _ready() -> void:
 	_phase = randf() * TAU
+	if _rig_available():
+		_build_rig()
+		_home = position
+		if pose == Pose.WALK:
+			moving = true
+		_play_for_pose()
+		return
 	_build()
 	_home = position
 	match pose:
@@ -48,6 +87,11 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_phase += delta
+	if _anim != null:
+		if pose == Pose.WALK:
+			_play(_walk_clip() if moving else "Idle")
+			_anim.speed_scale = anim_speed if moving else 1.0
+		return
 	match pose:
 		Pose.WALK:
 			var swing := sin(_phase * 7.0) * (0.6 if moving else 0.0)
@@ -84,6 +128,10 @@ func _process(delta: float) -> void:
 func set_pose(p: Pose) -> void:
 	pose = p
 	_home = position
+	if _anim != null:
+		moving = p == Pose.WALK
+		_play_for_pose()
+		return
 	_body.rotation = Vector3.ZERO
 	for leg in _legs:
 		leg.rotation = Vector3.ZERO
@@ -94,6 +142,9 @@ func set_pose(p: Pose) -> void:
 
 ## Both arms thrust: the shove that starts it.
 func shove() -> void:
+	if _anim != null:
+		_anim.play("Push", 0.1)
+		return
 	var t := create_tween()
 	for arm in _arms:
 		t.parallel().tween_property(arm, "rotation:x", -1.5, 0.12)
@@ -111,10 +162,118 @@ func stagger(from: Vector3, distance: float = 0.9) -> void:
 	var to := position + away.normalized() * distance
 	var t := create_tween()
 	t.tween_property(self, "position", to, 0.35).set_ease(Tween.EASE_OUT)
+	if _anim != null:
+		_anim.play("ual2/Hit_Knockback", 0.1)
+		return
 	t.parallel().tween_property(_body, "rotation:x", 0.35, 0.18)
 	for arm in _arms:
 		t.parallel().tween_property(arm, "rotation:x", -0.8, 0.18)
 	t.tween_property(_body, "rotation:x", 0.0, 0.3)
+
+
+## ----- RIGGED (Universal Animation Library) -------------------------------------------
+
+
+static func _rig_available() -> bool:
+	if not _rig_checked:
+		_rig_checked = true
+		if ResourceLoader.exists(RIG):
+			_rig_scene = load(RIG)
+		if ResourceLoader.exists(RIG_EXTRA):
+			var extra: Node = (load(RIG_EXTRA) as PackedScene).instantiate()
+			var player := _find_player(extra)
+			if player != null:
+				_rig_extra = player.get_animation_library(&"")
+			extra.free()
+	return _rig_scene != null
+
+
+static func _find_player(n: Node) -> AnimationPlayer:
+	if n is AnimationPlayer:
+		return n
+	for c in n.get_children():
+		var found := _find_player(c)
+		if found != null:
+			return found
+	return null
+
+
+func _build_rig() -> void:
+	_model = _rig_scene.instantiate()
+	_model.rotation.y = PI  # the mannequin faces +Z; we face −Z
+	add_child(_model)
+	_anim = _find_player(_model)
+	if _rig_extra != null and not _anim.has_animation_library(&"ual2"):
+		_anim.add_animation_library(&"ual2", _rig_extra)
+	for clip in LOOPING:
+		if _anim.has_animation(clip):
+			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	_anim.animation_finished.connect(_on_clip_finished)
+	_tint(_model, _tint_material())
+	if dress == Dress.HERO:
+		# His shoulder bag at the right hip.
+		var canvas := _mat(Color(0.24, 0.2, 0.15), 0.95)
+		_box(_model, Vector3(-0.2, 0.92, 0.0), Vector3(0.1, 0.28, 0.34), canvas)
+
+
+func _tint(n: Node, mat: Material) -> void:
+	if n is MeshInstance3D:
+		(n as MeshInstance3D).material_override = mat
+	for c in n.get_children():
+		_tint(c, mat)
+
+
+func _tint_material() -> StandardMaterial3D:
+	if not _tints.has(dress):
+		var m := _cloth()
+		if dress == Dress.SUIT:
+			m.metallic = 0.2
+			m.roughness = 0.35
+		_tints[dress] = m
+	return _tints[dress]
+
+
+func _walk_clip() -> String:
+	return "Walk_Formal" if dress == Dress.SUIT else "Walk"
+
+
+func _play_for_pose() -> void:
+	_model.position.y = -SIT_DROP if pose == Pose.SLUMP else 0.0
+	match pose:
+		Pose.STAND:
+			_play("ual2/Idle_FoldArms" if dress == Dress.GUARD else "Idle")
+		Pose.WALK:
+			_play(_walk_clip() if moving else "Idle")
+		Pose.SLUMP:
+			_play("Sitting_Idle")
+		Pose.HUDDLE:
+			_play("Idle_Talking")
+		Pose.ARGUE:
+			_play("ual2/Idle_No")
+		Pose.FIGHT:
+			_play("Punch_Jab")
+	# Desync the crowd: start each clip somewhere different.
+	var clip := _anim.get_animation(_anim.current_animation)
+	if clip != null and clip.loop_mode != Animation.LOOP_NONE:
+		_anim.seek(randf() * clip.length, true)
+
+
+func _play(clip: String) -> void:
+	if _anim.current_animation != clip and _anim.has_animation(clip):
+		_anim.play(clip, 0.25)
+
+
+## One-shots hand back: punches alternate while fighting; a shove or a hit returns to
+## the pose's own clip.
+func _on_clip_finished(_clip: StringName) -> void:
+	if pose == Pose.FIGHT:
+		_punch += 1
+		_anim.play("Punch_Cross" if _punch % 2 == 1 else "Punch_Jab", 0.1)
+	else:
+		_play_for_pose()
+
+
+## ----- PRIMITIVE FALLBACK ----------------------------------------------------------------
 
 
 func _build() -> void:

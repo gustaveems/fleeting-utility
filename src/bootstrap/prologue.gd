@@ -651,10 +651,13 @@ func _build_town() -> void:
 	# The fenced stone, a corporate plate bolted to it. Nobody looks.
 	var stone_at := Vector3(-585, 0, 22)
 	_box(stone_at + Vector3(0, 1.8, 0), Vector3(1.2, 3.6, 0.8), _mat(Color(0.5, 0.49, 0.46), 1.0))
-	var fence := _mat(Color(0.2, 0.2, 0.2), 0.6)
-	for k in 8:
-		var a := TAU * k / 8.0
-		_box(stone_at + Vector3(cos(a) * 2.4, 0.7, sin(a) * 2.4), Vector3(0.1, 1.4, 0.1), fence)
+	# The real chain-link fence around it (Poly Haven, CC0); posts if the pack is missing.
+	var fence_scene := CityKit.polyhaven("modular_chainlink_fence")
+	if CityKit.prop(fence_scene, self, stone_at + Vector3(2.0, 0, 1.0), 0.0) == null:
+		var fence := _mat(Color(0.2, 0.2, 0.2), 0.6)
+		for k in 8:
+			var a := TAU * k / 8.0
+			_box(stone_at + Vector3(cos(a) * 2.4, 0.7, sin(a) * 2.4), Vector3(0.1, 1.4, 0.1), fence)
 	var plate := _mat(Color(0.9, 0.9, 0.92), 0.3)
 	plate.emission_enabled = true
 	plate.emission = Color(0.2, 0.84, 0.9)
