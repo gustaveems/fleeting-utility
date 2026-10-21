@@ -9,7 +9,8 @@ Third-party assets used by Fleeting Utility. They live in `assets/third_party/`
   Base Characters, LowPoly Cars. quaternius.com
 - **Poly Haven**: chainlink fence, roller shutters, utility box, AC unit, road barrier,
   industrial pipes, wheel rim, tool cart, painted cabinet, marble bust, picture frame,
-  cigarette pack. polyhaven.com
+  cigarette pack, old bed frame. polyhaven.com
+- **reyshapes** (Poly Pizza): *Easel Large Leaning*. poly.pizza/m/DzrGZz1LRo
 
 ## CC BY 4.0 (attribution required)
 Downloaded from Fab (fab.com) on 2026-10-21. Credit the original authors as listed on

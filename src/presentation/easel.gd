@@ -17,6 +17,7 @@ signal works_reclaimed
 ## Emitted every brush stroke while painting (audio).
 signal stroke
 
+const EASEL_MODEL := "res://assets/third_party/polypizza/easel/easel.glb"
 const VERDICT_LOW := "It's nothing. A smear."
 const VERDICT_MID := "Closer. Still wrong."
 const VERDICT_HIGH := "Technically fine. It means nothing."
@@ -216,10 +217,19 @@ func _build() -> void:
 	shape.position = Vector3(0.0, 1.0, 0.0)
 	add_child(shape)
 
+	# The real easel (Poly Pizza "Easel Large Leaning" by reyshapes, CC0), scaled from its
+	# 7 m model to ~1.3 m; the box legs are the fallback.
+	var model := CityKit.prop(EASEL_MODEL, self, Vector3(0.0, 0.0, -0.05), 180.0, 0.0)
+	if model != null:
+		model.scale = Vector3.ONE * 0.19
 	var wood := StandardMaterial3D.new()
 	wood.albedo_color = Color(0.30, 0.22, 0.15)
 	# Legs stay behind the canvas plane (z 0.12), or they show through the paint.
-	for leg in [Vector3(-0.3, 0.6, 0.0), Vector3(0.3, 0.6, 0.0), Vector3(0.0, 0.6, -0.25)]:
+	for leg in (
+		[]
+		if model != null
+		else [Vector3(-0.3, 0.6, 0.0), Vector3(0.3, 0.6, 0.0), Vector3(0.0, 0.6, -0.25)]
+	):
 		var m := MeshInstance3D.new()
 		var b := BoxMesh.new()
 		b.size = Vector3(0.04, 1.2, 0.04)

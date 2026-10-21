@@ -72,6 +72,12 @@ func _build_frame() -> void:
 	_collision_shape.position = Vector3(0.0, 1.1, 0.7)
 	add_child(_collision_shape)
 
+	# The real door (Downtown kit, CC0): a worn wooden frame and a plain door, facing
+	# into the room. The box posts below are the fallback.
+	var kit := "res://assets/third_party/quaternius_downtown/models/"
+	if CityKit.prop(kit + "DoorFrame_Wooden.gltf", self, Vector3.ZERO, 0.0, 0.0) != null:
+		CityKit.prop(kit + "Door_1.gltf", self, Vector3(0.5, 0.0, 0.0), 0.0, 0.0)
+		return
 	# Simple doorframe: two posts and a lintel.
 	var frame_mat := StandardMaterial3D.new()
 	frame_mat.albedo_color = Color(0.28, 0.25, 0.22)

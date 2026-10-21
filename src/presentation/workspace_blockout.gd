@@ -281,14 +281,24 @@ func _build_furniture_blocking() -> void:
 	add_child(bench_placeholder)
 	var cot_cell := Vector2i(grid.width_cells - 2, grid.depth_cells - 2)
 	var cot_world := grid.cell_to_world(cot_cell)
-	add_child(
-		_box(
-			"CotPlaceholder",
-			Vector3(0.95, 0.24, 0.6),
-			cot_world + Vector3(0.0, 0.12, 0.0),
-			COLOR_WALL.lightened(0.1)
-		)
+	var cot := _box(
+		"CotPlaceholder",
+		Vector3(0.95, 0.24, 0.6),
+		cot_world + Vector3(0.0, 0.12, 0.0),
+		COLOR_WALL.lightened(0.1)
 	)
+	add_child(cot)
+	# The real bed: an old iron frame (Poly Haven, CC0), the box becomes its stained
+	# mattress, thinned to sit inside the frame.
+	var frame := CityKit.prop(
+		CityKit.polyhaven("old_bed_frame"), cot, Vector3(0, -0.12, 0), 90.0, 0.0
+	)
+	if frame != null:
+		frame.scale = Vector3.ONE * PROP_SCALE
+		(cot.mesh as BoxMesh).size = Vector3(0.9, 0.08, 0.4)
+		cot.position.y = 0.2
+		frame.position.y = -0.2
+		cot.material_override = _mat(Color(0.62, 0.58, 0.5), 0.95)
 
 
 func _box(node_name: String, size: Vector3, origin: Vector3, color: Color) -> MeshInstance3D:
