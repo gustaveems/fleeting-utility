@@ -5,8 +5,8 @@ extends Node3D
 ##
 ##   left    the metro's last stretch on its viaduct, in front of massive blocks that hide
 ##           everything behind them
-##   then    he comes down the station stairs (+X) and waits at the curb: a car rides past,
-##           then a group of ten crosses toward the metro, around him
+##   then    he comes down the station stairs (+X) and crosses the whole street, through a
+##           group of ten crossing the other way to the metro; a car rides past behind him
 ##   up      he walks the avenue (−Z) on the glowing median, "DO NOT CROSS THE LINE",
 ##           between the classes, the rundown block on his right; the street is packed
 ##   corner  at the left corner of his street an argument turns into a fight (a shove, a
@@ -20,26 +20,25 @@ extends Node3D
 
 ## Emitted when a suit crosses in front of him (tests).
 signal suit_crossed
-## Emitted when the car passes him at the curb (tests).
+## Emitted when the car passes the station crossing (tests).
 signal car_passed
 ## Emitted on the shove that starts the fight (tests).
 signal altercation_started
 
-## His route: platform → top of the stairs → foot of the stairs → the curb (he waits) →
-## the median → the end of the avenue → round the corner → the cross street → his door.
+## His route: platform → top of the stairs → foot of the stairs → the curb → across the
+## street to the rundown side → up the avenue → round the corner → the cross street → his door.
 const PATH: Array[Vector3] = [
 	Vector3(408.5, 6.0, -70),
 	Vector3(411.0, 6.0, -70),
 	Vector3(419.0, 0.24, -70),
 	Vector3(421.8, 0.24, -70.8),
-	Vector3(430.0, 0.05, -74),
-	Vector3(430.0, 0.05, -103),
-	Vector3(433.5, 0.05, -109.5),
+	Vector3(437.0, 0.05, -76),
+	Vector3(437.0, 0.05, -104),
 	Vector3(440.0, 0.05, -111),
 	Vector3(452.0, 0.05, -111),
 	Vector3(452.0, 0.05, -116.5),
 ]
-## PATH index where he waits at the curb, and where he starts turning the corner.
+## PATH index of the curb he steps off, and where he starts turning the corner.
 const CURB := 3
 const CORNER := 5
 
@@ -594,7 +593,7 @@ func _build_crowd() -> void:
 	for k in CROWD_SIZE:
 		# Two clusters either side of his line to the median, so they pass around him.
 		var north := k % 2 == 0
-		var z := rng.randf_range(-68.6, -64.5) if north else rng.randf_range(-80.0, -75.8)
+		var z := rng.randf_range(-68.6, -64.5) if north else rng.randf_range(-82.0, -78.2)
 		var at := Vector3(rng.randf_range(431.5, 435.5), 0.05, z)
 		var f := _figure(dresses[k % 3], StreetFigure.Pose.WALK, at, 90.0)
 		f.moving = false

@@ -30,8 +30,8 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"fifteen shots, ~2 min (%.0f s)" % PrologueScript.total_duration(),
-		script.size() == 15 and absf(PrologueScript.total_duration() - 120.0) < 8.0
+		"fourteen shots, under 2 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 14 and absf(PrologueScript.total_duration() - 103.0) < 8.0
 	)
 	check(
 		"the train stops at the end of the line (%.1f m)" % p.route_length(),
@@ -43,8 +43,8 @@ func _run() -> void:
 		if s["mode"] != PrologueScript.Mode.INTERIOR and float(span[1]) > float(span[0]):
 			speeds.append(roundi((float(span[1]) - float(span[0])) / float(s["dur"])))
 	check(
-		"the train runs steadily wherever it is seen: 15 then ~20 m/s (%s)" % str(speeds),
-		speeds.min() >= 14 and speeds.max() <= 25
+		"the train runs steadily wherever it is seen: one ~20 m/s (%s)" % str(speeds),
+		speeds.min() >= 18 and speeds.max() <= 22
 	)
 	check("first shot already running", p.shot_index == 0)
 	_shots_seen.append(str(script[0]["name"]))
@@ -132,16 +132,15 @@ func _run() -> void:
 		PrologueAvenue.PATH[0].y > 5.0 and PrologueAvenue.PATH[-1].y < 0.5
 	)
 	check("suits cross his path twice (%d)" % crossings[0], crossings[0] == 2)
-	var curb := PrologueAvenue.PATH[PrologueAvenue.CURB]
 	check(
-		"a car rides past while he waits at the curb (%s)" % str(street["car_hero"]),
-		(street["car_hero"] as Vector3).distance_to(curb) < 0.1
+		"he crosses the whole street; the car rides past behind him (%s)" % str(street["car_hero"]),
+		(street["car_hero"] as Vector3).x > PrologueAvenue.CAR_X + 2.0
 	)
 	check("the group of ten crosses to the metro platform", street["crowd"])
 	var fight_hero: Vector3 = street["fight_hero"]
 	check(
 		"the fight starts at the corner, before he turns into his street (%s)" % str(fight_hero),
-		fight_hero != Vector3.ZERO and fight_hero.z < -103.0 and fight_hero.x < 436.0
+		fight_hero != Vector3.ZERO and fight_hero.z > -111.0 and fight_hero.x < 440.0
 	)
 	check(
 		"gaze moments: ad, lease, colossus (%s)" % str(_gazes),

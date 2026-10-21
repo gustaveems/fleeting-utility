@@ -59,6 +59,9 @@ var _events_fired: int = 0
 var _blend_from: Transform3D
 var _blend_fov_from: float = 60.0
 var _blend_dur: float = 0.0
+## For glides into a train-riding shot: the carriage the start pose rides with, so the
+## glide only changes framing and never has to chase the moving train.
+var _blend_car: Node3D
 ## The third-person rig's smoothed position (kept apart from the blended camera).
 var _follow_pos: Vector3
 var _follow_snap: bool = true
@@ -150,6 +153,10 @@ func _start_shot(index: int) -> void:
 	var mode: PrologueScript.Mode = shot["mode"]
 	# Glide from wherever the camera is, unless this shot cuts (or it is the first).
 	_blend_from = _camera.global_transform
+	_blend_car = null
+	if mode == PrologueScript.Mode.EXT_FOLLOW:
+		_blend_car = _carriages[int(shot.get("car", 0))]
+		_blend_from = _blend_car.global_transform.affine_inverse() * _blend_from
 	_blend_fov_from = _camera.fov
 	var cut: bool = index == 0 or shot.get("cut", false)
 	_blend_dur = 0.0 if cut else float(shot.get("blend", DEFAULT_BLEND))
@@ -203,8 +210,11 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 	_camera.fov = fov
 	if shot_time < _blend_dur:
 		var t := shot_time / _blend_dur
-		t = 1.0 - (1.0 - t) * (1.0 - t)  # glide: fast off the mark, settling at the end
-		_camera.global_transform = _blend_from.interpolate_with(_camera.global_transform, t)
+		t = t * t * (3.0 - 2.0 * t)
+		var from := _blend_from
+		if _blend_car != null:
+			from = _blend_car.global_transform * _blend_from
+		_camera.global_transform = from.interpolate_with(_camera.global_transform, t)
 		_camera.fov = lerpf(_blend_fov_from, fov, t)
 
 

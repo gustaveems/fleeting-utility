@@ -66,7 +66,7 @@ const LEASE_TEXT := "LEASE CONFIRMED\nUnit 7-14B, Block 31\nTerms apply. Renewal
 const TITLE := "FLEETING UTILITY"
 
 ## His walking pace (m/s), and where (walk fraction) the walk hands to the door shot.
-const WALK_SPEED := 1.7
+const WALK_SPEED := 2.3
 const WALK_END := 0.9
 ## The walk's camera marks (metres along his path): the top view starts this far up the
 ## median, and third person returns this far before the corner.
@@ -74,8 +74,8 @@ const TOP_AFTER_MEDIAN := 6.0
 const BACK_BEFORE_CORNER := 3.0
 
 
-## The shot list. `d` = [train distance at start, at end]. The train runs at a steady
-## ~15 m/s out of the town, then ~20–22 m/s wherever it is seen from outside.
+## The shot list. `d` = [train distance at start, at end]. The train runs at one steady
+## ~19–20 m/s wherever it is seen from outside.
 static func shots() -> Array[Dictionary]:
 	# Walk marks come from the avenue's path (metres → fractions and durations).
 	var total := PrologueAvenue.walk_length()
@@ -90,7 +90,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "town_establishing",
 			"mode": Mode.EXT_FIXED,
 			"dur": 8.0,
-			"d": [0.0, 120.0],
+			"d": [0.0, 150.0],
 			"cam": Vector3(-560, 9, 34),
 			"look": Vector3(-610, 10, 0),
 			"fov": 50.0,
@@ -102,7 +102,7 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 8.0,
 			"blend": 3.0,
-			"d": [120.0, 290.0],
+			"d": [150.0, 300.0],
 			"cam": [Vector3(9, 1.5, -14), Vector3(10, 3.0, 34)],
 			"look": "train",
 			"fov": 55.0,
@@ -111,9 +111,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "tunnel",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 5.0,
+			"dur": 5.5,
 			"blend": 2.0,
-			"d": [290.0, 400.0],
+			"d": [300.0, 410.0],
 			"cam": [Vector3(0, 3.6, 30), Vector3(0, 3.0, 18)],
 			"look": "train",
 			"fov": 60.0,
@@ -124,7 +124,7 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.EXT_PATH,
 			"dur": 6.0,
 			"cut": true,
-			"d": [400.0, 520.0],
+			"d": [410.0, 530.0],
 			"cam": [Vector3(-60, 230, 330), Vector3(-20, 150, 200)],
 			"look": Vector3(40, 15, -30),
 			"fov": 55.0,
@@ -137,7 +137,7 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 8.0,
 			"cut": true,  # a glide down from the aerial would pass through the towers
-			"d": [520.0, 680.0],
+			"d": [530.0, 690.0],
 			"car": 1,
 			"cam":
 			[Vector3(-9, 2.2, 6), Vector3(-2.5, 1.7, 2), Vector3(2.5, 1.7, -1), Vector3(9, 3, -3)],
@@ -158,7 +158,7 @@ static func shots() -> Array[Dictionary]:
 			"mode": Mode.INTERIOR,
 			"dur": 8.0,
 			"cut": true,
-			"d": [680.0, 760.0],
+			"d": [690.0, 770.0],
 			"cam": [Vector3(0.45, 1.75, -8.2), Vector3(0.5, 1.68, 1.2), Vector3(1.0, 1.9, 3.7)],
 			"look": [Vector3(0.2, 1.4, 8.0), Vector3(0.9, 1.0, 4.6), Vector3(0.77, 0.92, 4.55)],
 			"gaze": "phone",
@@ -169,9 +169,9 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "colossus_reveal",
 			"mode": Mode.EXT_PATH,
-			"dur": 6.0,
+			"dur": 5.5,
 			"cut": true,
-			"d": [760.0, 880.0],
+			"d": [770.0, 880.0],
 			"cam": [Vector3(150, 20, 120), Vector3(172, 26, 98)],
 			"look": Vector3(230, 30, 30),
 			"fov": 48.0,
@@ -193,7 +193,7 @@ static func shots() -> Array[Dictionary]:
 		{
 			"name": "descent",
 			"mode": Mode.EXT_FOLLOW,
-			"dur": 6.0,
+			"dur": 6.4,
 			"blend": 1.5,
 			"d": [980.0, END_OF_LINE],
 			"cam": Vector3(10, 30, 34),
@@ -214,18 +214,6 @@ static func shots() -> Array[Dictionary]:
 			"lines": [[1.0, "SPEAKER: Residents remain on their side of the line."]],
 		},
 		{
-			# He waits at the curb; a car rides past, then ten people cross to the metro.
-			"name": "curb_wait",
-			"mode": Mode.WALK_FOLLOW,
-			"dur": 7.0,
-			"blend": 2.0,
-			"d": [END_OF_LINE, END_OF_LINE],
-			"w": [curb / total, curb / total],
-			"fov": 58.0,
-			"events": [[0.2, "car"], [3.6, "crowd"]],
-			"lines": [],
-		},
-		{
 			"name": "avenue_walk",
 			"mode": Mode.WALK_FOLLOW,
 			"dur": (top_from - curb) / WALK_SPEED,
@@ -233,6 +221,8 @@ static func shots() -> Array[Dictionary]:
 			"d": [END_OF_LINE, END_OF_LINE],
 			"w": [curb / total, top_from / total],
 			"fov": 58.0,
+			# The crowd crosses to the metro against him; the car rides past behind him.
+			"events": [[0.0, "crowd"], [5.5, "car"]],
 			"lines": [[3.0, "VENDOR: Focus! Fresh focus, cheap, cheaper than theirs."]],
 		},
 		{
