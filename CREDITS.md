@@ -6,10 +6,11 @@ Third-party assets used by Fleeting Utility. They live in `assets/third_party/`
 
 ## CC0 (no attribution required, credited anyway)
 - **Quaternius**: Downtown City MegaKit, Universal Animation Library 1 & 2, Universal
-  Base Characters, LowPoly Cars. quaternius.com
+  Base Characters, LowPoly Cars, Textured LowPoly Trees (birches). quaternius.com
 - **Poly Haven**: chainlink fence, roller shutters, utility box, AC unit, road barrier,
   industrial pipes, wheel rim, tool cart, painted cabinet, marble bust, picture frame,
-  cigarette pack, old bed frame, plastic container, medical box. polyhaven.com
+  cigarette pack, old bed frame, plastic container, medical box, boulder 01, stone 01, rock moss sets 01/02, dead tree
+  trunk, tree stump 01, fern 02, dry branches. polyhaven.com
 - **reyshapes** (Poly Pizza): *Easel Large Leaning*. poly.pizza/m/DzrGZz1LRo
 
 ## CC BY 4.0 (attribution required)

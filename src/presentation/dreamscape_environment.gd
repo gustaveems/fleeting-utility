@@ -42,6 +42,28 @@ const STATUE_POSITIONS: Array[Vector3] = [
 
 ## The brief's 50 feet, in metres.
 const STATUE_HEIGHT := 15.0
+## Real nature (CC0): Quaternius birches with yellow autumn leaves, Poly Haven stones,
+## stumps, ferns, branches. Missing packs leave the greybox.
+const TREES := "res://assets/third_party/quaternius_trees/"
+const YELLOW_LEAVES := TREES + "Birch_Leaves_Yellow.png"
+const BARK := TREES + "Birch_Bark.png"
+const BARK_DEAD := TREES + "Birch_Bark_Dead.png"
+const GROUND_TEX := "res://assets/third_party/quaternius_downtown/models/T_Dirt_BaseColor.png"
+const SCATTER: Array = [
+	# [poly haven id, count, scale range, blood-marked?]
+	["rock_moss_set_01", 10, Vector2(1.0, 2.2), false],
+	["rock_moss_set_02", 10, Vector2(1.0, 2.2), false],
+	["boulder_01", 6, Vector2(0.8, 1.6), true],
+	["stone_01", 8, Vector2(1.2, 2.5), true],
+	["tree_stump_01", 6, Vector2(0.9, 1.3), false],
+	["dead_tree_trunk", 3, Vector2(0.9, 1.2), false],
+	["fern_02", 26, Vector2(0.9, 1.6), false],
+	["dry_branches_medium_01", 14, Vector2(0.8, 1.4), false],
+]
+## Keep the spawn clear (the dream opens at the origin) and the statues' feet open.
+const CLEAR_SPAWN := 13.0
+const CLEAR_STATUE := 7.5
+const SIGHTLINE_CLEAR := 5.0
 
 ## The valley's Environment resource. Built in _init (not _ready) so the bootstrap can
 ## hand it to DreamscapeManager before either node enters the tree.
@@ -64,6 +86,7 @@ func _ready() -> void:
 	_build_sun()
 	_build_statues()
 	_build_memory_anchors()
+	_build_forest()
 	set_active(false)
 
 
@@ -75,26 +98,28 @@ func _build_environment() -> void:
 	env.background_mode = Environment.BG_COLOR
 	# Late-afternoon sky, saturated to the edge of believability — the dream's opposite
 	# of the apartment's near-black green.
-	env.background_color = Color(0.95, 0.62, 0.28)
+	# Look-dev palette (notes.md, Dream): pale mist and white birch, the leaf gold glowing
+	# through the fog rather than saturating the frame.
+	env.background_color = Color(0.79, 0.77, 0.73)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.85, 0.55, 0.30)
-	env.ambient_light_energy = 0.6
+	env.ambient_light_color = Color(0.82, 0.74, 0.62)
+	env.ambient_light_energy = 0.75
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 
 	# Soft warm haze for depth. Denser than the apartment's: at 120 m of plane the fog
 	# has to swallow the terrain edge into the sky, or the horizon reads as a cut line
 	# (confirmed on the first valley render).
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.90, 0.60, 0.35)
-	env.fog_density = 0.012
+	env.fog_light_color = Color(0.82, 0.78, 0.72)
+	env.fog_density = 0.018
 	env.fog_sky_affect = 0.5
 	env.volumetric_fog_enabled = true
 	env.volumetric_fog_density = 0.004
 
 	# High saturation is the whole visual brief for the valley.
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.35
-	env.adjustment_contrast = 1.1
+	env.adjustment_saturation = 1.08
+	env.adjustment_contrast = 1.05
 	env.glow_enabled = true
 	env.glow_strength = 0.4
 	env.glow_bloom = 0.1
@@ -116,6 +141,11 @@ func _build_terrain() -> void:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Color(0.45, 0.26, 0.12)  # autumn leaf-litter brown-orange
 	material.roughness = 0.95
+	if ResourceLoader.exists(GROUND_TEX):
+		material.albedo_texture = load(GROUND_TEX)
+		material.albedo_color = Color(0.8, 0.55, 0.32)  # the dirt warmed to leaf litter
+		material.uv1_triplanar = true
+		material.uv1_scale = Vector3.ONE * 0.25
 	ground.material_override = material
 	add_child(ground)
 
@@ -123,8 +153,8 @@ func _build_terrain() -> void:
 func _build_sun() -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "GoldenHourSun"
-	sun.light_color = Color(1.0, 0.72, 0.42)
-	sun.light_energy = 1.7
+	sun.light_color = Color(1.0, 0.82, 0.58)
+	sun.light_energy = 1.5
 	sun.shadow_enabled = true
 	# Low angle: 14 degrees above the horizon, raking the statues into long shadows.
 	sun.rotation_degrees = Vector3(-14.0, -35.0, 0.0)
@@ -181,6 +211,18 @@ func _build_statue(index: int, origin: Vector3) -> void:
 	collar.material_override = blood
 	statue.add_child(collar)
 
+	# The canon colossus: a striding stone figure, blood running down its legs and
+	# plinths (ColossusFigure.Style.STONE). The cylinder stays as its collider.
+	var figure := ColossusFigure.new()
+	figure.name = "Colossus"
+	figure.style = ColossusFigure.Style.STONE
+	figure.height = STATUE_HEIGHT
+	figure.stance = 5.0
+	figure.rotation.y = atan2(origin.x, origin.z)  # facing the spawn
+	statue.add_child(figure)
+	monolith.visible = false
+	collar.visible = false
+
 	add_child(statue)
 	statues.append(statue)
 	_build_return_zone(index, origin)
@@ -215,6 +257,128 @@ func _build_memory_anchors() -> void:
 		# The bootstrap wires dreamscape_manager after the valley is built (post_attach).
 		add_child(anchor)
 		memory_anchors.append(anchor)
+
+
+## ----- FOREST ---------------------------------------------------------------------------
+
+
+## The autumn birch wood and its floor: birches (a few dead) with solid trunks, and the
+## scatter (mossy rocks, blood-marked stones, stumps, a fallen trunk, ferns, branches).
+## Seeded, so every dream is the same valley.
+func _build_forest() -> void:
+	if not ResourceLoader.exists(TREES + "Birch_1.fbx"):
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1979
+	var yellow: Texture2D = load(YELLOW_LEAVES) if ResourceLoader.exists(YELLOW_LEAVES) else null
+	var placed := 0
+	var tries := 0
+	while placed < 70 and tries < 900:
+		tries += 1
+		var at := Vector3(rng.randf_range(-55, 55), 0, rng.randf_range(-55, 55))
+		if not _open_ground(at):
+			continue
+		var dead := rng.randf() < 0.18
+		var path := (
+			TREES + ("DeadBirch_%d.fbx" if dead else "Birch_%d.fbx") % rng.randi_range(1, 10)
+		)
+		var tree := CityKit.prop(path, self, at, rng.randf_range(0, 360), 0.0)
+		if tree == null:
+			continue
+		tree.scale = Vector3.ONE * rng.randf_range(0.9, 1.4)
+		if yellow != null:
+			_autumn(tree, yellow)
+		_trunk_collider(at)
+		placed += 1
+	for spec in SCATTER:
+		var id: String = spec[0]
+		var count: int = spec[1]
+		var size_range: Vector2 = spec[2]
+		var n := 0
+		var guard := 0
+		while n < count and guard < 400:
+			guard += 1
+			var at := Vector3(rng.randf_range(-50, 50), 0, rng.randf_range(-50, 50))
+			if not _open_ground(at, 4.0):
+				continue
+			var p := CityKit.prop(CityKit.polyhaven(id), self, at, rng.randf_range(0, 360), 0.0)
+			if p == null:
+				break
+			p.scale = Vector3.ONE * rng.randf_range(size_range.x, size_range.y)
+			if spec[3] and rng.randf() < 0.6:
+				_blood_mark(p, rng)
+			n += 1
+
+
+func _open_ground(at: Vector3, statue_margin: float = CLEAR_STATUE) -> bool:
+	var p := Vector2(at.x, at.z)
+	if p.length() < CLEAR_SPAWN:
+		return false
+	for s in STATUE_POSITIONS:
+		var foot := Vector2(s.x, s.z)
+		if p.distance_to(foot) < statue_margin:
+			return false
+		# Keep each colossus in view from the spawn: no trees on the sightline.
+		var on_line := Geometry2D.get_closest_point_to_segment(p, Vector2.ZERO, foot)
+		if p.distance_to(on_line) < SIGHTLINE_CLEAR:
+			return false
+	return true
+
+
+## Swap the birch's leaf texture for the yellow autumn one (bark untouched).
+func _autumn(n: Node, yellow: Texture2D) -> void:
+	if n is MeshInstance3D:
+		var mi := n as MeshInstance3D
+		for s in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(s) as StandardMaterial3D
+			if mat == null:
+				continue
+			var tex_path := mat.albedo_texture.resource_path if mat.albedo_texture else ""
+			if "eaves" in tex_path or "eaf" in mat.resource_name or "eaves" in mat.resource_name:
+				var leaf := mat.duplicate() as StandardMaterial3D
+				leaf.albedo_texture = yellow
+				# Gold, faintly lit from within: it should glow through the fog.
+				leaf.albedo_color = Color(1.0, 0.72, 0.32)
+				leaf.emission_enabled = true
+				leaf.emission = Color(0.55, 0.32, 0.08)
+				leaf.emission_energy_multiplier = 0.35
+				mi.set_surface_override_material(s, leaf)
+			elif "Bark" in mat.resource_name and ResourceLoader.exists(BARK):
+				# The import lost the bark texture: put the birch's papery bark back.
+				var bark := mat.duplicate() as StandardMaterial3D
+				bark.albedo_texture = load(BARK_DEAD if "Dead" in mat.resource_name else BARK)
+				bark.albedo_color = Color.WHITE
+				mi.set_surface_override_material(s, bark)
+	for c in n.get_children():
+		_autumn(c, yellow)
+
+
+## A solid trunk: you walk around birches, not through them.
+func _trunk_collider(at: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.position = at + Vector3(0, 1.0, 0)
+	var shape := CollisionShape3D.new()
+	var cyl := CylinderShape3D.new()
+	cyl.radius = 0.25
+	cyl.height = 2.0
+	shape.shape = cyl
+	body.add_child(shape)
+	add_child(body)
+
+
+## Old blood on a stone: a dark red smear across its face.
+func _blood_mark(stone: Node3D, rng: RandomNumberGenerator) -> void:
+	var blood := StandardMaterial3D.new()
+	blood.albedo_color = Color(0.4, 0.04, 0.03)
+	blood.roughness = 0.55
+	var smear := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(0.12, rng.randf_range(0.25, 0.5), 0.02)
+	smear.mesh = box
+	smear.material_override = blood
+	smear.position = Vector3(rng.randf_range(-0.15, 0.15), 0.35, 0.3)
+	smear.rotation_degrees.z = rng.randf_range(-25, 25)
+	stone.add_child(smear)
 
 
 func _on_zone_entered(_body: Node3D) -> void:
