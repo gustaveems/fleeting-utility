@@ -45,6 +45,7 @@ on why you picked it.
 | Universal Animation Library 1 + 2 (Standard) by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_anim/` | `StreetFigure`: the rigged mannequin and its clips |
 | Universal Base Characters (Standard) by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_chars/` | Base bodies + hair (reserved: Standard has no clothes) |
 | LowPoly Cars ("Realistic Car Pack") by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_cars/` | The taxi that passes, parked cars |
+| 13 Fab items (CC-BY / Fab Personal): graffiti tram, rooftops 1/3, mega tower, neon signs, noodle kiosk, high-rise 06, sci-fi skyline backdrop, flying/cyber/police cars, Cyberwave audio | fab.com via Alain's account (2026-10-21) | `assets/third_party/fab/<name>/` | City landmarks, horizon and `FlyingTraffic`; the avenue's kiosk, neon, police car; the town's tram; the prologue sound bed. See `CREDITS.md` |
 
 ## Palettes (starting values, to tune)
 | World | Base | Accent |

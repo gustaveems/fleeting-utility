@@ -560,7 +560,7 @@ func _build_walkers() -> void:
 	for lane in lanes:
 		var along_z: bool = lane[0] == "z"
 		var lo := AVENUE_END_Z - 8.0 if along_z else AVENUE_X + 8.0
-		var hi := AVENUE_START_Z if along_z else 484.0
+		var hi := AVENUE_START_Z if along_z else 470.0
 		var count := int(lane[3])
 		var dresses: Array = lane[4]
 		var dir := float(lane[2])
@@ -704,6 +704,42 @@ func _build_props() -> void:
 	CityKit.prop(CityKit.car("SportsCar"), self, Vector3(423.2, 0.05, -86), 180.0)
 	CityKit.prop(CityKit.car("SUV"), self, Vector3(423.2, 0.05, -101), 180.0)
 	CityKit.prop(CityKit.car("NormalCar2"), self, Vector3(470, 0.05, -108.6), 95.0)
+	# Fab (CC-BY / free): the noodle kiosk at the dead end of his street, neon signs on
+	# the rundown block, a police cruiser outside the boutique, a rooftop rig, and the
+	# skyline over everything: a backdrop, the corporate mega tower, flying traffic.
+	var fab := "res://assets/third_party/fab/"
+	CityKit.prop(
+		fab + "noodle_kiosk/cyberpunk_noodle_kiosk_environment_prop.glb",
+		self,
+		Vector3(478, 0.05, -112),
+		-90.0
+	)
+	for at in [Vector3(POOR_X - 0.6, 3.2, -75), Vector3(POOR_X - 0.6, 3.6, -99)]:
+		CityKit.prop(fab + "neon_signs/neon_signs.glb", self, at, -90.0)
+	CityKit.prop(fab + "police_car/sentinel_pursuer.glb", self, Vector3(423.4, 0.65, -93.6), 180.0)
+	CityKit.prop(
+		fab + "rooftop_1/rooftop_1_hd_jfg_roblox_showcase_prop.glb",
+		self,
+		Vector3(458, 47.8, -72),
+		0.0
+	)
+	CityKit.prop(
+		fab + "scifi_buildings_bg/sci_fi_buildings_modular_background.glb",
+		self,
+		Vector3(440, 117, -330),
+		0.0
+	)
+	var tower := CityKit.prop(
+		fab + "mega_tower/cyberpunk_skyscraper_3d_model.glb", self, Vector3(500, 100, -230), 20.0
+	)
+	if tower != null:
+		tower.scale = Vector3.ONE * 200.0
+	var traffic := FlyingTraffic.new()
+	traffic.name = "Traffic"
+	add_child(traffic)
+	traffic.add_lane(Vector3(372, 36, -128), Vector3(520, 36, -128), 26.0, 5, 1)
+	traffic.add_lane(Vector3(520, 48, -150), Vector3(372, 48, -150), 34.0, 6, 2)
+	traffic.add_lane(Vector3(400, 60, -40), Vector3(400, 60, -220), 30.0, 4, 3)
 	# The boutique's entrance: a marble bust on a plinth, gilt frames either side of the
 	# window. Heritage, on display.
 	var plinth := _mat(Color(0.12, 0.11, 0.1), 0.3)

@@ -1,0 +1,33 @@
+# Credits
+
+Third-party assets used by Fleeting Utility. They live in `assets/third_party/`
+(git-ignored, too large to commit); sources and dates are in
+`docs/references/notes.md`.
+
+## CC0 (no attribution required, credited anyway)
+- **Quaternius**: Downtown City MegaKit, Universal Animation Library 1 & 2, Universal
+  Base Characters, LowPoly Cars. quaternius.com
+- **Poly Haven**: chainlink fence, roller shutters, utility box, AC unit, road barrier,
+  industrial pipes, wheel rim, tool cart, painted cabinet, marble bust, picture frame,
+  cigarette pack. polyhaven.com
+
+## CC BY 4.0 (attribution required)
+Downloaded from Fab (fab.com) on 2026-10-21. Credit the original authors as listed on
+each Fab page:
+- *Flying futuristic train with uncleaned graffiti*
+- *Rooftop 1 HD JFG* and *Rooftop 3 HD JFG*
+- *Futuristic Cyberpunk Skyscraper / Sci-Fi Mega Tower*
+- *Neon Signs*
+- *Cyberpunk Noodle Kiosk – Environment Prop* (MarinaB)
+- *High-Rise Building #06*
+- *Cyberwave Audio Pack*
+
+## Fab Standard License, Personal tier (free for personal/non-commercial use)
+These must be re-licensed (Professional tier) or replaced before any commercial
+release:
+- *Floating Futuristic Cyber Car JFG*
+- *Cyberpunk Flying Car*
+- *Sentinel Pursuer Police Car*
+- *Sci-fi Buildings Modular Background*
+- *Neon Descent* and *Free Scifi Neon Text* (downloaded as .blend, not yet used: Godot
+  needs Blender installed to import them)

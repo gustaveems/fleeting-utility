@@ -55,6 +55,8 @@ var _avenue: PrologueAvenue
 ## His carriage's interior: shown for the interior and fly-through shots only.
 var _interior: Array[Node3D] = []
 var _events_fired: int = 0
+var _bed: AudioStreamPlayer
+var _rumble: AudioStreamPlayer
 ## The glide into the current shot: where the camera was, and over how long.
 var _blend_from: Transform3D
 var _blend_fov_from: float = 60.0
@@ -82,6 +84,8 @@ func _ready() -> void:
 	_build_city()
 	_build_billboards()
 	_build_colossus()
+	_build_landmarks()
+	_build_audio()
 	_avenue = PrologueAvenue.new()
 	_avenue.name = "Avenue"
 	add_child(_avenue)
@@ -169,6 +173,11 @@ func _start_shot(index: int) -> void:
 	for n in _interior:
 		n.visible = mode == PrologueScript.Mode.INTERIOR or shot.get("interior", false)
 	_world_env.environment = _env_town if index < 2 else _env_city
+	if _rumble != null:
+		if mode == PrologueScript.Mode.INTERIOR and not _rumble.playing:
+			_rumble.play()
+		elif mode != PrologueScript.Mode.INTERIOR:
+			_rumble.stop()
 	shot_started.emit(index, str(shot["name"]), mode)
 	if shot.has("gaze"):
 		gaze_started.emit(str(shot["gaze"]))
@@ -850,6 +859,68 @@ func _build_colossus() -> void:
 	# Straddle the track: its legs either side, facing along the line.
 	figure.global_transform = Transform3D(f.basis, Vector3(f.origin.x, 0.0, f.origin.z))
 	_gaze_targets["colossus"] = figure.head
+
+
+## Real towers among the greybox blocks (Fab, CC-BY / free), the city's horizon,
+## flying traffic through the canyon, and the abandoned graffiti tram in the town.
+## Anything that would block a shot's sightline or sit on the track is skipped.
+func _build_landmarks() -> void:
+	var fab := "res://assets/third_party/fab/"
+	var towers: Array = [
+		["highrise_06/high_rise_building.glb", Vector3(110, 0, -120), 1.0, 30.0],
+		["highrise_06/high_rise_building.glb", Vector3(-130, 0, 95), 1.0, -20.0],
+		["rooftop_3/rooftop_3_hd_jfg_roblox_showcase_prop.glb", Vector3(300, 113, 110), 1.0, 0.0],
+		["rooftop_3/rooftop_3_hd_jfg_roblox_showcase_prop.glb", Vector3(-30, 113, 135), 0.8, 45.0],
+		["mega_tower/cyberpunk_skyscraper_3d_model.glb", Vector3(195, 100, -95), 200.0, 10.0],
+		["mega_tower/cyberpunk_skyscraper_3d_model.glb", Vector3(10, 90, -170), 180.0, 70.0],
+	]
+	var sightlines := _sightlines()
+	var boards: Array[Vector3] = []
+	for i in PrologueScript.BILLBOARDS.size():
+		boards.append(_billboard_anchor(i))
+	for t in towers:
+		var at: Vector3 = t[1]
+		var ground := Vector3(at.x, 0, at.z)
+		var near := _curve.get_closest_point(ground + Vector3(0, 15, 0))
+		if Vector2(near.x, near.z).distance_to(Vector2(at.x, at.z)) < 55.0:
+			continue
+		if _blocks_view(ground, sightlines, boards):
+			continue
+		var n := CityKit.prop(fab + str(t[0]), self, at, float(t[3]))
+		if n != null:
+			n.scale = Vector3.ONE * float(t[2])
+	var horizon := fab + "scifi_buildings_bg/sci_fi_buildings_modular_background.glb"
+	CityKit.prop(horizon, self, Vector3(80, 117, -420), 0.0)
+	CityKit.prop(horizon, self, Vector3(120, 117, 380), 180.0)
+	var traffic := FlyingTraffic.new()
+	traffic.name = "Traffic"
+	add_child(traffic)
+	traffic.add_lane(Vector3(-220, 75, -110), Vector3(380, 90, -70), 42.0, 9, 11)
+	traffic.add_lane(Vector3(380, 110, 110), Vector3(-220, 95, 70), 38.0, 9, 12)
+	traffic.add_lane(Vector3(160, 60, -160), Vector3(260, 70, 200), 30.0, 5, 13)
+	# The town: an old graffiti tram left to rot by the dead mall.
+	CityKit.prop(fab + "graffiti_train/SciFiTram.glb", self, Vector3(-572, 0.4, 28), 12.0)
+
+
+## The film's sound bed (Cyberwave Audio Pack, CC-BY): a low city atmosphere throughout,
+## and the carriage's sub rumble under the metro shot.
+func _build_audio() -> void:
+	var dir := "res://assets/third_party/fab/cyberwave_audio/Cyberwave/"
+	_bed = _loop_player(dir + "Sound/Sound - Monol Atmos.wav", -10.0)
+	_rumble = _loop_player(dir + "Ambient/Ambient - Amb Sub Dplr.wav", -6.0)
+	if _bed != null:
+		_bed.play()
+
+
+func _loop_player(path: String, db: float) -> AudioStreamPlayer:
+	if not ResourceLoader.exists(path):
+		return null
+	var p := AudioStreamPlayer.new()
+	p.stream = load(path)
+	p.volume_db = db
+	p.finished.connect(p.play)  # loop
+	add_child(p)
+	return p
 
 
 ## ----- HELPERS -----------------------------------------------------------------------
