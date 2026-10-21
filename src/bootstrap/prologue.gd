@@ -56,6 +56,10 @@ var _avenue: PrologueAvenue
 var _interior: Array[Node3D] = []
 var _events_fired: int = 0
 var _bed: AudioStreamPlayer
+## Pre-warm: before the film starts the camera looks at each heavy area for a few frames
+## behind a black screen, so their textures and shaders load up front instead of
+## hitching mid-film.
+var _warmup: Array[Transform3D] = []
 var _rumble: AudioStreamPlayer
 ## The glide into the current shot: where the camera was, and over how long.
 var _blend_from: Transform3D
@@ -98,11 +102,25 @@ func _ready() -> void:
 	_overlay = PrologueOverlay.new()
 	_overlay.name = "Overlay"
 	add_child(_overlay)
+	_overlay.set_black(true)
+	for spot in [
+		[Vector3(418, 60, -40), Vector3(440, 0, -100)],  # the avenue from above
+		[Vector3(440, 3, -60), Vector3(440, 3, -115)],  # down the street, kiosk end
+		[Vector3(-60, 230, 330), Vector3(40, 15, -30)],  # the canyon
+		[Vector3(150, 20, 120), Vector3(230, 30, 30)],  # the colossus
+		[Vector3(-560, 9, 34), Vector3(-610, 10, 0)],  # the town
+	]:
+		_warmup.append(Transform3D().looking_at(spot[1] - spot[0], Vector3.UP).translated(spot[0]))
 	_start_shot(0)
 
 
 func _process(delta: float) -> void:
 	if is_finished:
+		return
+	if not _warmup.is_empty():
+		_camera.global_transform = _warmup.pop_front()
+		if _warmup.is_empty():
+			_overlay.set_black(false)
 		return
 	_update_skip(delta)
 	if is_finished:
@@ -868,9 +886,8 @@ func _build_landmarks() -> void:
 	var fab := "res://assets/third_party/fab/"
 	var towers: Array = [
 		["highrise_06/high_rise_building.glb", Vector3(110, 0, -120), 1.0, 30.0],
-		["highrise_06/high_rise_building.glb", Vector3(-130, 0, 95), 1.0, -20.0],
-		["rooftop_3/rooftop_3_hd_jfg_roblox_showcase_prop.glb", Vector3(300, 113, 110), 1.0, 0.0],
-		["rooftop_3/rooftop_3_hd_jfg_roblox_showcase_prop.glb", Vector3(-30, 113, 135), 0.8, 45.0],
+		# Its pivot is 17 m above its base: lift it by that, scaled.
+		["rooftop_3/rooftop_3_hd_jfg_roblox_showcase_prop.glb", Vector3(300, 17.4, 110), 1.0, 0.0],
 		["mega_tower/cyberpunk_skyscraper_3d_model.glb", Vector3(195, 100, -95), 200.0, 10.0],
 		["mega_tower/cyberpunk_skyscraper_3d_model.glb", Vector3(10, 90, -170), 180.0, 70.0],
 	]
@@ -886,18 +903,14 @@ func _build_landmarks() -> void:
 			continue
 		if _blocks_view(ground, sightlines, boards):
 			continue
-		var n := CityKit.prop(fab + str(t[0]), self, at, float(t[3]))
+		var n := CityKit.prop(fab + str(t[0]), self, at, float(t[3]), 0.0)  # skyline: always
 		if n != null:
 			n.scale = Vector3.ONE * float(t[2])
-	var horizon := fab + "scifi_buildings_bg/sci_fi_buildings_modular_background.glb"
-	CityKit.prop(horizon, self, Vector3(80, 117, -420), 0.0)
-	CityKit.prop(horizon, self, Vector3(120, 117, 380), 180.0)
 	var traffic := FlyingTraffic.new()
 	traffic.name = "Traffic"
 	add_child(traffic)
-	traffic.add_lane(Vector3(-220, 75, -110), Vector3(380, 90, -70), 42.0, 9, 11)
-	traffic.add_lane(Vector3(380, 110, 110), Vector3(-220, 95, 70), 38.0, 9, 12)
-	traffic.add_lane(Vector3(160, 60, -160), Vector3(260, 70, 200), 30.0, 5, 13)
+	traffic.add_lane(Vector3(-220, 75, -110), Vector3(380, 90, -70), 42.0, 4, 11)
+	traffic.add_lane(Vector3(380, 110, 110), Vector3(-220, 95, 70), 38.0, 4, 12)
 	# The town: an old graffiti tram left to rot by the dead mall.
 	CityKit.prop(fab + "graffiti_train/SciFiTram.glb", self, Vector3(-572, 0.4, 28), 12.0)
 

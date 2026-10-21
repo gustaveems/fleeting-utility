@@ -6,6 +6,7 @@ extends CanvasLayer
 enum View { BARE, LETTERBOX }
 
 var _bars: Control
+var _black: ColorRect
 var _subtitle: Label
 var _phone: PanelContainer
 var _phone_label: Label
@@ -20,6 +21,11 @@ func _ready() -> void:
 	set_phone(0.0)
 	set_title(0.0)
 	set_skip_progress(0.0)
+
+
+## Full black (the pre-warm frames before the film starts).
+func set_black(on: bool) -> void:
+	_black.visible = on
 
 
 ## BARE: nothing · LETTERBOX: cinema bars.
@@ -57,6 +63,13 @@ func _phone_rest_y() -> float:
 
 func _build() -> void:
 	var theme := UiTheme.get_theme()
+	_black = ColorRect.new()
+	_black.name = "Black"
+	_black.color = Color.BLACK
+	_black.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_black.visible = false
+	add_child(_black)
 	# Letterbox: the film is shot in cinema bars throughout.
 	_bars = Control.new()
 	_bars.name = "Letterbox"

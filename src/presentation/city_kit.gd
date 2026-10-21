@@ -97,14 +97,27 @@ static func _merge(n: Node, parent_xf: Transform3D, into: ArrayMesh) -> void:
 
 ## A third-party prop scene (Poly Haven / Quaternius cars), placed under `parent`; null
 ## (and nothing placed) if the pack isn't installed.
-static func prop(path: String, parent: Node3D, at: Vector3, yaw_deg: float = 0.0) -> Node3D:
+static func prop(
+	path: String, parent: Node3D, at: Vector3, yaw_deg: float = 0.0, draw_distance: float = 150.0
+) -> Node3D:
 	if not ResourceLoader.exists(path):
 		return null
 	var n := (load(path) as PackedScene).instantiate() as Node3D
 	n.position = at
 	n.rotation_degrees.y = yaw_deg
 	parent.add_child(n)
+	_set_range(n, draw_distance)
 	return n
+
+
+## Stop drawing a prop's meshes beyond `metres` (0 = always draw).
+static func _set_range(n: Node, metres: float) -> void:
+	if metres <= 0.0:
+		return
+	if n is GeometryInstance3D:
+		(n as GeometryInstance3D).visibility_range_end = metres
+	for c in n.get_children():
+		_set_range(c, metres)
 
 
 ## Poly Haven model path by asset id.

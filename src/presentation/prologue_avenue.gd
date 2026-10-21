@@ -716,7 +716,6 @@ func _build_props() -> void:
 	)
 	for at in [Vector3(POOR_X - 0.6, 3.2, -75), Vector3(POOR_X - 0.6, 3.6, -99)]:
 		CityKit.prop(fab + "neon_signs/neon_signs.glb", self, at, -90.0)
-	CityKit.prop(fab + "police_car/sentinel_pursuer.glb", self, Vector3(423.4, 0.65, -93.6), 180.0)
 	CityKit.prop(
 		fab + "rooftop_1/rooftop_1_hd_jfg_roblox_showcase_prop.glb",
 		self,
@@ -727,19 +726,23 @@ func _build_props() -> void:
 		fab + "scifi_buildings_bg/sci_fi_buildings_modular_background.glb",
 		self,
 		Vector3(440, 117, -330),
+		0.0,
 		0.0
 	)
 	var tower := CityKit.prop(
-		fab + "mega_tower/cyberpunk_skyscraper_3d_model.glb", self, Vector3(500, 100, -230), 20.0
+		fab + "mega_tower/cyberpunk_skyscraper_3d_model.glb",
+		self,
+		Vector3(500, 100, -230),
+		20.0,
+		0.0
 	)
 	if tower != null:
 		tower.scale = Vector3.ONE * 200.0
 	var traffic := FlyingTraffic.new()
 	traffic.name = "Traffic"
 	add_child(traffic)
-	traffic.add_lane(Vector3(372, 36, -128), Vector3(520, 36, -128), 26.0, 5, 1)
-	traffic.add_lane(Vector3(520, 48, -150), Vector3(372, 48, -150), 34.0, 6, 2)
-	traffic.add_lane(Vector3(400, 60, -40), Vector3(400, 60, -220), 30.0, 4, 3)
+	traffic.add_lane(Vector3(372, 36, -128), Vector3(520, 36, -128), 26.0, 3, 1)
+	traffic.add_lane(Vector3(520, 48, -150), Vector3(372, 48, -150), 34.0, 3, 2)
 	# The boutique's entrance: a marble bust on a plinth, gilt frames either side of the
 	# window. Heritage, on display.
 	var plinth := _mat(Color(0.12, 0.11, 0.1), 0.3)
@@ -754,8 +757,8 @@ func _build_props() -> void:
 func _build_car() -> void:
 	_car = Node3D.new()
 	_car.name = "Car"
+	# Waiting at the dead end until cued (visible from the start, so it pre-loads).
 	_car.position = Vector3(CAR_X, 0.0, CAR_START_Z)
-	_car.visible = false
 	add_child(_car)
 	# A real taxi if the car pack is installed; a box cab otherwise.
 	if CityKit.prop(CityKit.car("Taxi"), _car, Vector3.ZERO) == null:

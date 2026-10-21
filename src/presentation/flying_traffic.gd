@@ -6,13 +6,13 @@ extends Node3D
 ##
 ##   traffic.add_lane(from, to, speed, count, [model paths])
 
+## Light models only: the police cruiser (79 MB, 42 meshes) lagged the film badly.
 const MODELS: Array[String] = [
 	"res://assets/third_party/fab/flying_car/car.glb",
 	"res://assets/third_party/fab/cyber_car/floating_futuristic_cyber_car_jfg.glb",
-	"res://assets/third_party/fab/police_car/sentinel_pursuer.glb",
 ]
 ## Each model's own forward axis (they were authored facing different ways).
-const FORWARD: Array[Vector3] = [Vector3.RIGHT, Vector3.BACK, Vector3.BACK]
+const FORWARD: Array[Vector3] = [Vector3.RIGHT, Vector3.BACK]
 
 var _lanes: Array[Dictionary] = []
 
