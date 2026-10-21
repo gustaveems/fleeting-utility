@@ -56,13 +56,23 @@ func _ensure_collision_shape() -> void:
 		add_child(shape)
 
 
-## Placeholder cube sized to sit inside its cell. No art assets exist yet, so items are
-## color-coded by id — visible in the iso camera, identifiable at a glance, and exactly
-## what gets replaced by a real model later.
+## The item's look: a real model per id if installed, else a colour-coded placeholder cube
+## sized to sit inside its cell.
 func _ensure_mesh() -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			return
+
+	# Real models (Poly Haven, CC0) when installed: the raw compound is a chemical tub,
+	# the finished dose a corporate medical pack. Scaled to sit inside a cell.
+	var model_path := _model_for_id()
+	if not model_path.is_empty() and ResourceLoader.exists(model_path):
+		var model := (load(model_path) as PackedScene).instantiate() as Node3D
+		model.name = "ItemModel"
+		model.scale = Vector3.ONE * _model_scale_for_id()
+		model.position = Vector3(0.0, 0.03, 0.0)
+		add_child(model)
+		return
 
 	var instance := MeshInstance3D.new()
 	instance.name = "ItemMesh"
@@ -75,6 +85,19 @@ func _ensure_mesh() -> void:
 	material.roughness = 0.7
 	instance.material_override = material
 	add_child(instance)
+
+
+func _model_for_id() -> String:
+	match item_id:
+		&"raw_compound":
+			return "res://assets/third_party/polyhaven/plastic_container/plastic_container.gltf"
+		&"pill_bottle":
+			return "res://assets/third_party/polyhaven/medical_box/medical_box.gltf"
+	return ""
+
+
+func _model_scale_for_id() -> float:
+	return 0.5 if item_id == &"raw_compound" else 0.85
 
 
 func _color_for_id() -> Color:
