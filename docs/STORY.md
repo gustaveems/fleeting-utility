@@ -38,11 +38,11 @@ over visible seams, straddling a canal and selling something. The real ones are 
    maglev runs between its legs. On his phone: *LEASE CONFIRMED. Terms apply.*
 3. **The walk.** He gets off at Block 31, where the line runs along the avenue in front
    of massive blocks that hide everything behind them. He comes down the station stairs,
-   a shoulder bag at his side, and waits at the curb: a car rides past, then a group of
-   ten crosses around him toward the metro. The street is packed and cramped. He walks
-   the avenue (third person), rundown buildings on his right. The
-   classes are split by a glowing median line, "DO NOT CROSS THE LINE", the same warning
-   as in the carriage, and he walks right down it. Left: the clean, lit Heritage
+   a shoulder bag at his side, and crosses the whole street to the rundown side, through a
+   group of ten crossing the other way to the metro; a car rides past behind him. The
+   street is packed and cramped. He walks up the avenue (third person) beside the rundown
+   buildings. The classes are split by a glowing median line, "DO NOT CROSS THE LINE",
+   the same warning as in the carriage. Left: the clean, lit Heritage
    Collection boutique, a guard, a rope line, suits queuing. Right: tents, a trash fire,
    people slumped, a dealer huddle, two men fighting. Suits cross his path without
    looking at him; commuters pass with their heads down. At the left corner of his
@@ -54,6 +54,45 @@ over visible seams, straddling a canal and selling something. The real ones are 
    - *Premises serviced nightly.* Sleep ends the day.
    - *Works produced on the premises remain subject to the lessor.*
    - *Renewal at the lessor's discretion.* The cycle choice.
+## Night Zero: the first evening (added 2026-10-21)
+The friend is introduced, liked, and quietly set up. Playable, not a cutscene: it
+teaches the controls, the first dialogue choices and the free walk. Calls come
+**straight into his head** (an implant, leased like everything else): voices only, no
+faces, no mouths opening. Ads and the landlord can reach him the same way (beat 8).
+
+N1. **The call.** Right after the title, at his building's door, the friend calls in
+    his head. Warm, loud, old-town jokes. *"You're there? You signed? Good, good."*
+    (The friend gets a **referral fee from the landlord and the corporation** for every
+    lease signed. Asking whether he has signed sounds friendly. It isn't.)
+N2. **The lease** (Prologue 4) is signed in the bare room.
+N3. **Moving in.** The friend arrives in person and helps carry the boxes up (the
+    controls tutorial: pick up, carry, place). The friend complains the whole time: the
+    neighbourhood is disgusting, dangerous, *"you can't stay here long, okay? It's a
+    first step."* The friend found him this unit.
+N4. **The invitation.** Boxes in, the friend invites him to dinner with their corpo
+    friends. They go **by car**, because corpos don't take the metro.
+N5. **The other side.** An aerial shot of the rich side of the city, the mirror of the
+    arrival: real style instead of brutalism, beautiful towers, shoots, brands,
+    luxury cars, people on display. The line he saw on the street is the shape of the
+    whole city.
+N6. **The dinner.** Underdressed with his shoulder bag among suits. The corpo friends
+    are vain and hollow: status, upgrades, leases, who knows whom. The first **dialogue
+    choices**: he can try to fit in or be honest. Choices change tone and how they treat
+    him, never the outcome (the evening ends the same way). He notices **the friend's
+    shoes**: the campaign's luxury shoes, the ones he will see again through the window
+    (beat 15). In his head: *was this the right decision?*
+N7. **The gift.** The friend offers to drive him home; he says no, he wants to walk and
+    see the city. Before he goes, the friend presses the drug on him: *"Just to take the
+    edge off. Helps you adapt. Everyone's anxious the first month."* He can refuse,
+    and he finds it in his bag later anyway: the friend slipped it in. The choice he was
+    offered was an illusion.
+N8. **The walk.** On foot through the rich side to the metro, seeing up close what the
+    aerial showed from above.
+N9. **The metro home.** The night train: who rides it this late, the carriage's state,
+    the shift as the line crosses back into the low blocks. He walks home past his
+    corner. The bag, the drug, the bare room.
+
+## Act I
 5. **Day 1.** He is young, ambitious and alone, sure that life starts here.
 
 ## Act I: The leased life (the daily loops)
@@ -113,7 +152,11 @@ over visible seams, straddling a canal and selling something. The real ones are 
 
 ## Open decisions
 - His name, or deliberately none.
-- The friend's name, and who he was in the town.
+- The friend's name, and who they were in the town (Alain: wait). The friend's motive is
+  settled: a referral fee from the landlord and the corporation.
+- Faces at the dinner: stylised figures, framing (shadow, reflections, backs), or the
+  rich wearing fashion-tech face veils (their faces literally a product). Proposed:
+  veils.
 - The brand: one conglomerate behind the billboards, the campaign, the drug and the
   ambulance? (Proposed: yes.)
 - What "walk away" means: leaving, giving up or dying (currently ambiguous on purpose).
