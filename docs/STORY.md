@@ -92,7 +92,7 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
     the shift as the line crosses back into the low blocks. He walks home past his
     corner. The bag, the drug, the bare room.
 
-## Act I
+## Day 1
 5. **Day 1.** He is young, ambitious and alone, sure that life starts here.
 
 ## Act I: The leased life (the daily loops)
