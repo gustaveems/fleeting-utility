@@ -6,6 +6,9 @@ extends BootstrapModule
 ## Tunneling safety clamp, inset past the wall faces. With free roam (2026-10-11 pivot)
 ## the WorkspaceBlockout wall colliders do the real containment.
 const WALL_INSET := 0.35
+## The apartment is a scaled diorama (walls 1.35 m, his collider 0.8 m): the rigged
+## hero is shrunk to match.
+const AVATAR_SCALE := 0.47
 
 
 func create(ctx: BootstrapContext) -> void:
@@ -45,3 +48,12 @@ func post_attach(ctx: BootstrapContext) -> void:
 		+ Vector3(0.0, ctx.camera.framing_lift, 0.0)
 	)
 	ctx.camera.set_target(ctx.player)
+	# His real body: the rigged hero (shoulder bag and all), paced by his movement.
+	if StreetFigure.has_rig():
+		var avatar := StreetFigure.new()
+		avatar.name = "Avatar"
+		avatar.dress = StreetFigure.Dress.HERO
+		avatar.pose = StreetFigure.Pose.WALK
+		avatar.scale = Vector3.ONE * AVATAR_SCALE
+		avatar.follow = ctx.player
+		ctx.player.set_body_visual(avatar)

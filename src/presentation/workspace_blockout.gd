@@ -18,6 +18,15 @@ extends Node3D
 
 const COLOR_FLOOR := Color(0.19, 0.17, 0.16)
 const COLOR_WALL := Color(0.28, 0.26, 0.25)
+## Look-dev palette (docs/references/notes.md, apartment): yellowed plaster over a
+## grey-green dado; the dado band's height.
+const COLOR_PLASTER := Color(0.78, 0.71, 0.42)
+const COLOR_DADO := Color(0.44, 0.48, 0.43)
+const DADO_HEIGHT := 0.42
+## Real props are full scale; the room is a diorama (walls 1.35 m, him 0.8 m).
+const PROP_SCALE := 0.47
+const KIT_TEX := "res://assets/third_party/quaternius_downtown/models/"
+
 const COLOR_BENCH := Color(0.42, 0.33, 0.24)
 const COLOR_WINDOW := Color(0.62, 0.68, 0.74)
 
@@ -47,9 +56,11 @@ func _ready() -> void:
 	if grid == null:
 		push_warning("WorkspaceBlockout: no WorkspaceGridData assigned, nothing built.")
 		return
+	_texture_surfaces()
 	_build_floor()
 	_build_walls()
 	_build_furniture_blocking()
+	_dress_room()
 
 
 func _build_floor() -> void:
@@ -150,6 +161,109 @@ func _add_wall_collision(
 	shape_node.position = Vector3(0.0, (collision_height - visual_size.y) * 0.5, 0.0)
 	body.add_child(shape_node)
 	add_child(body)
+
+
+## Real surfaces when the city kit is installed: worn concrete underfoot, plaster on the
+## walls (tinted to the palette). Triplanar, so boxes of any size tile cleanly.
+func _texture_surfaces() -> void:
+	if not ResourceLoader.exists(KIT_TEX + "T_Concrete_BaseColor.png"):
+		return
+	floor_material.albedo_texture = load(KIT_TEX + "T_Concrete_BaseColor.png")
+	floor_material.normal_enabled = true
+	floor_material.normal_texture = load(KIT_TEX + "T_Concrete_Normal.png")
+	floor_material.albedo_color = Color(0.82, 0.77, 0.69)
+	floor_material.uv1_triplanar = true
+	floor_material.uv1_scale = Vector3.ONE * 0.6
+
+
+## The wall material: plaster (or the dado's grey-green), textured if the kit is in.
+func _wall_mat(color: Color) -> StandardMaterial3D:
+	var m := _mat(color, 0.92)
+	if ResourceLoader.exists(KIT_TEX + "T_Concrete_BaseColor.png"):
+		m.albedo_texture = load(KIT_TEX + "T_Concrete_BaseColor.png")
+		m.normal_enabled = true
+		m.normal_texture = load(KIT_TEX + "T_Concrete_Normal.png")
+		m.normal_scale = 0.5
+		m.uv1_triplanar = true
+		m.uv1_scale = Vector3.ONE * 0.9
+	return m
+
+
+## Dress the room with real things (Poly Haven, CC0): the tool cart IS the workbench
+## (inside the bench placeholder, so the ransack still takes what you see), a painted
+## cabinet, cigarette packs; the dado band; and the neighbours' brick walls crammed
+## right outside the window (Downtown kit). Each step skips if its pack is missing.
+func _dress_room() -> void:
+	var half_x := float(grid.width_cells) * grid.cell_size * 0.5
+	var half_z := float(grid.depth_cells) * grid.cell_size * 0.5
+	# Plaster walls over a grey-green dado (west and north, the walls you see whole).
+	for wall in get_children():
+		if wall is MeshInstance3D and str(wall.name).begins_with("Wall"):
+			(wall as MeshInstance3D).material_override = _wall_mat(COLOR_PLASTER)
+	var dado := _wall_mat(COLOR_DADO)
+	var band := _box(
+		"DadoWest",
+		Vector3(0.02, DADO_HEIGHT, half_z * 2.0),
+		Vector3(-half_x + wall_thickness * 0.5 + 0.01, DADO_HEIGHT * 0.5, 0),
+		COLOR_DADO
+	)
+	band.material_override = dado
+	add_child(band)
+	# The workbench: a steel tool cart, stretched to the worktop's footprint and height.
+	var cart := CityKit.prop(
+		CityKit.polyhaven("tool_cart"), bench_placeholder, Vector3(0, -0.21, 0), 90.0, 0.0
+	)
+	if cart != null:
+		cart.scale = Vector3(0.75, PROP_SCALE, 1.27)
+		bench_placeholder.mesh = null
+	var cabinet := CityKit.prop(
+		CityKit.polyhaven("painted_wooden_cabinet"),
+		self,
+		Vector3(-half_x + 0.25, 0, 1.2),
+		90.0,
+		0.0
+	)
+	if cabinet != null:
+		cabinet.scale = Vector3.ONE * PROP_SCALE
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 14
+	for k in 5:
+		var at := Vector3(
+			rng.randf_range(-half_x + 0.6, half_x - 0.6),
+			0.0,
+			rng.randf_range(-half_z + 0.6, half_z - 0.6)
+		)
+		var pack := CityKit.prop(
+			CityKit.polyhaven("cigarette_pack"), self, at, rng.randf_range(0, 360), 0.0
+		)
+		if pack != null:
+			pack.scale = Vector3.ONE * 0.8
+			pack.rotation_degrees.x = 90.0
+	# Outside the window: the next block, an arm's length away.
+	var outside := Node3D.new()
+	outside.name = "Neighbours"
+	outside.position = Vector3(0, -2.0, -half_z - 3.0)
+	outside.scale = Vector3.ONE * PROP_SCALE
+	add_child(outside)
+	var kit := CityKit.new()
+	kit.facade(Vector3(-16, 0, 0), Vector3.BACK, 16, 6, CityKit.Style.BRICK, 77)
+	kit.build(outside)
+	# In shadow: the gap between the blocks gets no direct light.
+	for mm in outside.get_children():
+		(mm as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		(mm as GeometryInstance3D).transparency = 0.0
+	var gloom := StandardMaterial3D.new()
+	gloom.albedo_color = Color(0.0, 0.0, 0.0, 0.45)
+	gloom.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	gloom.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var veil := MeshInstance3D.new()
+	veil.name = "AlleyGloom"
+	var quad := QuadMesh.new()
+	quad.size = Vector2(half_x * 2.0 + 6.0, 12.0)
+	veil.mesh = quad
+	veil.material_override = gloom
+	veil.position = Vector3(0, 4.0, -half_z - 2.9)
+	add_child(veil)
 
 
 ## Two props that define the playable footprint: the crafting bench (Ticket-03 will hang

@@ -169,6 +169,21 @@ func _setup_placeholder_body() -> void:
 	_body_pivot.add_child(wedge)
 
 
+## Replace the placeholder capsule with a real body (the rigged hero, from the player
+## module). It rides the heading pivot, so it turns with him. The collider is untouched.
+func set_body_visual(visual: Node3D) -> void:
+	if _body_pivot == null:
+		return
+	for c in _body_pivot.get_children():
+		(c as Node3D).visible = false
+	_body_pivot.add_child(visual)
+
+
+## Horizontal speed in m/s (what a body animation should keep pace with).
+func planar_speed() -> float:
+	return Vector2(velocity.x, velocity.z).length()
+
+
 ## ----- MOVEMENT ------------------------------------------------------------------
 
 

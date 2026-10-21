@@ -37,6 +37,8 @@ const LOOPING: Array[String] = [
 ]
 ## Sitting clips put the pelvis at chair height above the root: drop the root to sit.
 const SIT_DROP := 0.47
+## The Walk clip's ground speed at full scale, m/s.
+const WALK_PACE := 1.4
 
 static var _rig_scene: PackedScene
 static var _rig_extra: AnimationLibrary
@@ -51,6 +53,9 @@ var moving: bool = false
 var fight_target: Node3D
 ## Walk clip speed (1 = the clip's own pace); the hero walks briskly.
 var anim_speed: float = 1.0
+## When set, walks while this body moves and paces the clip to its speed (the player's
+## avatar in the apartment).
+var follow: PlayerMovement
 
 var _body: Node3D
 var _legs: Array[Node3D] = []
@@ -88,6 +93,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_phase += delta
 	if _anim != null:
+		if follow != null:
+			var speed := follow.planar_speed()
+			moving = speed > 0.15
+			anim_speed = clampf(speed / (WALK_PACE * scale.x), 0.6, 2.5)
 		if pose == Pose.WALK:
 			_play(_walk_clip() if moving else "Idle")
 			_anim.speed_scale = anim_speed if moving else 1.0
@@ -172,6 +181,11 @@ func stagger(from: Vector3, distance: float = 0.9) -> void:
 
 
 ## ----- RIGGED (Universal Animation Library) -------------------------------------------
+
+
+## True when the rigged mannequin pack is installed.
+static func has_rig() -> bool:
+	return _rig_available()
 
 
 static func _rig_available() -> bool:
