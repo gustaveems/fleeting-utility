@@ -126,8 +126,9 @@ func _build_walls() -> void:
 		Vector3(0.0, sill_height + (wall_height - sill_height) * 0.5, -half_z),
 		COLOR_WINDOW
 	)
-	pane.material_override = _mat_transparent(COLOR_WINDOW, 0.35)
+	pane.material_override = _glass_material()
 	add_child(pane)
+	_build_window_frame(span_x * 0.72, wall_height - sill_height, sill_height, -half_z)
 	# One solid box across the whole north footprint: the transparent pane must not be
 	# the thing that stops the player (decals and movement both want real geometry).
 	_add_wall_collision(
@@ -136,6 +137,49 @@ func _build_walls() -> void:
 		Vector3(0.0, wall_height * 0.5, -half_z),
 		wall_height
 	)
+
+
+## The window: grimy glass in a steel frame, mullions every ~0.8 m and one transom,
+## a concrete sill. Thin, so the recognition beat outside still reads through it.
+func _build_window_frame(width: float, height: float, bottom: float, z: float) -> void:
+	var steel := _mat(Color(0.12, 0.12, 0.13), 0.5)
+	steel.metallic = 0.6
+	var bar := 0.035
+	var top := bottom + height
+	var mid_y := bottom + height * 0.5
+	for y in [bottom + bar * 0.5, top - bar * 0.5, bottom + height * 0.62]:
+		var rail := _box("WindowRail", Vector3(width, bar, 0.06), Vector3(0, y, z), Color.BLACK)
+		rail.material_override = steel
+		add_child(rail)
+	var panes := maxi(2, roundi(width / 0.8))
+	for k in panes + 1:
+		var x := -width * 0.5 + width * float(k) / panes
+		var mullion := _box(
+			"WindowMullion", Vector3(bar, height, 0.06), Vector3(x, mid_y, z), Color.BLACK
+		)
+		mullion.material_override = steel
+		add_child(mullion)
+	var sill := _box(
+		"WindowSill",
+		Vector3(width + 0.1, 0.04, 0.16),
+		Vector3(0, bottom - 0.02, z + 0.05),
+		Color.BLACK
+	)
+	sill.material_override = _wall_mat(Color(0.6, 0.58, 0.54))
+	add_child(sill)
+
+
+## Old glass: faintly blue-grey, a little reflective, filmed with grime (the kit's dirt
+## texture, if installed).
+func _glass_material() -> StandardMaterial3D:
+	var m := _mat_transparent(Color(0.55, 0.62, 0.66), 0.28)
+	m.metallic = 0.35
+	m.roughness = 0.12
+	if ResourceLoader.exists(KIT_TEX + "T_Dirt_BaseColor.png"):
+		m.albedo_texture = load(KIT_TEX + "T_Dirt_BaseColor.png")
+		m.uv1_triplanar = true
+		m.uv1_scale = Vector3.ONE * 0.7
+	return m
 
 
 ## Visible wall box + StaticBody3D collision of a possibly different height.

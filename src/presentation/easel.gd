@@ -222,6 +222,7 @@ func _build() -> void:
 	var model := CityKit.prop(EASEL_MODEL, self, Vector3(0.0, 0.0, -0.05), 180.0, 0.0)
 	if model != null:
 		model.scale = Vector3.ONE * 0.19
+		_stain(model, _dark_wood())
 	var wood := StandardMaterial3D.new()
 	wood.albedo_color = Color(0.30, 0.22, 0.15)
 	# Legs stay behind the canvas plane (z 0.12), or they show through the paint.
@@ -245,3 +246,18 @@ func _build() -> void:
 	_wet.seed_value = float(_rng.randi_range(1, 99999))
 	add_child(_wet)
 	_wet.apply_params(0.0)
+
+
+## Old dark wood over the model's pale baked colours.
+func _dark_wood() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.22, 0.15, 0.1)
+	m.roughness = 0.85
+	return m
+
+
+func _stain(n: Node, mat: Material) -> void:
+	if n is MeshInstance3D:
+		(n as MeshInstance3D).material_override = mat
+	for c in n.get_children():
+		_stain(c, mat)
