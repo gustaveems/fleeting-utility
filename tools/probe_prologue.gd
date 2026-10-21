@@ -77,6 +77,12 @@ func _run() -> void:
 		if c is StreetFigure:
 			people += 1
 	check("the street is packed (%d people)" % people, people >= 70)
+	var kit_pieces := 0
+	for c in avenue.get_children():
+		if c is MultiMeshInstance3D and str(c.name).begins_with("Kit_"):
+			kit_pieces += (c as MultiMeshInstance3D).multimesh.instance_count
+	if DirAccess.dir_exists_absolute(CityKit.DIR):
+		check("the street has real facades (%d kit modules)" % kit_pieces, kit_pieces > 800)
 	check("gaze targets exist", p.gaze_target_position("campaign") != Vector3.ZERO)
 	check("colossus head target exists", p.gaze_target_position("colossus") != Vector3.ZERO)
 

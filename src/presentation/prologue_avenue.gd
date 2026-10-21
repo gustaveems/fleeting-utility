@@ -120,6 +120,7 @@ func _ready() -> void:
 	_build_crowd()
 	_build_fight()
 	_build_car()
+	_build_facades()
 	_build_lights()
 	set_walk_progress(0.0)
 
@@ -404,10 +405,6 @@ func _build_right_side() -> void:
 	var rust := _mat(Color(0.32, 0.22, 0.16), 0.9)
 	for floor_i in 12:
 		var y := 4.0 + floor_i * 3.4
-		_box(Vector3(POOR_X - 0.02, y, -82), Vector3(0.05, 1.2, 40), dark)
-		_box(Vector3(POOR_X + 9, y, -103.02), Vector3(16, 1.2, 0.05), dark)
-		if floor_i % 3 == 1:
-			_box(Vector3(POOR_X - 0.04, y, -70 - floor_i * 1.7), Vector3(0.05, 1.1, 2.2), lit)
 		for k in 3:
 			var z := -66.0 - k * 13.0 - (floor_i % 4) * 2.5
 			_box(Vector3(POOR_X - 0.35, y - 1.1, z), Vector3(0.7, 0.6, 0.9), rust)
@@ -490,8 +487,6 @@ func _build_cross_street() -> void:
 func _build_complex() -> void:
 	_box(COMPLEX + Vector3(0, 24, 0), Vector3(14, 48, 24), _mat(Color(0.72, 0.64, 0.52), 0.95))
 	var dark := _mat(Color(0.18, 0.16, 0.14), 0.9)
-	for floor_i in 13:
-		_box(COMPLEX + Vector3(0, 3.0 + floor_i * 3.4, 12.03), Vector3(10, 1.0, 0.05), dark)
 	var door := _mat(Color(0.12, 0.1, 0.08), 0.8)
 	_box(COMPLEX + Vector3(0, 1.1, 12.04), Vector3(1.4, 2.2, 0.05), door)
 	var bulb := OmniLight3D.new()
@@ -635,6 +630,27 @@ func _build_fight() -> void:
 	for offset in [Vector3(-0.5, 0, -1.1), Vector3(1.9, 0, 1.3)]:
 		var f := _figure(StreetFigure.Dress.POOR, StreetFigure.Pose.STAND, FIGHT_AT + offset, 0.0)
 		f.look_at(FIGHT_AT + Vector3(0.5, 0, -0.15), Vector3.UP)
+
+
+## Real facades (the Downtown City kit) over the street-facing faces of the massing
+## boxes: the rundown block in worn red brick, the boutique block in metal and glass,
+## his complex and its neighbours in concrete trim. The boxes stay behind as mass.
+func _build_facades() -> void:
+	var kit := CityKit.new()
+	var brick := CityKit.Style.BRICK
+	var concrete := CityKit.Style.CONCRETE
+	# The rundown block: the avenue face and its corner onto the cross street.
+	kit.facade(Vector3(POOR_X, 0, -103), Vector3.LEFT, 21, 14, brick, 31)
+	kit.facade(Vector3(POOR_X + 18, 0, -103), Vector3.FORWARD, 9, 14, brick, 32)
+	# The boutique block: its shop window (modules 2–7) stays the lit glass.
+	kit.facade(
+		Vector3(RICH_X, 0, -84), Vector3.RIGHT, 12, 5, CityKit.Style.METAL, 33, [2, 3, 4, 5, 6, 7]
+	)
+	# His complex (its door in module 3) and the blocks either side.
+	kit.facade(COMPLEX + Vector3(-7, 0, 12), Vector3.BACK, 7, 16, concrete, 34, [3])
+	kit.facade(COMPLEX + Vector3(-35, 0, 11), Vector3.BACK, 14, 22, brick, 35)
+	kit.facade(COMPLEX + Vector3(7, 0, 11), Vector3.BACK, 14, 18, concrete, 36)
+	kit.build(self)
 
 
 ## The car that rides past him at the curb: a boxy cab, headlights, tail lights.

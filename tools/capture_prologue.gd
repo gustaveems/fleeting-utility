@@ -17,8 +17,17 @@ func _title() -> String:
 func _run() -> void:
 	var p := current_scene as Prologue
 	var shots := PrologueScript.shots()
+	# macOS stops drawing a covered window, freezing the captures: keep it on top.
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
+	# `-- from=N` starts at shot N (a short run is less likely to be paused by the OS).
+	var first := 0
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("from="):
+			first = int(arg.substr(5))
+	if first > 0:
+		p._start_shot(first)
 	Engine.time_scale = SPEED
-	for i in shots.size():
+	for i in range(first, shots.size()):
 		while p.shot_index < i and not p.is_finished:
 			await process_frame
 		var shot: Dictionary = shots[i]

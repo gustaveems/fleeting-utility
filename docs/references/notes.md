@@ -37,6 +37,11 @@ on why you picked it.
 |---|---|---|
 | `sketch_walk_layout.png` | Prologue walk, top-down | Left: the metro line and its path, in front of massive buildings (nothing visible behind them). He descends from the station to the road, walks up it past the rundown buildings on his right, turns right at the corner, and arrives at his apartment complex. Built as `PrologueAvenue.PATH`. |
 
+## Third-party assets (CC0)
+| Pack | Source | Where | Used for |
+|---|---|---|---|
+| Downtown City MegaKit (Standard) by Quaternius, CC0 1.0 | quaternius.itch.io/downtown-city-megakit (downloaded 2026-10-21) | `assets/third_party/quaternius_downtown/` (git-ignored: 190 MB; re-download to rebuild) | `CityKit` facades on the avenue, his street and his complex |
+
 ## Palettes (starting values, to tune)
 | World | Base | Accent |
 |---|---|---|
