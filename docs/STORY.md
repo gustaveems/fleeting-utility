@@ -104,6 +104,22 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
 7. **Status.** The city's people are fuelled by greed, jockeying, advancing. Among them
    is **the friend from the town**, the one who left first and "made it", who helped
    him find the lease. The friend dresses in the campaign's luxury.
+7a. **The friend keeps calling.** Through Act I the friend checks in by head-call:
+    warm, funny, always busy. Invitations, gossip from the corpo crowd, and small
+    favours (*"sign this for me, it's nothing"*, *"can my guy store something at
+    yours?"*). Each call feels like friendship; each quietly costs him something. By the
+    ransack the player has a relationship to lose.
+7b. **The neighbour.** Through the wall lives someone further along the same path:
+    dependent, decayed, kind. Mostly a voice (through the wall, on the stairs, at the
+    door), the mirror of his future. The neighbour notices the room getting worse before
+    he admits it, and is the one person who asks how he is and means it.
+7c. **Metro or park.** On free days he chooses where to go: the simulated corporate park,
+    or the metro across the city. The ride is the city's barometer across the acts: more
+    ads, the drug dearer (Act II), the rich side spreading, his own district sinking.
+7d. **The painting sold.** The friend "borrows" one of his valley paintings and sells it
+    to the corpo crowd as authentic heritage art. He gets nothing. Later the campaign's
+    new image looks very like his canvas: the lie he was sold, sold again with his hand
+    in it.
 8. **Promises.** The billboards follow him inside as messages and offers: focus
    upgrades, subscriptions, corporate care. Can he trust them?
 9. **Devolution.** When the drug wears off, overload rises and he falls into compulsive
@@ -128,6 +144,9 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
 16. **The hesitation.** He freezes at the door. Confrontation is pointless, and
     ownership was always an illusion.
 
+16a. **The neighbour, after.** The neighbour is the one who comes to the door after
+     the ransack (or who doesn't, because they have relapsed too).
+
 ## Act IV: Forced detox and dual visions
 17. Stuck in the ruined room with no drug, in withdrawal. Visions cut between the
     rotting room and the valley.
@@ -135,6 +154,11 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
     never "heritage", and the golden colossus is the lie. The stone colossi are
     **monuments** to a time when humans stood for something greater than atomic
     self-interest. For the first time, the meaning stays.
+
+18a. **The stone.** The one real fragment of the valley, the fenced stone from the
+     parking lot back home, turns up in the window of the Heritage Collection boutique,
+     lit and priced. He sees it on the metro or the walk, after the realisation. Even the
+     last true thing has been leased.
 
 ## Act V: Technological interception
 19. He fades out, at peace.
