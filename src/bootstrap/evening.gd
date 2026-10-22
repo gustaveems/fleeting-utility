@@ -17,7 +17,8 @@ signal segment_started(segment: String)
 const GAME_SCENE_PATH := "res://scenes/workspace.tscn"
 const LOCK := &"evening"
 const CAR_SECONDS := 9.0
-const METRO_SECONDS := 7.0
+const METRO_SECONDS := 9.0
+const METRO_PLATFORM_SECONDS := 2.5
 ## The diorama's people scale (matches the apartment).
 const PERSON_SCALE := 0.47
 
@@ -103,6 +104,7 @@ func _build() -> void:
 
 
 func _play() -> void:
+	await _warm_up()
 	await _car()
 	await _dinner()
 	await _gift()
@@ -116,6 +118,35 @@ func _start(name: String) -> void:
 	if has_meta("skip"):
 		remove_meta("skip")
 	segment_started.emit(name)
+
+
+## Behind black, look once at each heavy area so its textures and shaders load before the
+## film starts (the prologue's lesson: first sight of a heavy model hitches).
+func _warm_up() -> void:
+	var black := ColorRect.new()
+	black.color = Color.BLACK
+	black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var layer := CanvasLayer.new()
+	layer.layer = 50
+	layer.add_child(black)
+	add_child(layer)
+	_film.make_current()
+	var spots: Array = [
+		[EveningLayout.CAR_ROUTE[0] + Vector3(0, 95, 75), EveningLayout.CAR_ROUTE[0]],
+		[EveningLayout.DINNER_AT + Vector3(3.4, 2.6, 3.4), EveningLayout.DINNER_AT],
+		[Vector3(30, 40, 60), Vector3(0, 0, 0)],
+		[Vector3(30, 40, -40), Vector3(0, 0, -50)],
+		[
+			EveningLayout.TRAIN_AT + Vector3(14, 2.2, 14),
+			EveningLayout.TRAIN_AT + Vector3(9, 1.8, 0)
+		],
+	]
+	for spot in spots:
+		_film.global_position = layout.world(spot[0])
+		_film.look_at(layout.world(spot[1]), Vector3.UP)
+		await get_tree().process_frame
+		await get_tree().process_frame
+	layer.queue_free()
 
 
 ## ----- SEGMENTS ----------------------------------------------------------------------------
@@ -189,9 +220,14 @@ func _metro() -> void:
 	var t := 0.0
 	while t < METRO_SECONDS and not has_meta("skip"):
 		t += get_process_delta_time()
-		var shake := Vector3(sin(t * 13.0), sin(t * 17.0), 0) * 0.03
-		_film.global_position = layout.world(c + Vector3(0.4, 1.7, 8.0)) + shake
-		_film.look_at(layout.world(c + Vector3(0, 1.4, -8)), Vector3.UP)
+		if t < METRO_PLATFORM_SECONDS:
+			# On the platform: the night train pulls in, graffiti and all.
+			_film.global_position = layout.world(c + Vector3(14, 2.2, 14))
+			_film.look_at(layout.world(c + Vector3(9, 1.8, 0)), Vector3.UP)
+		else:
+			var shake := Vector3(sin(t * 13.0), sin(t * 17.0), 0) * 0.03
+			_film.global_position = layout.world(c + Vector3(0.4, 1.7, 8.0)) + shake
+			_film.look_at(layout.world(c + Vector3(0, 1.4, -8)), Vector3.UP)
 		await get_tree().process_frame
 	runner.cancel()
 

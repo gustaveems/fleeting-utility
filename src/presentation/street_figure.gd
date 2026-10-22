@@ -76,6 +76,8 @@ var anim_speed: float = 1.0
 var follow: PlayerMovement
 ## Arms full (moving boxes): walks with the carry clip, holds it when standing.
 var carrying: bool = false
+## A sheer fashion-tech veil over the face (the rich at dinner: their faces a product).
+var veiled: bool = false
 
 var _body: Node3D
 var _legs: Array[Node3D] = []
@@ -247,10 +249,45 @@ func _build_rig() -> void:
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	_anim.animation_finished.connect(_on_clip_finished)
 	_tint(_model, _tint_material())
+	if veiled:
+		_add_veil()
 	if dress == Dress.HERO:
 		# His shoulder bag at the right hip.
 		var canvas := _mat(Color(0.24, 0.2, 0.15), 0.95)
 		_box(_model, Vector3(-0.2, 0.92, 0.0), Vector3(0.1, 0.28, 0.34), canvas)
+
+
+## The veil rides the head bone: a sheer dark shell with a cold sheen.
+func _add_veil() -> void:
+	var skeleton := _find_skeleton(_model)
+	if skeleton == null or skeleton.find_bone("Head") < 0:
+		return
+	var mount := BoneAttachment3D.new()
+	mount.bone_name = "Head"
+	skeleton.add_child(mount)
+	var veil := MeshInstance3D.new()
+	var shell := SphereMesh.new()
+	shell.radius = 0.15
+	shell.height = 0.32
+	veil.mesh = shell
+	veil.position = Vector3(0, 0.09, 0.02)
+	var sheer := StandardMaterial3D.new()
+	sheer.albedo_color = Color(0.03, 0.03, 0.05, 0.82)
+	sheer.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sheer.metallic = 0.6
+	sheer.roughness = 0.18
+	veil.material_override = sheer
+	mount.add_child(veil)
+
+
+static func _find_skeleton(n: Node) -> Skeleton3D:
+	if n is Skeleton3D:
+		return n
+	for c in n.get_children():
+		var found := _find_skeleton(c)
+		if found != null:
+			return found
+	return null
 
 
 func _tint(n: Node, mat: Material) -> void:

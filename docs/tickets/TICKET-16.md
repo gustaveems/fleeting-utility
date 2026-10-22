@@ -71,6 +71,23 @@ The lines live in `NightZeroScript`.
 - Saving mid-evening: quitting skips it.
 - The friend's name.
 
+## Phase 2 graphics pass (2026-10-22)
+- **Car:** a canyon of glass curtain-wall towers (Downtown kit, METAL) over the massing.
+- **Boulevard:**
+  - Far side: glass towers.
+  - Near (camera) side: two-storey shopfront podiums with neon brands (AUREL, MAISON
+    VÉRIDE, HERITAGE, FOCUS+ ELITE, OSTRA, LUMEN & SON) facing the camera. Seen from
+    behind they would read mirrored.
+  - Marble pavements, cast-iron street lamps, planters, parked luxury cars.
+  - The skyline: the Fab high-rise and mega tower; flying traffic overhead.
+- **Shoot:** light stands, softboxes, a gold reflector.
+- **Restaurant:** a marble floor, gilt frames, the bust on a plinth, hanging lamps, wine
+  (Poly Haven `wine_bottles_01`, CC0).
+- **Dinner guests:** the three corpo friends wear sheer dark veils on the head bone
+  (`StreetFigure.veiled`).
+- **Metro:** opens on the platform, the graffiti tram (Fab) waiting, then cuts inside.
+- **Pre-warm:** `Evening._warm_up` renders each heavy area behind black before the car.
+
 ## Verification
 `tools/probe_evening.gd` plays the whole evening: car → dinner → gift → walk → metro →
 home, five choices, an honest verdict, the gift refused, the walk beats, the station,
