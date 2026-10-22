@@ -191,8 +191,9 @@ func _build_park() -> void:
 		Vector3(-7.0, 0.0, 6.0),
 		Vector3(4.0, 0.0, 7.0),
 	]
+	var greybox_trees: Array[Node3D] = []
 	for i in tree_positions.size():
-		_add_tree(tree_positions[i])
+		greybox_trees.append(_add_tree(tree_positions[i]))
 
 	# Return door: a thin box "portal" near the center of the park.
 	_return_door = Interactable.new()
@@ -219,11 +220,15 @@ func _build_park() -> void:
 	door_mesh.material_override = door_mat
 	_return_door.add_child(door_mesh)
 	_park_root.add_child(_return_door)
+	# Real art when the asset packs are installed (ParkDressing); the greybox otherwise.
+	if ParkDressing.dress(_park_root, ground, _return_door, door_mesh):
+		for tree in greybox_trees:
+			tree.queue_free()
 	# Dormant until the walk: no phantom ReturnDoor sensing inside the apartment.
 	_park_root.set_active(false)
 
 
-func _add_tree(pos: Vector3) -> void:
+func _add_tree(pos: Vector3) -> Node3D:
 	var tree := Node3D.new()
 	tree.name = "Tree"
 	tree.position = pos
@@ -254,6 +259,7 @@ func _add_tree(pos: Vector3) -> void:
 	tree.add_child(canopy)
 
 	_park_root.add_child(tree)
+	return tree
 
 
 func _swap_worlds(to_park: bool) -> void:

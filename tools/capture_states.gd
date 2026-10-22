@@ -36,6 +36,16 @@ func _run() -> void:
 	_atmo.set_broken_mode(true)
 	await _shot("apartment_broken.png")
 
+	_atmo.set_broken_mode(false)
+	_atmo.set_subdued_mode(false)
+	var park := node("CorporateParkManager") as CorporateParkManager
+	if park != null:
+		await park.transition_to_park()
+		await wait(2.0)
+		await _shot("park.png")
+		await park.transition_to_apartment()
+		await wait(1.0)
+
 	var manager := node("DreamscapeManager") as DreamscapeManager
 	await manager.transition_to_dreamscape()
 	if fade != null:
