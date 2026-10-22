@@ -30,6 +30,7 @@ const SEED_COMPOUND_CELLS: Array[Vector2i] = [
 
 var _blockout: WorkspaceBlockout
 var _station: BenchStation
+var _clinical: ClinicalDressing
 
 
 func create(ctx: BootstrapContext) -> void:
@@ -93,6 +94,11 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.cot.name = "Cot"
 	ctx.cot.position = COT_POSITION
 
+	# The post-climax clinical scene, around the bed (shown only in CLINICAL mode).
+	_clinical = ClinicalDressing.new()
+	_clinical.name = "ClinicalDressing"
+	_clinical.position = COT_POSITION
+
 	ctx.door = ApartmentDoor.new()
 	ctx.door.name = "ApartmentDoor"
 	ctx.door.position = DOOR_POSITION
@@ -110,6 +116,7 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.atmosphere.key_light = ctx.key_light
 	ctx.atmosphere.lamp = ctx.lamp
 	ctx.atmosphere.floor_material = _blockout.floor_material
+	_clinical.atmosphere = ctx.atmosphere
 
 	ctx.bench.spatial_grid = ctx.spatial_grid
 	ctx.bench.chemical_manager = ctx.state_data
@@ -145,6 +152,7 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.apartment.add_child(ctx.clutter)
 	ctx.apartment.add_child(ctx.decals)
 	ctx.apartment.add_child(ctx.atmosphere)
+	ctx.apartment.add_child(_clinical)
 	ctx.apartment.add_child(ctx.bench_area)
 	ctx.bench_area.add_child(ctx.spatial_grid)
 	ctx.bench_area.add_child(ctx.bench)

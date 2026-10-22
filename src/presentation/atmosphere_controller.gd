@@ -33,6 +33,9 @@ extends Node
 
 ## --- SIGNALS ---------------------------------------------------------------------------
 
+## Emitted whenever the lighting mode is (re)applied (ClinicalDressing listens).
+signal mode_changed(mode: Mode)
+
 ## Lighting mode. NORMAL = entropy-driven decay; CLINICAL = post-climax harsh white;
 ## SUBDUED = post-loop dim, flat, defeated silence; BROKEN = post-betrayal flickering,
 ## one light dead, cold draft. Exactly one is active at a time.
@@ -312,6 +315,7 @@ func is_broken_mode() -> bool:
 
 
 func _apply_atmosphere() -> void:
+	mode_changed.emit(_mode)
 	if environment != null:
 		var env := environment
 		match _mode:

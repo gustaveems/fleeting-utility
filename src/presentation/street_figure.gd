@@ -16,7 +16,7 @@ extends Node3D
 ##            ARGUE (squared up to `fight_target`, jabbing a finger)
 ## shove() / stagger() play the beat where an argument turns into a fight.
 
-enum Dress { SUIT, MIDDLE, POOR, HERO, GUARD }
+enum Dress { SUIT, MIDDLE, POOR, HERO, GUARD, MEDIC }
 enum Pose { STAND, WALK, SLUMP, FIGHT, HUDDLE, ARGUE }
 
 const HEIGHT := 1.78
@@ -348,6 +348,8 @@ func _build() -> void:
 
 func _cloth() -> StandardMaterial3D:
 	match dress:
+		Dress.MEDIC:
+			return _mat(Color(0.88, 0.92, 0.95), 0.4)
 		Dress.SUIT:
 			return _mat(Color(0.16, 0.16, 0.18), 0.5)
 		Dress.POOR:
