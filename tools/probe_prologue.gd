@@ -30,8 +30,8 @@ func _run() -> void:
 		return
 	var script := PrologueScript.shots()
 	check(
-		"fourteen shots, under 2 min (%.0f s)" % PrologueScript.total_duration(),
-		script.size() == 14 and absf(PrologueScript.total_duration() - 103.0) < 8.0
+		"fifteen shots, ~2 min (%.0f s)" % PrologueScript.total_duration(),
+		script.size() == 15 and absf(PrologueScript.total_duration() - 119.0) < 8.0
 	)
 	check(
 		"the train stops at the end of the line (%.1f m)" % p.route_length(),

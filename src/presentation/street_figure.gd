@@ -16,10 +16,28 @@ extends Node3D
 ##            ARGUE (squared up to `fight_target`, jabbing a finger)
 ## shove() / stagger() play the beat where an argument turns into a fight.
 
-enum Dress { SUIT, MIDDLE, POOR, HERO, GUARD, MEDIC }
+enum Dress { SUIT, MIDDLE, POOR, HERO, GUARD, MEDIC, FRIEND }
 enum Pose { STAND, WALK, SLUMP, FIGHT, HUDDLE, ARGUE }
 
 const HEIGHT := 1.78
+## Clothes by class: the rich charcoal, the poor ragged brown, his grey-green parka,
+## the guard black, the medics white, the friend the campaign's camel coat.
+const CLOTH := {
+	Dress.SUIT: Color(0.16, 0.16, 0.18),
+	Dress.POOR: Color(0.30, 0.24, 0.18),
+	Dress.HERO: Color(0.33, 0.38, 0.32),
+	Dress.GUARD: Color(0.06, 0.06, 0.07),
+	Dress.MEDIC: Color(0.88, 0.92, 0.95),
+	Dress.FRIEND: Color(0.62, 0.48, 0.32),
+}
+const CLOTH_ROUGH := {
+	Dress.SUIT: 0.5,
+	Dress.POOR: 1.0,
+	Dress.HERO: 0.9,
+	Dress.GUARD: 0.6,
+	Dress.MEDIC: 0.4,
+	Dress.FRIEND: 0.45,
+}
 const RIG := "res://assets/third_party/quaternius_anim/UAL1_Standard.glb"
 const RIG_EXTRA := "res://assets/third_party/quaternius_anim/UAL2_Standard.glb"
 ## Clips that loop (the rest play once).
@@ -56,6 +74,8 @@ var anim_speed: float = 1.0
 ## When set, walks while this body moves and paces the clip to its speed (the player's
 ## avatar in the apartment).
 var follow: PlayerMovement
+## Arms full (moving boxes): walks with the carry clip, holds it when standing.
+var carrying: bool = false
 
 var _body: Node3D
 var _legs: Array[Node3D] = []
@@ -97,7 +117,10 @@ func _process(delta: float) -> void:
 			var speed := follow.planar_speed()
 			moving = speed > 0.15
 			anim_speed = clampf(speed / (WALK_PACE * scale.x), 0.6, 2.5)
-		if pose == Pose.WALK:
+		if carrying and _anim.has_animation("ual2/Walk_Carry"):
+			_play("ual2/Walk_Carry")
+			_anim.speed_scale = anim_speed if moving else 0.0
+		elif pose == Pose.WALK:
 			_play(_walk_clip() if moving else "Idle")
 			_anim.speed_scale = anim_speed if moving else 1.0
 		return
@@ -347,18 +370,8 @@ func _build() -> void:
 
 
 func _cloth() -> StandardMaterial3D:
-	match dress:
-		Dress.MEDIC:
-			return _mat(Color(0.88, 0.92, 0.95), 0.4)
-		Dress.SUIT:
-			return _mat(Color(0.16, 0.16, 0.18), 0.5)
-		Dress.POOR:
-			return _mat(Color(0.30, 0.24, 0.18), 1.0)
-		Dress.HERO:
-			return _mat(Color(0.33, 0.38, 0.32), 0.9)
-		Dress.GUARD:
-			return _mat(Color(0.06, 0.06, 0.07), 0.6)
-	return _mat(Color(0.36, 0.36, 0.38), 0.85)
+	var c: Color = CLOTH.get(dress, Color(0.36, 0.36, 0.38))
+	return _mat(c, CLOTH_ROUGH.get(dress, 0.85))
 
 
 func _pivot(parent: Node3D, at: Vector3) -> Node3D:

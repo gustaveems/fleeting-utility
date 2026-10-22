@@ -98,6 +98,9 @@ var is_in_withdrawal: bool = false
 
 ## --- INTERNAL STATE --------------------------------------------------------------
 
+## The real body set by set_body_visual (the rigged hero), or null.
+var body_visual: Node3D
+
 var _input_locks := LockSet.new()
 var _is_moving: bool = false
 var _heading_yaw: float = 0.0
@@ -174,9 +177,15 @@ func _setup_placeholder_body() -> void:
 func set_body_visual(visual: Node3D) -> void:
 	if _body_pivot == null:
 		return
+	body_visual = visual
 	for c in _body_pivot.get_children():
 		(c as Node3D).visible = false
 	_body_pivot.add_child(visual)
+
+
+## The way he faces (the heading pivot's forward, −Z), on the ground plane.
+func facing_direction() -> Vector3:
+	return Vector3(-sin(_heading_yaw), 0.0, -cos(_heading_yaw))
 
 
 ## Horizontal speed in m/s (what a body animation should keep pace with).

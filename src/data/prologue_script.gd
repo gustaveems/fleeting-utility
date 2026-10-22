@@ -266,6 +266,20 @@ static func shots() -> Array[Dictionary]:
 			"lines": [],
 			"title": true,
 		},
+		{
+			# N1: the friend calls, straight into his head, at his door (Night Zero).
+			"name": "the_call",
+			"mode": Mode.EXT_PATH,
+			"dur": 16.0,
+			"blend": 0.0,
+			"d": [END_OF_LINE, END_OF_LINE],
+			"w": [1.0, 1.0],
+			"cam": [Vector3(452.6, 0.6, -107), Vector3(452.4, 1.4, -111.5)],
+			"look": Vector3(452, 2.2, -118),
+			"fov": 58.0,
+			"call": "arrival",
+			"lines": [],
+		},
 	]
 
 

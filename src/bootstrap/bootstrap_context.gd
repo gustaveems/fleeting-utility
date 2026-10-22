@@ -82,3 +82,5 @@ var end_card: EndCard
 var lease_renewal: LeaseRenewal
 var pause_menu: PauseMenu
 var lease_signing: LeaseSigning
+var head_call: HeadCall
+var night_zero: NightZero

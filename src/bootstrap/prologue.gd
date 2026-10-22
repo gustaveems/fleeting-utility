@@ -56,6 +56,7 @@ var _avenue: PrologueAvenue
 var _interior: Array[Node3D] = []
 var _events_fired: int = 0
 var _bed: AudioStreamPlayer
+var _head_call: HeadCall
 ## Pre-warm: before the film starts the camera looks at each heavy area for a few frames
 ## behind a black screen, so their textures and shaders load up front instead of
 ## hitching mid-film.
@@ -102,6 +103,9 @@ func _ready() -> void:
 	_overlay = PrologueOverlay.new()
 	_overlay.name = "Overlay"
 	add_child(_overlay)
+	_head_call = HeadCall.new()
+	_head_call.name = "HeadCall"
+	add_child(_head_call)
 	_overlay.set_black(true)
 	for spot in [
 		[Vector3(418, 60, -40), Vector3(440, 0, -100)],  # the avenue from above
@@ -199,6 +203,8 @@ func _start_shot(index: int) -> void:
 	shot_started.emit(index, str(shot["name"]), mode)
 	if shot.has("gaze"):
 		gaze_started.emit(str(shot["gaze"]))
+	if shot.get("call", "") == "arrival":
+		_head_call.play(NightZeroScript.CALL_ARRIVAL)
 
 
 func _update_camera(shot: Dictionary, u: float) -> void:

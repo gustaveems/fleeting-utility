@@ -11,7 +11,7 @@ Third-party assets used by Fleeting Utility. They live in `assets/third_party/`
   industrial pipes, wheel rim, tool cart, painted cabinet, marble bust, picture frame,
   cigarette pack, old bed frame, plastic container, medical box, boulder 01, stone 01, rock moss sets 01/02, dead tree
   trunk, tree stump 01, fern 02, dry branches, planter box 01, modular street seating,
-  street lamp 01, modern ceiling lamp 01, medical tape. polyhaven.com
+  street lamp 01, modern ceiling lamp 01, medical tape, cardboard box 01. polyhaven.com
 - **reyshapes** (Poly Pizza): *Easel Large Leaning*. poly.pizza/m/DzrGZz1LRo
 
 ## CC BY 4.0 (attribution required)
