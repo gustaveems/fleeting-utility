@@ -59,6 +59,8 @@ static var save_path: String = "user://save.json"
 @export var decals: SurfaceDegradation
 @export var day_cycle: DayCycle
 @export var easel: Easel
+## Act I's people (Ticket-17): an additive optional field, no VERSION bump.
+@export var act_one: ActOne
 
 ## item_id → scene, to rebuild the bench worktop.
 @export var item_scenes: Dictionary[StringName, PackedScene] = {}
@@ -189,6 +191,8 @@ func snapshot() -> Dictionary:
 		data["day"] = day_cycle.day
 	if easel != null:
 		data["painting"] = easel.snapshot()
+	if act_one != null:
+		data["act_one"] = act_one.snapshot()
 	return data
 
 
@@ -215,6 +219,8 @@ func apply(data: Dictionary) -> void:
 		day_cycle.restore(int(data.get("day", 1)))
 	if easel != null and data.has("painting"):
 		easel.restore(data["painting"])
+	if act_one != null and data.has("act_one"):
+		act_one.restore(data["act_one"])
 
 	if park != null:
 		park.walk_taken = bool(data.get("walk_taken", false))

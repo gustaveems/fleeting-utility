@@ -11,6 +11,8 @@ signal choice_made(key: String, tag: String)
 
 @export var head_call: HeadCall
 @export var choices_ui: ChoicePanel
+## Locked while a choice is open, so E picks the option and doesn't also press the bench.
+@export var interaction: InteractionController
 
 ## key → tag of every choice made ("work" → "honest", "gift" → "refused"...).
 var choices: Dictionary = {}
@@ -20,9 +22,12 @@ var is_running: bool = false
 var awaiting_choice: bool = false
 
 var _cancelled: bool = false
+var _as_call: bool = false
 
 
-func run(steps: Array) -> void:
+## `as_call`: lines come as a head call (the caller card), not in-person subtitles.
+func run(steps: Array, as_call: bool = false) -> void:
+	_as_call = as_call
 	_cancelled = false
 	is_running = true
 	await _steps(steps)
@@ -56,7 +61,7 @@ func _steps(steps: Array) -> void:
 func _line(line: Array) -> void:
 	if head_call == null:
 		return
-	head_call.play([line], false)
+	head_call.play([line], _as_call and line[0] != NightZeroScript.THOUGHT)
 	await head_call.finished
 
 
@@ -66,8 +71,12 @@ func _choose(spec: Dictionary) -> void:
 	for o: Dictionary in options:
 		labels.append(str(o["text"]))
 	awaiting_choice = true
+	if interaction != null:
+		interaction.lock(&"dialogue_choice")
 	choices_ui.open(labels)
 	var index: int = await choices_ui.chosen
+	if interaction != null:
+		interaction.unlock(&"dialogue_choice")
 	awaiting_choice = false
 	var picked: Dictionary = options[index]
 	var tag := str(picked["tag"])

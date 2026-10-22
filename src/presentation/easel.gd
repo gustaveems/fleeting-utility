@@ -103,6 +103,15 @@ func hung_works() -> Array[PaintedWork]:
 	return _works.duplicate()
 
 
+## The friend "borrows" the newest canvas for a client (Act I, 7d). True if one went.
+func lend_work() -> bool:
+	if _works.is_empty():
+		return false
+	var w: PaintedWork = _works.pop_back()
+	w.queue_free()
+	return true
+
+
 ## The lease clears the wall (morning).
 func reclaim() -> void:
 	if _works.is_empty():

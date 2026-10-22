@@ -29,6 +29,7 @@ const MAX_START_ENTROPY := 65.0  # below the door's 70: the walk must still be e
 @export var persistence: Persistence
 @export var compound_scene: PackedScene
 @export var day_cycle: DayCycle
+@export var act_one: ActOne
 
 
 func renew() -> void:
@@ -57,6 +58,8 @@ func renew() -> void:
 	_restock(stash_compounds(loops))
 	if day_cycle != null:
 		day_cycle.reset_cycle()
+	if act_one != null:
+		act_one.reset_cycle()
 	if game_flow != null:
 		game_flow.restore(GameFlow.Phase.WORKSPACE, loops)
 
