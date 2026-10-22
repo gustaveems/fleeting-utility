@@ -17,9 +17,17 @@ func wire(ctx: BootstrapContext) -> void:
 	nz.interaction = ctx.interaction
 	nz.head_call = ctx.head_call
 	nz.hud = ctx.core_hud
+	nz.evening_scene_path = "res://scenes/evening.tscn"
 	ctx.lease_signing.signed.connect(nz.start)
 
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.head_call)
 	ctx.apartment.add_child(ctx.night_zero)
+
+
+## Home from the evening (Night Zero, N9): the moved-in boxes, Day 1, the gift.
+func post_attach(ctx: BootstrapContext) -> void:
+	if Evening.returning:
+		Evening.returning = false
+		ctx.night_zero.restore_moved_in(Evening.gift_refused)

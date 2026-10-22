@@ -28,6 +28,8 @@ const PERSON_SCALE := 0.47
 @export var interaction: InteractionController
 @export var head_call: HeadCall
 @export var hud: CoreHud
+## The evening (Phase 2) the chapter continues into; empty ends Night Zero here (tests).
+@export var evening_scene_path: String = ""
 
 var is_running: bool = false
 var placed: int = 0
@@ -66,6 +68,21 @@ func start() -> void:
 	if hud != null:
 		hud.show_line(NightZeroScript.MOVE_IN_OBJECTIVE)
 	started.emit()
+
+
+## Home from the evening: the boxes are where he stacked them, Day 1 begins, and the
+## friend's gift is in his bag (whether he took it or not).
+func restore_moved_in(gift_refused: bool) -> void:
+	for at in BOX_SPOTS.size():
+		var box := MovingBox.new()
+		box.position = Vector3(DROP_ZONE.position.x + 0.4 + at * 0.45, 0, DROP_ZONE.get_center().y)
+		box.placed = true
+		add_child(box)
+	if hud != null:
+		hud.show_line(NightZeroScript.HOME_LINE)
+		if gift_refused:
+			await get_tree().create_timer(3.0, false).timeout
+			hud.show_line(NightZeroScript.BAG_LINE)
 
 
 ## Put down whatever he's carrying, where he stands (tests drive this directly).
@@ -123,6 +140,11 @@ func _invitation() -> void:
 
 
 func _finish() -> void:
+	if not evening_scene_path.is_empty():
+		is_running = false
+		finished.emit()
+		get_tree().change_scene_to_file.call_deferred(evening_scene_path)
+		return
 	if hud != null:
 		hud.show_line(NightZeroScript.PHASE_ONE_END)
 	if friend != null:

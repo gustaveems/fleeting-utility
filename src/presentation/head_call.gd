@@ -17,6 +17,8 @@ const SPEAKER_COLOR := Color(0.95, 0.78, 0.45)
 const HIM_COLOR := Color(0.75, 0.75, 0.72)
 
 var is_playing: bool = false
+## E skips to the next line (the evening; never the prologue's film).
+var allow_skip: bool = false
 
 var _card: PanelContainer
 var _caller: Label
@@ -64,7 +66,8 @@ func _process(delta: float) -> void:
 	for i in _bars.size():
 		_bars[i].custom_minimum_size.y = 6.0 + absf(sin(_t * (7.0 + i * 1.7) + i)) * 18.0
 	_left -= delta
-	if _left <= 0.0:
+	var skip := allow_skip and Input.is_action_just_pressed(InputActionData.ACTION_INTERACT)
+	if _left <= 0.0 or skip:
 		_next()
 
 
@@ -75,8 +78,9 @@ func _next() -> void:
 		return
 	var line: Array = _lines[_index]
 	var speaker := str(line[0])
-	_subtitle.text = "%s:  %s" % [speaker, line[1]]
-	var him := speaker == NightZeroScript.HIM
+	var thought := speaker == NightZeroScript.THOUGHT
+	_subtitle.text = "( %s )" % line[1] if thought else "%s:  %s" % [speaker, line[1]]
+	var him := speaker == NightZeroScript.HIM or thought
 	_subtitle.add_theme_color_override("font_color", HIM_COLOR if him else SPEAKER_COLOR)
 	_subtitle.visible = true
 	_left = float(line[2])

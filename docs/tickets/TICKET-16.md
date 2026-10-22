@@ -25,18 +25,57 @@ head: voices only, no faces.
 - **Phase 1 ends** here with a placeholder line and the friend gone. Day 1 proceeds.
 - **Not saved yet:** quitting mid-chapter skips it on Continue.
 
-## Phase 2 (next): the car, the other side, the dinner, the gift, the walk, the metro
-- N5: the car and an aerial over the rich side. It reuses the prologue director: a second
-  film. The rich side gets real style (not brutalism), brands, shoots, cars.
-- N6: the dinner.
-  - The first dialogue choices: fit in or be honest. They change tone, not outcome.
-  - Faces: veils (proposed).
-  - He sees the friend's shoes.
-- N7: the gift. Refusing is allowed; it is in his bag anyway.
-- N8: the walk through the rich side to the metro.
-- N9: the night train home, the shift back into the low blocks, home.
+## Phase 2 (2026-10-22): the evening. Mechanics and layout (greybox); graphics next
+After the invitation, `NightZero` changes scene to `scenes/evening.tscn` (`Evening`), and
+the director plays:
+1. **car (N5):** a film. The car glides down a canyon of tall, pale, styled towers, seen
+   from above. His thought: *"Even the air looks expensive here."*
+2. **dinner (N6):** a fixed shot of the round table.
+   - Five diners: the friend, Vesna, Okon, Lior, him.
+   - The first **dialogue choices**:
+     - what he does: I paint / creative, freelance / say nothing;
+     - where he lives: Block 31 / near the Heritage boutique;
+     - the friend's **shoes**: "Nice shoes" / look away.
+   - A **verdict** line from the friend, depending on how the night leaned:
+     - honest: *"You don't have to say everything"*;
+     - fit: *"See? You fit right in"*.
+   - *"My treat. Referral bonus came in."*
+3. **gift (N7):** outside the restaurant, in the iso view.
+   - The ride: walking is honest; "Sure" makes the friend's work suddenly ping.
+   - The drug: take it, or *"I don't need that."*
+4. **walk (N8):** playable, on the iso camera. The boulevard runs from the restaurant to
+   the METRO, past:
+   - the campaign shoot (paper leaves, a fog machine);
+   - the shop window with the valley in it, priced;
+   - a couple.
+
+   His thoughts play as he passes each one. The station ends the walk.
+5. **metro (N9):** a film inside the night train.
+6. **home:** back to the workspace. `Evening.returning` makes `NightZero.restore_moved_in`
+   put the stacked boxes back and show "Day 1". If he refused, it adds *"There's
+   something in your bag. You didn't put it there."*
+
+New systems:
+- `DialogueRunner` (logic): steps are say / think / choose / verdict. It records
+  `choices` by key and counts honest vs fit.
+- `ChoicePanel` (presentation): keys 1–9, or up/down then E/Enter.
+- `HeadCall`: thoughts show in muted parentheses; `allow_skip` lets E advance a line.
+- `EveningLayout`: greybox, in real metres, scaled to the diorama (0.47). The camera side
+  of the boulevard is low podiums, so the iso view reads (the apartment's cut-wall rule).
+
+The lines live in `NightZeroScript`.
+
+**Not yet:**
+- Graphics: Downtown kit facades in METAL style, brand shops, real cars, the shoot's
+  props, the diners' face veils, the train.
+- Saving mid-evening: quitting skips it.
+- The friend's name.
 
 ## Verification
+`tools/probe_evening.gd` plays the whole evening: car → dinner → gift → walk → metro →
+home, five choices, an honest verdict, the gift refused, the walk beats, the station,
+and the boxes back home.
+
 `tools/probe_night_zero.gd` checks:
 - a direct boot doesn't start it; signing does;
 - the friend and the boxes exist;

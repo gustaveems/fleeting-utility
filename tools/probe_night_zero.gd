@@ -19,6 +19,7 @@ func _run() -> void:
 	LeaseSigning.pending = true
 	await reboot()
 	nz = ws.find_child("NightZero", true, false) as NightZero
+	nz.evening_scene_path = ""  # end here: the evening has its own probe
 	var player := ws.find_child("Player", true, false) as PlayerMovement
 	var ended := [false]
 	nz.finished.connect(func(): ended[0] = true)
