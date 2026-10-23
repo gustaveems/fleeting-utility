@@ -13,6 +13,10 @@ signal finished
 signal line_shown(index: int)
 
 const CALL_COLOR := Color(0.2, 0.84, 0.9)
+## Caller colours: the friend cyan, the corporation gold.
+const CALLER_COLORS := {"FOCUS+ CARE": Color(0.95, 0.75, 0.3)}
+## A call that pauses this long between lines is a new call (its timer restarts).
+const CALL_GAP := 1.0
 const SPEAKER_COLOR := Color(0.95, 0.78, 0.45)
 const HIM_COLOR := Color(0.75, 0.75, 0.72)
 
@@ -21,7 +25,13 @@ var is_playing: bool = false
 var allow_skip: bool = false
 
 var _card: PanelContainer
+var _card_style: StyleBoxFlat
+var _ring: Panel
+var _ring_style: StyleBoxFlat
 var _caller: Label
+var _timer: Label
+var _call_seconds: float = 0.0
+var _card_hidden_for: float = 99.0
 var _bars: Array[ColorRect] = []
 var _subtitle: Label
 var _lines: Array = []
@@ -45,7 +55,13 @@ func play(lines: Array, as_call: bool = true) -> void:
 	is_playing = true
 	_card.visible = as_call
 	if as_call and not lines.is_empty():
-		_caller.text = "INCOMING · " + str(lines[0][0])
+		var speaker := str(lines[0][0])
+		# He answers inside the call: the card keeps the caller's name and timer.
+		if speaker != NightZeroScript.HIM and speaker != NightZeroScript.THOUGHT:
+			if speaker != _caller.text or _card_hidden_for > CALL_GAP:
+				_call_seconds = 0.0
+			_caller.text = speaker
+			_tint(CALLER_COLORS.get(speaker, CALL_COLOR))
 	_next()
 
 
@@ -60,9 +76,18 @@ func stop() -> void:
 
 
 func _process(delta: float) -> void:
+	_card_hidden_for = 0.0 if _card.visible else _card_hidden_for + delta
 	if not is_playing:
 		return
 	_t += delta
+	if _card.visible:
+		_call_seconds += delta
+		_timer.text = "%02d:%02d" % [int(_call_seconds) / 60, int(_call_seconds) % 60]
+		var pulse := 0.5 + 0.5 * sin(_t * 4.0)
+		_ring_style.border_width_left = 2 + int(pulse * 3)
+		_ring_style.border_width_right = _ring_style.border_width_left
+		_ring_style.border_width_top = _ring_style.border_width_left
+		_ring_style.border_width_bottom = _ring_style.border_width_left
 	for i in _bars.size():
 		_bars[i].custom_minimum_size.y = 6.0 + absf(sin(_t * (7.0 + i * 1.7) + i)) * 18.0
 	_left -= delta
@@ -90,38 +115,60 @@ func _next() -> void:
 func _build() -> void:
 	var theme := UiTheme.get_theme()
 	_card = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.05, 0.07, 0.85)
-	style.border_color = CALL_COLOR
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
-	style.set_content_margin_all(12)
-	_card.add_theme_stylebox_override("panel", style)
+	_card_style = StyleBoxFlat.new()
+	_card_style.bg_color = Color(0.02, 0.03, 0.05, 0.88)
+	_card_style.set_border_width_all(1)
+	_card_style.set_corner_radius_all(14)
+	_card_style.set_content_margin_all(12)
+	_card.add_theme_stylebox_override("panel", _card_style)
 	_card.anchor_left = 0.5
 	_card.anchor_right = 0.5
-	_card.offset_left = -170
-	_card.offset_right = 170
-	_card.offset_top = 70
+	_card.offset_left = -190
+	_card.offset_right = 190
+	_card.offset_top = 64
 	add_child(_card)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 12)
 	_card.add_child(row)
+	# The pulsing ring: someone is in your head.
+	_ring = Panel.new()
+	_ring.custom_minimum_size = Vector2(38, 38)
+	_ring.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_ring_style = StyleBoxFlat.new()
+	_ring_style.bg_color = Color(0, 0, 0, 0)
+	_ring_style.set_corner_radius_all(19)
+	_ring_style.set_border_width_all(2)
+	_ring.add_theme_stylebox_override("panel", _ring_style)
+	row.add_child(_ring)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 0)
+	row.add_child(col)
 	_caller = Label.new()
 	_caller.theme = theme
-	_caller.add_theme_font_size_override("font_size", 16)
-	_caller.add_theme_color_override("font_color", CALL_COLOR)
-	row.add_child(_caller)
+	_caller.add_theme_font_size_override("font_size", 18)
+	col.add_child(_caller)
+	var via := Label.new()
+	via.theme = theme
+	via.text = "LeaseLink · in-head call"
+	via.add_theme_font_size_override("font_size", 11)
+	via.add_theme_color_override("font_color", Color(0.6, 0.62, 0.65))
+	col.add_child(via)
 	var meter := HBoxContainer.new()
 	meter.alignment = BoxContainer.ALIGNMENT_CENTER
 	meter.add_theme_constant_override("separation", 3)
 	row.add_child(meter)
 	for i in 7:
 		var bar := ColorRect.new()
-		bar.color = CALL_COLOR
 		bar.custom_minimum_size = Vector2(3, 10)
 		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		meter.add_child(bar)
 		_bars.append(bar)
+	_timer = Label.new()
+	_timer.theme = theme
+	_timer.add_theme_font_size_override("font_size", 14)
+	_timer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_timer)
+	_tint(CALL_COLOR)
 	_subtitle = Label.new()
 	_subtitle.theme = theme
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -134,3 +181,12 @@ func _build() -> void:
 	_subtitle.add_theme_constant_override("outline_size", 6)
 	_subtitle.add_theme_color_override("font_outline_color", Color.BLACK)
 	add_child(_subtitle)
+
+
+func _tint(c: Color) -> void:
+	_card_style.border_color = c
+	_ring_style.border_color = c
+	_caller.add_theme_color_override("font_color", c)
+	_timer.add_theme_color_override("font_color", c.darkened(0.2))
+	for bar in _bars:
+		bar.color = c

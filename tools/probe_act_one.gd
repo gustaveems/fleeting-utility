@@ -84,10 +84,12 @@ func _run() -> void:
 		_act.neighbour_said.has("decay_40") and _act.neighbour_said.has("decay_70")
 	)
 	_act._on_phase(GameFlow.Phase.PARK_WALK, GameFlow.Phase.RANSACKED)
-	await _settle([])
+	await process_frame
 	check("the crate went with the ransack", _act._crate == null)
 	check("the ransack collected the debt", not _act.in_debt)
 	check("the neighbour came to the door", _act.neighbour_said.has("ransack"))
+	check("and stood in his doorway", _act.find_child("NeighbourAtDoor", true, false) != null)
+	await _settle([])
 
 	section("7c: the metro across the city")
 	var metro := ws.find_child("MetroRide", true, false) as MetroRide

@@ -27,6 +27,10 @@ const COSIGN_RATE := 1.15
 const DECAY_THRESHOLDS: Array[int] = [40, 70]
 const CRATE_MODEL := "res://assets/third_party/polyhaven/wooden_crate_02/wooden_crate_02.gltf"
 const CRATE_AT := Vector3(-1.4, 0, -2.6)
+## 16a: where the neighbour stands, in his doorway (the door is at z −3.5).
+const DOORWAY := Vector3(0.0, 0, -3.05)
+## How long the neighbour stays at the door.
+const VISIT_SECONDS := 7.0
 ## Room props are full scale; the room is a diorama.
 const PROP_SCALE := 0.47
 
@@ -175,6 +179,7 @@ func _on_phase(_from: GameFlow.Phase, to: GameFlow.Phase) -> void:
 		in_debt = false
 		_line(ActOneScript.DEBT_COLLECTED)
 	if cycles_seen == 0:
+		_neighbour_at_door()
 		play(ActOneScript.NEIGHBOUR_AFTER_RANSACK)
 	else:
 		_line(ActOneScript.NEIGHBOUR_SILENT)
@@ -257,6 +262,41 @@ func _place_crate() -> void:
 		_crate.add_child(mi)
 	else:
 		_crate.scale = Vector3.ONE * PROP_SCALE
+	# Not his: stencilled, banded, locked.
+	var stencil := Label3D.new()
+	stencil.text = "DO NOT OPEN"
+	stencil.font_size = 48
+	stencil.pixel_size = 0.0035
+	stencil.modulate = Color(0.12, 0.1, 0.08)
+	stencil.position = Vector3(0, 0.36, 0)
+	stencil.rotation_degrees = Vector3(-90, 0, 0)
+	_crate.add_child(stencil)
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color(0.3, 0.3, 0.32)
+	steel.metallic = 0.8
+	steel.roughness = 0.35
+	for x in [-0.12, 0.12]:
+		var band := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = Vector3(0.02, 0.36, 0.34)
+		band.mesh = b
+		band.material_override = steel
+		band.position = Vector3(x, 0.17, 0)
+		_crate.add_child(band)
+
+
+## 16a staged: the neighbour in the doorway, gaunt, hugging themself, then gone.
+func _neighbour_at_door() -> void:
+	var n := StreetFigure.new()
+	n.name = "NeighbourAtDoor"
+	n.dress = StreetFigure.Dress.POOR
+	n.pose = StreetFigure.Pose.STAND
+	n.position = DOORWAY
+	n.scale = Vector3(0.44, 0.45, 0.44)  # a little smaller, thinner than him
+	add_child(n)
+	await get_tree().create_timer(VISIT_SECONDS, false).timeout
+	if is_instance_valid(n):
+		n.queue_free()
 
 
 func _remove_crate() -> void:

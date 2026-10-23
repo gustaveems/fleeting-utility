@@ -46,6 +46,24 @@ func _run() -> void:
 		await park.transition_to_apartment()
 		await wait(1.0)
 
+	var act := node("Apartment/ActOne") as ActOne
+	if act != null:
+		_atmo.set_broken_mode(false)
+		_set_entropy(30.0)
+		act._queue.clear()
+		var talk := node("DialogueRunner") as DialogueRunner
+		if talk.is_running:
+			talk.cancel()
+			await wait(0.2)
+		act._place_crate()
+		act.play(ActOneScript.CALLS[2], true)
+		await wait(1.2)
+		await _shot("act_one_call.png")
+		act._neighbour_at_door()
+		act.play(ActOneScript.NEIGHBOUR_AFTER_RANSACK)
+		await wait(1.0)
+		await _shot("act_one_neighbour.png")
+
 	var metro := node("MetroRide") as MetroRide
 	if metro != null:
 		metro.start_ride()

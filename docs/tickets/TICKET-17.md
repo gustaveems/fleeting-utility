@@ -87,8 +87,23 @@ left to cook (`BenchStation.is_dry()`):
 - **Placement:** the display sits above the carriage's wall line, so the iso camera sees
   it over the wall.
 
+## Phase 5 (2026-10-23): Act I graphics pass
+- **The call card:** caller name, "LeaseLink · in-head call", a pulsing ring, the voice
+  meter, a running timer. The friend is cyan, FOCUS+ CARE gold. The card keeps the
+  caller and timer across the call's lines, so his own replies no longer flip it to
+  "INCOMING · YOU".
+- **16a staged:** the neighbour stands in his doorway for the visit (a gaunt, faceless
+  figure), then is gone.
+- **The crate:** stencilled "DO NOT OPEN", two steel bands.
+- **The carriage:**
+  - the city outside is built from real Downtown-kit brick and concrete facades;
+  - window mullions, a grab rail with hanging straps;
+  - graffiti tags (NO LEASE, B31, WHO OWNS U), cigarette litter, lit ad panels.
+- **The Heritage window:** a glass front, the price card on a brass stand.
+- **Fixed:** a ride used to collide with the neighbour talking through the wall and end
+  early. Going out now interrupts the wall-talk.
+
 ## Next phases
-- **Graphics:** the neighbour's door visit staged, the crate's label, the call card.
 
 ## Verification
 `tools/probe_act_one.gd` checks:

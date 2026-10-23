@@ -79,6 +79,10 @@ func start_ride() -> void:
 	)
 	ride_started.emit(stage())
 	if runner != null:
+		# Going out interrupts whatever was being said through the wall.
+		if runner.is_running:
+			runner.cancel()
+			await runner.finished
 		runner.run(ActOneScript.STONE_RIDE if stone else ActOneScript.RIDE_THOUGHTS[stage()])
 		await runner.finished
 	await get_tree().create_timer(LINGER, false).timeout

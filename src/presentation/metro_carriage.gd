@@ -104,13 +104,62 @@ func _build() -> void:
 	light.omni_range = 6.0
 	light.position = Vector3(0, HEIGHT - 0.1, 0)
 	add_child(light)
-	# Ads above the window.
+	# Window frame: mullions every 1.3 m along the band.
+	var frame := _mat(Color(0.15, 0.16, 0.17), 0.4)
+	for k in 7:
+		_box(
+			Vector3(-HALF_LENGTH + 0.05 + k * 1.32, 0.8, -HALF_WIDTH + 0.02),
+			Vector3(0.04, 0.8, 0.03),
+			frame
+		)
+	# Hanging straps from the grab rail.
+	_box(Vector3(0, HEIGHT - 0.18, 0.15), Vector3(HALF_LENGTH * 1.9, 0.02, 0.02), steel)
+	for k in 12:
+		_box(
+			Vector3(-HALF_LENGTH + 0.5 + k * 0.62, HEIGHT - 0.3, 0.15),
+			Vector3(0.05, 0.2, 0.01),
+			_mat(Color(0.85, 0.82, 0.7), 0.7)
+		)
+	# Graffiti tags on the end walls and seat backs; litter underfoot.
+	var tags := ["NO LEASE", "B31", "WHO OWNS U", "★"]
+	for k in tags.size():
+		var g := Label3D.new()
+		g.text = tags[k]
+		g.font_size = 40
+		g.pixel_size = 0.004
+		g.modulate = [
+			Color(0.95, 0.85, 0.2), Color(0.9, 0.3, 0.6), Color(0.3, 0.9, 0.6), Color(0.9, 0.9, 0.9)
+		][k]
+		g.position = Vector3(-HALF_LENGTH + 1.2 + k * 2.0, 0.3, -HALF_WIDTH + 0.06)
+		g.rotation_degrees.z = randf_range(-12, 12)
+		add_child(g)
+	for k in 6:
+		var pack := CityKit.prop(
+			CityKit.polyhaven("cigarette_pack"),
+			self,
+			Vector3(randf_range(-3.6, 3.6), 0.0, randf_range(-0.3, 0.5)),
+			randf_range(0, 360),
+			0.0
+		)
+		if pack != null:
+			pack.rotation_degrees.x = 90.0
+			pack.scale = Vector3.ONE * 0.7
+	# Ads above the window, each on a lit panel.
+	var panel := _mat(Color(0.06, 0.06, 0.08), 0.4)
+	panel.emission_enabled = true
+	panel.emission = Color(0.12, 0.12, 0.16)
+	for k in 3:
+		_box(
+			Vector3(-2.6 + k * 2.6, HEIGHT - 0.12, -HALF_WIDTH + 0.03),
+			Vector3(2.2, 0.16, 0.01),
+			panel
+		)
 	for k in 3:
 		var ad := Label3D.new()
 		ad.font_size = 40
 		ad.pixel_size = 0.004
 		ad.modulate = [Color(0.9, 0.2, 0.6), Color(0.2, 0.84, 0.9), Color(0.95, 0.8, 0.2)][k]
-		ad.position = Vector3(-2.6 + k * 2.6, HEIGHT - 0.12, -HALF_WIDTH + 0.04)
+		ad.position = Vector3(-2.6 + k * 2.6, HEIGHT - 0.12, -HALF_WIDTH + 0.045)
 		add_child(ad)
 		_ads.append(ad)
 	set_stage(0)
@@ -136,19 +185,27 @@ func _build() -> void:
 	var lit := _mat(Color(0.9, 0.7, 0.35), 0.6)
 	lit.emission_enabled = true
 	lit.emission = Color(0.9, 0.62, 0.3)
+	var kit_ok := ResourceLoader.exists(CityKit.DIR + "Brick_Window_Square_Single.gltf")
 	for k in 14:
 		var b := Node3D.new()
 		b.position = Vector3(-30 + k * 4.3, 0, -rng.randf_range(6, 14))
 		add_child(b)
 		var h := rng.randf_range(4, 14)
-		_box_in(b, Vector3(0, h * 0.5 - 1.5, 0), Vector3(rng.randf_range(2, 3.5), h, 2.5), tower)
-		for w in 4:
-			_box_in(
-				b,
-				Vector3(rng.randf_range(-0.8, 0.8), rng.randf_range(0, h - 2), 1.26),
-				Vector3(0.3, 0.2, 0.02),
-				lit
-			)
+		_box_in(b, Vector3(0, h * 0.5 - 1.5, 0), Vector3(2.8, h, 2.5), tower)
+		if kit_ok:
+			# A real block: brick or concrete facade (Downtown kit) at the diorama's scale.
+			var holder := Node3D.new()
+			holder.scale = Vector3.ONE * 0.47
+			holder.position = Vector3(0, -1.5, 1.26)
+			b.add_child(holder)
+			var kit := CityKit.new()
+			var style := CityKit.Style.BRICK if k % 3 != 0 else CityKit.Style.CONCRETE
+			kit.facade(Vector3(-3, 0, 0), Vector3.BACK, 3, int(h / 1.41), style, k * 13)
+			kit.build(holder)
+		else:
+			for w in 4:
+				var at := Vector3(rng.randf_range(-0.8, 0.8), rng.randf_range(0, h - 2), 1.26)
+				_box_in(b, at, Vector3(0.3, 0.2, 0.02), lit)
 		_skyline.append(b)
 
 
@@ -228,12 +285,21 @@ func _build_stone_window() -> void:
 	plate.emission_enabled = true
 	plate.emission = Color(0.2, 0.84, 0.9)
 	_box_in(_stone_window, Vector3(0, 0.62, 0.13), Vector3(0.16, 0.06, 0.01), plate)
+	# The shop glass, and the price card on its own little brass stand.
+	var shop_glass := _mat(Color(0.8, 0.85, 0.9, 0.15), 0.05)
+	shop_glass.metallic = 0.5
+	_box_in(_stone_window, Vector3(0, 0.9, 0.55), Vector3(3.0, 2.2, 0.02), shop_glass)
+	var brass := _mat(Color(0.85, 0.66, 0.25), 0.3)
+	brass.metallic = 0.8
+	_box_in(_stone_window, Vector3(1.05, 0.15, 0.25), Vector3(0.02, 0.3, 0.02), brass)
+	var card := _mat(Color(0.95, 0.93, 0.88), 0.6)
+	_box_in(_stone_window, Vector3(1.05, 0.32, 0.25), Vector3(0.42, 0.24, 0.01), card)
 	var price := Label3D.new()
 	price.text = ActOneScript.STONE_PRICE
-	price.font_size = 48
-	price.pixel_size = 0.005
+	price.font_size = 32
+	price.pixel_size = 0.0035
 	price.modulate = Color(0.2, 0.16, 0.1)
-	price.position = Vector3(1.05, 0.35, 0.2)
+	price.position = Vector3(1.05, 0.32, 0.26)
 	_stone_window.add_child(price)
 	var heritage := Label3D.new()
 	heritage.text = "HERITAGE COLLECTION"
