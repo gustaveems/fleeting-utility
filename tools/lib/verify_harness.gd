@@ -44,7 +44,7 @@ func _initialize() -> void:
 	root.add_child(ws)
 	current_scene = ws  # so change_scene_to_* works (menus, quit to menu)
 	# Real seconds (ignore_time_scale): probes may run the game faster than real time.
-	create_timer(TIMEOUT_SECONDS, true, false, true).timeout.connect(_on_watchdog)
+	create_timer(_timeout_seconds(), true, false, true).timeout.connect(_on_watchdog)
 	_drive()
 
 
@@ -80,11 +80,16 @@ func _drive() -> void:
 	quit(1 if failed > 0 else 0)
 
 
+## Override for long probes (the full playthrough).
+func _timeout_seconds() -> float:
+	return TIMEOUT_SECONDS
+
+
 func _on_watchdog() -> void:
 	print(
 		(
 			"\n  [FAIL] WATCHDOG: no result after %.0f s (awaiting a signal that never fired?)"
-			% TIMEOUT_SECONDS
+			% _timeout_seconds()
 		)
 	)
 	print(" %s  %d PASS / %d FAIL" % [_title(), passed, failed + 1])
