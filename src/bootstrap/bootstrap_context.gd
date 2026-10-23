@@ -87,5 +87,6 @@ var night_zero: NightZero
 var choices: ChoicePanel
 var dialogue: DialogueRunner
 var act_one: ActOne
+var bench_station: BenchStation
 var metro_carriage: MetroCarriage
 var metro_ride: MetroRide

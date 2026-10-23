@@ -66,6 +66,13 @@ func _on_interacted() -> void:
 	bench.interact()
 
 
+## No pill to take and nothing left to cook: the supply has run dry.
+func is_dry() -> bool:
+	if bench == null or spatial_grid == null:
+		return false
+	return _pill_cell() == Vector2i(-1, -1) and not bench.is_crafting() and not _can_cook()
+
+
 func _can_cook() -> bool:
 	return (
 		bench.recipe_database != null

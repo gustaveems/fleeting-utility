@@ -185,3 +185,53 @@ const RIDE_THOUGHTS: Array = [
 	],
 ]
 const RIDE_HOME := "Home. The room is where you left it."
+
+## ----- ACT II: THE ENCLOSURE (the first time his supply runs dry, each cycle) -----------
+
+const FOCUS_CARE := "FOCUS+ CARE"
+
+const ENCLOSURE_NOTICE: Array = [
+	{
+		"say":
+		[FOCUS_CARE, "Notice: Focus+ has been reclassified as a premium wellness product.", 3.4]
+	},
+	{"say": [FOCUS_CARE, "Street supply is discontinued, for your safety.", 2.8]},
+	{"say": [FOCUS_CARE, "Elite membership is available. Terms apply.", 2.6]},
+]
+## Later cycles: the same notice, shorter. The price only goes one way.
+const ENCLOSURE_AGAIN := "FOCUS+ CARE: Elite pricing applies. It has gone up again."
+
+const ENCLOSURE_NEIGHBOUR: Array = [
+	{"say": [NEIGHBOUR, "(through the wall) Did you hear? It's gone. Everybody's dry.", 3.0]},
+	{"say": [NEIGHBOUR, "Even my guy. Even his guy.", 2.2]},
+]
+
+const ENCLOSURE_FRIEND: Array = [
+	{"say": [FRIEND, "You heard? Insane. They pulled it from the street overnight.", 3.2]},
+	{"say": [FRIEND, "Look, I can get you some. It's pricier now. I'll front you.", 3.2]},
+	{
+		"choose":
+		{
+			"key": "front",
+			"options":
+			[
+				{
+					"text": "Okay. Thank you.",
+					"tag": "gave",
+					"reply":
+					[{"say": [FRIEND, "That's what friends are for. You owe me, okay? Ha.", 3.0]}],
+				},
+				{
+					"text": "I'll manage.",
+					"tag": "asked",
+					"reply": [{"say": [FRIEND, "Sure you will. Call me when you don't.", 2.6]}],
+				},
+			],
+		},
+	},
+]
+const FRONT_ARRIVED := "Two compounds on the worktop. Fronted. You owe."
+## In the ransack, the debt comes due.
+const DEBT_COLLECTED := "They took what you owed. With interest."
+## How many compounds the friend fronts.
+const FRONT_COMPOUNDS := 2

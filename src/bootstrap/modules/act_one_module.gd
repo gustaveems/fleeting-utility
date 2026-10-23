@@ -28,6 +28,9 @@ func wire(ctx: BootstrapContext) -> void:
 	a.entropy_data = ctx.entropy_data
 	a.runner = ctx.dialogue
 	a.hud = ctx.core_hud
+	a.bench_station = ctx.bench_station
+	a.spatial_grid = ctx.spatial_grid
+	a.compound_scene = ctx.raw_compound_scene
 	ctx.lease_renewal.act_one = a
 	ctx.persistence.act_one = a
 	var m := ctx.metro_ride

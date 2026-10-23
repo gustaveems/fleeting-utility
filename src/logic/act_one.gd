@@ -15,6 +15,9 @@ extends Node3D
 ##                      morning, a word when the room crosses into decay (40, 70)
 ##   after the ransack  (16a) the neighbour comes to the door the first time; on later
 ##                      cycles, silence. The crate is gone too.
+##   the enclosure      (Act II) the first time the supply runs dry each cycle: Focus+
+##                      reclassified (a notice in his head), the neighbour dry too, and the
+##                      friend fronts him two compounds. He owes; the ransack collects.
 ##
 ## After the betrayal (a renewed lease) the friend never calls again.
 ## Lives under the apartment WorldRoot (the crate is a room prop).
@@ -33,6 +36,10 @@ const PROP_SCALE := 0.47
 @export var entropy_data: WorkspaceEntropyData
 @export var runner: DialogueRunner
 @export var hud: CoreHud
+## Act II: the bench (to notice the supply run dry) and the worktop the friend fronts onto.
+@export var bench_station: BenchStation
+@export var spatial_grid: SpatialGrid
+@export var compound_scene: PackedScene
 
 ## Saved state (Persistence "act_one").
 var calls_done: Dictionary = {}
@@ -42,6 +49,8 @@ var sold_told: bool = false
 var neighbour_said: Dictionary = {}
 var friend_gone: bool = false
 var cycles_seen: int = 0
+var enclosure_told: bool = false
+var in_debt: bool = false
 
 var _queue: Array = []
 var _crate: Node3D
@@ -59,6 +68,8 @@ func _ready() -> void:
 	if runner != null:
 		runner.finished.connect(_next_in_queue)
 		runner.choice_made.connect(_on_choice)
+	if bench_station != null:
+		bench_station.interacted.connect(_on_bench_used)
 
 
 ## A renewed lease: the friend is gone for good; the room forgets the crate.
@@ -67,6 +78,10 @@ func reset_cycle() -> void:
 	cycles_seen += 1
 	neighbour_said.erase("decay_40")
 	neighbour_said.erase("decay_70")
+	neighbour_said.erase("ransack")
+	enclosure_told = false
+	in_debt = false
+	favours.erase("front")
 	_remove_crate()
 	_queue.clear()
 
@@ -80,6 +95,8 @@ func snapshot() -> Dictionary:
 		"neighbour_said": neighbour_said.keys(),
 		"friend_gone": friend_gone,
 		"cycles_seen": cycles_seen,
+		"enclosure_told": enclosure_told,
+		"in_debt": in_debt,
 	}
 
 
@@ -95,6 +112,8 @@ func restore(data: Dictionary) -> void:
 		neighbour_said[str(k)] = true
 	friend_gone = bool(data.get("friend_gone", false))
 	cycles_seen = int(data.get("cycles_seen", 0))
+	enclosure_told = bool(data.get("enclosure_told", false))
+	in_debt = bool(data.get("in_debt", false))
 	if favours.get("crate", "") == "gave" and not neighbour_said.has("ransack"):
 		_place_crate()
 
@@ -152,6 +171,9 @@ func _on_phase(_from: GameFlow.Phase, to: GameFlow.Phase) -> void:
 	if _crate != null:
 		_remove_crate()
 		_line(ActOneScript.CRATE_GONE)
+	if in_debt:
+		in_debt = false
+		_line(ActOneScript.DEBT_COLLECTED)
 	if cycles_seen == 0:
 		play(ActOneScript.NEIGHBOUR_AFTER_RANSACK)
 	else:
@@ -169,6 +191,10 @@ func _on_choice(key: String, tag: String) -> void:
 		"crate":
 			_place_crate()
 			_line(ActOneScript.CRATE_ARRIVED)
+		"front":
+			in_debt = true
+			_front_compounds(ActOneScript.FRONT_COMPOUNDS)
+			_line(ActOneScript.FRONT_ARRIVED)
 		"lend":
 			if easel != null and easel.lend_work():
 				lent_on_day = day_cycle.day if day_cycle != null else 1
@@ -180,6 +206,36 @@ func _next_in_queue() -> void:
 		return
 	var next: Array = _queue.pop_front()
 	runner.run(next[0], next[1])
+
+
+## Act II: the first time this cycle he takes the last of it, the enclosure.
+func _on_bench_used() -> void:
+	await get_tree().process_frame  # the pill leaves the worktop next frame
+	if enclosure_told or not bench_station.is_dry():
+		return
+	enclosure_told = true
+	if cycles_seen > 0:
+		_line(ActOneScript.ENCLOSURE_AGAIN)
+		return
+	play(ActOneScript.ENCLOSURE_NOTICE, true)
+	play(ActOneScript.ENCLOSURE_NEIGHBOUR)
+	if not friend_gone:
+		play(ActOneScript.ENCLOSURE_FRIEND, true)
+
+
+## The friend's fronted compounds, onto the first free worktop cells.
+func _front_compounds(count: int) -> void:
+	if spatial_grid == null or compound_scene == null:
+		return
+	var placed := 0
+	for y in spatial_grid.grid_depth:
+		for x in spatial_grid.grid_width:
+			if placed >= count:
+				return
+			var cell := Vector2i(x, y)
+			if not spatial_grid.is_cell_occupied(cell):
+				if spatial_grid.place_item(compound_scene, cell) != null:
+					placed += 1
 
 
 ## ----- THE CRATE --------------------------------------------------------------------------

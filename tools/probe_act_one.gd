@@ -53,6 +53,28 @@ func _run() -> void:
 	await _morning(7, [])
 	check("two mornings later: it sold (for nothing)", _act.sold_told)
 
+	section("Act II: the supply runs dry")
+	var grid := _act.spatial_grid
+	for x in grid.grid_width:
+		for y in grid.grid_depth:
+			grid.remove_item(Vector2i(x, y))
+	await process_frame
+	_act.bench_station.interacted.emit()
+	await process_frame
+	await process_frame
+	check("running dry is the enclosure", _act.enclosure_told)
+	await _settle([0])  # take the friend's front
+	var compounds := 0
+	for x in grid.grid_width:
+		for y in grid.grid_depth:
+			if grid.is_cell_occupied(Vector2i(x, y)):
+				compounds += 1
+	check(
+		"the friend fronts two compounds (%d)" % compounds,
+		compounds == ActOneScript.FRONT_COMPOUNDS
+	)
+	check("and he owes", _act.in_debt)
+
 	section("decay and the ransack")
 	entropy.entropy = 72.0
 	entropy.entropy_changed.emit(72.0)
@@ -64,6 +86,7 @@ func _run() -> void:
 	_act._on_phase(GameFlow.Phase.PARK_WALK, GameFlow.Phase.RANSACKED)
 	await _settle([])
 	check("the crate went with the ransack", _act._crate == null)
+	check("the ransack collected the debt", not _act.in_debt)
 	check("the neighbour came to the door", _act.neighbour_said.has("ransack"))
 
 	section("7c: the metro across the city")

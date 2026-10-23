@@ -82,6 +82,7 @@ func create(ctx: BootstrapContext) -> void:
 
 	_station = BenchStation.new()
 	_station.name = "BenchStation"
+	ctx.bench_station = _station
 
 	ctx.trivial_object = TrivialObject.new()
 	ctx.trivial_object.name = "TrivialObject"

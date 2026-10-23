@@ -59,9 +59,23 @@ first; graphics follow.
 - **Tests updated:** the playability gate and `probe_interactables` now encode the
   metro-or-park door (deliberate change).
 
+## Phase 3 (2026-10-23): Act II, the enclosure (the drug as a story beat)
+The scarcity was already mechanical: a finite stash that shrinks per cycle. Now the story
+tells it, the first time each cycle he takes the last of it and the bench has nothing
+left to cook (`BenchStation.is_dry()`):
+- **A notice in his head** (caller card "FOCUS+ CARE"): Focus+ reclassified as a premium
+  wellness product; street supply discontinued "for your safety"; Elite membership,
+  terms apply.
+- **The neighbour, through the wall:** *"It's gone. Everybody's dry. Even my guy."*
+- **The friend** (while they still call): *"I can get you some. Pricier now. I'll front
+  you."*
+  - Okay: two compounds on the worktop, *"Fronted. You owe."*
+  - I'll manage: *"Call me when you don't."*
+- **The ransack collects:** *"They took what you owed. With interest."*
+- **Later cycles:** one line. *"Elite pricing applies. It has gone up again."*
+- Saved (`enclosure_told`, `in_debt`); reset per cycle.
+
 ## Next phases
-- **Act II as a story beat:** the drug enclosed as an elite commodity; prices in the
-  friend's calls and the city.
 - **18a:** the fenced stone priced in the Heritage window, after the realisation.
 - **Graphics:** the neighbour's door visit staged, the crate's label, the call card.
 
