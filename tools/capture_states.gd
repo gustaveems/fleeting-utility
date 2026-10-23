@@ -46,6 +46,14 @@ func _run() -> void:
 		await park.transition_to_apartment()
 		await wait(1.0)
 
+	var metro := node("MetroRide") as MetroRide
+	if metro != null:
+		metro.start_ride()
+		await wait(2.0)
+		await _shot("metro_ride.png")
+		metro.end_ride()
+		await wait(1.0)
+
 	var manager := node("DreamscapeManager") as DreamscapeManager
 	await manager.transition_to_dreamscape()
 	if fade != null:

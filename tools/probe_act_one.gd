@@ -66,10 +66,53 @@ func _run() -> void:
 	check("the crate went with the ransack", _act._crate == null)
 	check("the neighbour came to the door", _act.neighbour_said.has("ransack"))
 
+	section("7c: the metro across the city")
+	var metro := ws.find_child("MetroRide", true, false) as MetroRide
+	var door := ws.find_child("ApartmentDoor", true, false) as ApartmentDoor
+	var carriage := ws.find_child("MetroCarriage", true, false) as MetroCarriage
+	var apartment := ws.find_child("Apartment", true, false) as WorldRoot
+	var data := (ws.find_child("PlayerStateMachine", true, false) as PlayerStateMachine).state_data
+	entropy.entropy = 30.0
+	_days.restore(7)
+	data.sensory_overload = 60.0
+	check("below the threshold the door is the metro", door.can_interact() and metro.available())
+	door._on_interacted()
+	await process_frame
+	check("the door asks where to go", _runner.awaiting_choice)
+	_runner.choices_ui.choose(0)  # the metro (the park isn't open yet)
+	await wait(0.3)
+	check(
+		"he rides (the carriage, not the room)",
+		metro.is_riding and carriage.visible and not apartment.visible
+	)
+	check("day 7's ads: the rich side spreading", metro.stage() == 2)
+	var riding_overload := data.sensory_overload
+	var home_overload := [-1.0]
+	metro.ride_ended.connect(func(): home_overload[0] = data.sensory_overload, CONNECT_ONE_SHOT)
+	for n in 600:
+		if not metro.is_riding:
+			break
+		riding_overload = data.sensory_overload
+		await process_frame
+	await wait(0.3)
+	check("home again", not metro.is_riding and apartment.visible and not carriage.visible)
+	check(
+		"getting out eased the overload (%.0f → %.0f)" % [riding_overload, home_overload[0]],
+		(
+			home_overload[0] >= 0.0
+			and home_overload[0] <= riding_overload - MetroRide.OVERLOAD_RELIEF + 3.0
+		)
+	)
+	check("one ride a day", not metro.available())
+
 	section("save, and a renewed lease")
 	var snap := _act.snapshot()
+	var metro_snap := metro.snapshot()
 	_act.restore({})
 	_act.restore(snap)
+	metro.restore({})
+	metro.restore(metro_snap)
+	check("rides survive a save", metro.rides_taken == 1 and metro.last_ride_day == 7)
 	check("the act survives a save", _act.sold_told and _act.favours.get("cosign") == "gave")
 	_act.reset_cycle()
 	await _morning(6, [])

@@ -42,6 +42,19 @@ func cancel() -> void:
 		head_call.stop()
 
 
+## A plain menu (the door: where to go). Returns the picked index; records nothing.
+func ask(labels: Array[String]) -> int:
+	awaiting_choice = true
+	if interaction != null:
+		interaction.lock(&"dialogue_choice")
+	choices_ui.open(labels)
+	var index: int = await choices_ui.chosen
+	if interaction != null:
+		interaction.unlock(&"dialogue_choice")
+	awaiting_choice = false
+	return index
+
+
 func _steps(steps: Array) -> void:
 	for step: Dictionary in steps:
 		if _cancelled:

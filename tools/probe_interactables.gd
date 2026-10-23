@@ -26,8 +26,16 @@ func _run() -> void:
 	entropy.entropy = 40.0
 	await _walk_to(player, Vector3(0.0, 0.0, -3.0))
 	check("player near the door", door.is_player_near)
-	check("explains itself below threshold (got '%s')" % _prompt, _prompt.begins_with("Not yet"))
-	check("E refused below threshold", not door.try_interact())
+	# Act I (7c): below the threshold the door is the metro, with a menu (stay in here).
+	var runner := node("DialogueRunner") as DialogueRunner
+	check(
+		"below threshold: the metro (got '%s')" % _prompt, _prompt == ActOneScript.DOOR_METRO_PROMPT
+	)
+	check("E opens the menu, not the walk", door.try_interact() and not park.walk_taken)
+	await process_frame
+	check("metro or stay", runner.awaiting_choice)
+	runner.choices_ui.choose(1)  # stay in
+	await process_frame
 
 	section("door at the threshold")
 	entropy.entropy = 75.0
@@ -36,7 +44,10 @@ func _run() -> void:
 	ic.lock(&"probe")
 	check("E refused while interactions are locked", not door.try_interact())
 	ic.unlock(&"probe")
-	check("E opens the walk", door.try_interact())
+	check("E opens the menu", door.try_interact())
+	await process_frame
+	runner.choices_ui.choose(0)  # the park (the story's walk)
+	await process_frame
 	check("now in the park", park.walk_taken)
 
 	section("park return door")

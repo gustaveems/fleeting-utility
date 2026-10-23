@@ -68,7 +68,16 @@ func _run() -> void:
 	var entropy := sm.entropy_data
 	entropy.entropy = 40.0
 	await _walk_to(player, Vector3(0.0, 0.0, -3.0))
-	check("'not yet' below the threshold (got '%s')" % _prompt, _prompt.contains("Not yet"))
+	# Act I (7c): below the threshold the door is the metro (once a day); then "not yet".
+	check(
+		"the metro below the threshold (got '%s')" % _prompt,
+		_prompt == ActOneScript.DOOR_METRO_PROMPT
+	)
+	var metro := node("MetroRide") as MetroRide
+	metro.last_ride_day = (node("DayCycle") as DayCycle).day
+	await wait(0.3)
+	check("'not yet' once he's been out (got '%s')" % _prompt, _prompt.contains("Not yet"))
+	metro.last_ride_day = -1
 	entropy.entropy = 75.0
 	await wait(0.3)
 	check("go-outside prompt at the threshold (got '%s')" % _prompt, _prompt == "[E] Go Outside")

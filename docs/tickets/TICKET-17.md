@@ -38,10 +38,28 @@ first; graphics follow.
   - Calls queue rather than talk over each other.
   - The interaction lock is held while a choice is open, so E doesn't also press the bench.
 
+## Phase 2 (2026-10-23): 7c, metro or park
+- **The door is now a choice** (`ApartmentDoor` + `DialogueRunner.ask`):
+  - Below the betrayal threshold: *"[E] Take the metro"*, then the menu: the metro, or
+    stay in.
+  - At the threshold: the corporate park (the story's walk, unchanged) or the metro, or
+    stay in.
+  - After a ride that day: *"Not yet. You've been out today…"*
+  - After the betrayal: the hesitation, unchanged.
+- **The ride** (`MetroRide` + `MetroCarriage`, a WorldRoot):
+  - Once a day. A blink to black, then a carriage at the diorama's scale: commuters
+    standing and slumped, a fluorescent strip, the city sliding past the window.
+  - His thoughts play, then he's home: *"The room is where you left it."*
+  - Getting out eases sensory overload by 25: a way to cope that isn't the drug.
+- **The barometer:** the carriage's ads and his thoughts change by stage (day / 3):
+  - stage 0: upgrades, *"The future is leased"*;
+  - stage 1: *"Focus+ · new pricing"*, *"half the carriage is shaking"*;
+  - stage 2: *"Block 29 · rezoned for Heritage"*, the rich side *"like a tide"*.
+- **Saved** as `metro` (rides, last ride day).
+- **Tests updated:** the playability gate and `probe_interactables` now encode the
+  metro-or-park door (deliberate change).
+
 ## Next phases
-- **7c, metro or park:** on free days, choose where to go. The night-train and rich-side
-  pieces from the evening can be reused. The ride is the city's barometer: more ads, the
-  drug dearer, the rich side spreading.
 - **Act II as a story beat:** the drug enclosed as an elite commodity; prices in the
   friend's calls and the city.
 - **18a:** the fenced stone priced in the Heritage window, after the realisation.

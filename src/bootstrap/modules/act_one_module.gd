@@ -11,6 +11,10 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.dialogue.name = "DialogueRunner"
 	ctx.act_one = ActOne.new()
 	ctx.act_one.name = "ActOne"
+	ctx.metro_carriage = MetroCarriage.new()
+	ctx.metro_carriage.name = "MetroCarriage"
+	ctx.metro_ride = MetroRide.new()
+	ctx.metro_ride.name = "MetroRide"
 
 
 func wire(ctx: BootstrapContext) -> void:
@@ -26,9 +30,24 @@ func wire(ctx: BootstrapContext) -> void:
 	a.hud = ctx.core_hud
 	ctx.lease_renewal.act_one = a
 	ctx.persistence.act_one = a
+	var m := ctx.metro_ride
+	m.world_environment = ctx.world_env
+	m.apartment_root = ctx.apartment
+	m.player = ctx.player
+	m.state_machine = ctx.state_machine
+	m.day_cycle = ctx.day_cycle
+	m.runner = ctx.dialogue
+	m.hud = ctx.core_hud
+	m.fader = ctx.fader
+	m.carriage = ctx.metro_carriage
+	ctx.persistence.metro_ride = m
+	ctx.door.metro_ride = m
+	ctx.door.runner = ctx.dialogue
 
 
 func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.choices)
 	ctx.root.add_child(ctx.dialogue)
 	ctx.apartment.add_child(ctx.act_one)
+	ctx.root.add_child(ctx.metro_carriage)
+	ctx.root.add_child(ctx.metro_ride)

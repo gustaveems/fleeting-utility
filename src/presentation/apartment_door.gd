@@ -26,6 +26,9 @@ const BETRAYAL_THRESHOLD := 70.0
 
 @export var entropy_data: WorkspaceEntropyData
 @export var corporate_park_manager: CorporateParkManager
+## Act I, 7c: the metro across the city, any day (once a day), and the menu to choose.
+@export var metro_ride: MetroRide
+@export var runner: DialogueRunner
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
 
@@ -39,22 +42,65 @@ func _ready() -> void:
 
 
 func can_interact() -> bool:
-	if entropy_data == null or entropy_data.entropy < BETRAYAL_THRESHOLD:
+	if _betrayed():
 		return false
-	return corporate_park_manager == null or not corporate_park_manager.walk_taken
+	return _park_open() or _metro_open()
+
+
+## Below the threshold the door is the metro; at it, the park (or the metro).
+func current_prompt() -> String:
+	if not can_interact():
+		return blocked_prompt()
+	return prompt_text if _park_open() else ActOneScript.DOOR_METRO_PROMPT
 
 
 func blocked_prompt() -> String:
 	# After the betrayal, standing here is the hesitation: no words.
-	if corporate_park_manager != null and corporate_park_manager.walk_taken:
+	if _betrayed():
 		return ""
+	if metro_ride != null:
+		return ActOneScript.DOOR_OUT_TODAY
 	return "Not yet. The room isn't unbearable enough."
 
 
 func _on_interacted() -> void:
-	initiate_walk.emit()
-	if corporate_park_manager != null:
-		corporate_park_manager.transition_to_park()
+	var options: Array[String] = []
+	var actions: Array[String] = []
+	if _park_open():
+		options.append(ActOneScript.DOOR_PARK)
+		actions.append("park")
+	if _metro_open():
+		options.append(ActOneScript.DOOR_METRO)
+		actions.append("metro")
+	if runner == null or options.size() == 1 and actions[0] == "park":
+		_go(actions[0])  # the story's walk, as before: no menu
+		return
+	options.append(ActOneScript.DOOR_STAY)
+	actions.append("stay")
+	var picked := await runner.ask(options)
+	_go(actions[picked])
+
+
+func _go(action: String) -> void:
+	match action:
+		"park":
+			initiate_walk.emit()
+			if corporate_park_manager != null:
+				corporate_park_manager.transition_to_park()
+		"metro":
+			metro_ride.start_ride()
+
+
+func _betrayed() -> bool:
+	return corporate_park_manager != null and corporate_park_manager.walk_taken
+
+
+func _park_open() -> bool:
+	return entropy_data != null and entropy_data.entropy >= BETRAYAL_THRESHOLD and not _betrayed()
+
+
+func _metro_open() -> bool:
+	return metro_ride != null and metro_ride.available()
 
 
 ## ----- VISUAL -------------------------------------------------------------------------

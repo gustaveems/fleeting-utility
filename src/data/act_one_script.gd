@@ -148,3 +148,40 @@ const NEIGHBOUR_AFTER_RANSACK: Array = [
 	{"say": [NEIGHBOUR, "They had a key. Whoever it was had a key.", 2.8]},
 ]
 const NEIGHBOUR_SILENT := "No knock from next door. Not this time."
+
+## ----- 7c: METRO OR PARK -----------------------------------------------------------------
+
+## The door: what he can do today.
+const DOOR_PARK := "Walk in the corporate park."
+const DOOR_METRO := "Take the metro across the city."
+const DOOR_STAY := "Stay in."
+const DOOR_OUT_TODAY := "Not yet. You've been out today, and the room isn't unbearable enough."
+const DOOR_METRO_PROMPT := "[E] Take the metro"
+
+## The ride is the city's barometer: three stages as the days pass (stage = day / 3,
+## capped). Each: the carriage's ads, then his thoughts on the way.
+const RIDE_ADS: Array = [
+	["UPGRADE YOUR FOCUS", "OUTPERFORM YOURSELF", "THE FUTURE IS LEASED"],
+	["FOCUS+ · NEW PRICING", "FOCUS+ ELITE · BY INVITATION", "DON'T FALL BEHIND"],
+	[
+		"HERITAGE QUARTER · NOW LEASING",
+		"BLOCK 29 · REZONED FOR HERITAGE",
+		"AUTHENTICITY, AVAILABLE"
+	],
+]
+const RIDE_THOUGHTS: Array = [
+	[
+		{"think": ["The metro. Nowhere to be. Just out.", 2.4]},
+		{"think": ["Everyone's on their phone. The ads talk to the phones.", 3.0]},
+		{"think": ["The city goes on and on. It never gets to an edge.", 2.8]},
+	],
+	[
+		{"think": ["Focus+ costs more this week. Someone says it out loud, then laughs.", 3.4]},
+		{"think": ["Half the carriage is shaking. Same as me.", 2.6]},
+	],
+	[
+		{"think": ["They're putting Heritage boutiques where the low blocks were.", 3.2]},
+		{"think": ["The rich side is bigger every time. Like a tide coming in.", 3.0]},
+	],
+]
+const RIDE_HOME := "Home. The room is where you left it."

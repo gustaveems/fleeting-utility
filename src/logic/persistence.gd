@@ -61,6 +61,7 @@ static var save_path: String = "user://save.json"
 @export var easel: Easel
 ## Act I's people (Ticket-17): an additive optional field, no VERSION bump.
 @export var act_one: ActOne
+@export var metro_ride: MetroRide
 
 ## item_id → scene, to rebuild the bench worktop.
 @export var item_scenes: Dictionary[StringName, PackedScene] = {}
@@ -193,6 +194,8 @@ func snapshot() -> Dictionary:
 		data["painting"] = easel.snapshot()
 	if act_one != null:
 		data["act_one"] = act_one.snapshot()
+	if metro_ride != null:
+		data["metro"] = metro_ride.snapshot()
 	return data
 
 
@@ -221,6 +224,8 @@ func apply(data: Dictionary) -> void:
 		easel.restore(data["painting"])
 	if act_one != null and data.has("act_one"):
 		act_one.restore(data["act_one"])
+	if metro_ride != null and data.has("metro"):
+		metro_ride.restore(data["metro"])
 
 	if park != null:
 		park.walk_taken = bool(data.get("walk_taken", false))
