@@ -128,6 +128,25 @@ func _run() -> void:
 	)
 	check("one ride a day", not metro.available())
 
+	section("18a: the stone in the window")
+	check("no stone before the realisation", not metro.stone_seen)
+	_act.game_flow.loops_completed = 1
+	_days.restore(8)
+	metro.start_ride()
+	await wait(0.3)
+	var window := carriage.find_child("HeritageWindow", true, false) as Node3D
+	check(
+		"after a loop: the train stops at the Heritage window",
+		metro.stone_seen and window != null and window.visible
+	)
+	await _settle([])
+	for n in 600:
+		if not metro.is_riding:
+			break
+		await process_frame
+	check("only once", not metro._stone_due())
+	_act.game_flow.loops_completed = 0
+
 	section("save, and a renewed lease")
 	var snap := _act.snapshot()
 	var metro_snap := metro.snapshot()
@@ -135,7 +154,7 @@ func _run() -> void:
 	_act.restore(snap)
 	metro.restore({})
 	metro.restore(metro_snap)
-	check("rides survive a save", metro.rides_taken == 1 and metro.last_ride_day == 7)
+	check("rides survive a save", metro.rides_taken == 2 and metro.stone_seen)
 	check("the act survives a save", _act.sold_told and _act.favours.get("cosign") == "gave")
 	_act.reset_cycle()
 	await _morning(6, [])

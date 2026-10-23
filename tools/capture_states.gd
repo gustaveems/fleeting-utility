@@ -53,6 +53,15 @@ func _run() -> void:
 		await _shot("metro_ride.png")
 		metro.end_ride()
 		await wait(1.0)
+		var flow := node("GameFlow") as GameFlow
+		flow.loops_completed = 1
+		metro.last_ride_day = -1
+		metro.start_ride()
+		await wait(2.0)
+		await _shot("metro_stone.png")
+		metro.end_ride()
+		flow.loops_completed = 0
+		await wait(1.0)
 
 	var manager := node("DreamscapeManager") as DreamscapeManager
 	await manager.transition_to_dreamscape()

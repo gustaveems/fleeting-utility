@@ -17,6 +17,8 @@ var environment: Environment
 
 var _ads: Array[Label3D] = []
 var _skyline: Array[Node3D] = []
+var _stopped: bool = false
+var _stone_window: Node3D
 
 
 func _init() -> void:
@@ -35,11 +37,25 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	# The city slides past the window.
+	# The city slides past the window (unless the train is stopped at a station).
+	if _stopped:
+		return
 	for b in _skyline:
 		b.position.x += 9.0 * delta
 		if b.position.x > 30.0:
 			b.position.x -= 60.0
+
+
+## 18a: the train stops at the Heritage Quarter, and outside the window is a boutique
+## display: the fenced stone from his town, lit, priced. Off: back to the moving city.
+func show_stone(on: bool) -> void:
+	_stopped = on
+	if _stone_window == null and on:
+		_build_stone_window()
+	if _stone_window != null:
+		_stone_window.visible = on
+	for b in _skyline:
+		b.visible = not on
 
 
 ## Show the ads for barometer stage `stage` (ActOneScript.RIDE_ADS).
@@ -169,3 +185,66 @@ func _mat(c: Color, roughness: float) -> StandardMaterial3D:
 	if c.a < 1.0:
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	return m
+
+
+## The Heritage window, just beyond the carriage glass: warm light, a plinth, the stone
+## in its little fence with the corporate plate, a price card.
+func _build_stone_window() -> void:
+	_stone_window = Node3D.new()
+	_stone_window.name = "HeritageWindow"
+	# Raised above the carriage's wall line: the camera looks down over it, not through it.
+	_stone_window.position = Vector3(0.6, 1.05, -HALF_WIDTH - 1.4)
+	add_child(_stone_window)
+	var back := _mat(Color(0.9, 0.85, 0.75), 0.6)
+	_box_in(_stone_window, Vector3(0, 0.9, -0.6), Vector3(3.0, 2.2, 0.05), back)
+	_box_in(
+		_stone_window,
+		Vector3(0, 0.15, 0),
+		Vector3(1.0, 0.3, 0.8),
+		_mat(Color(0.12, 0.1, 0.08), 0.3)
+	)
+	var stone := CityKit.prop(
+		CityKit.polyhaven("boulder_01"), _stone_window, Vector3(0, 0.3, 0), 30.0, 0.0
+	)
+	if stone != null:
+		stone.scale = Vector3.ONE * 0.38
+	else:
+		_box_in(
+			_stone_window,
+			Vector3(0, 0.55, 0),
+			Vector3(0.3, 0.5, 0.22),
+			_mat(Color(0.5, 0.49, 0.46), 1.0)
+		)
+	var post := _mat(Color(0.2, 0.2, 0.2), 0.5)
+	for k in 6:
+		var a := TAU * k / 6.0
+		_box_in(
+			_stone_window,
+			Vector3(cos(a) * 0.38, 0.45, sin(a) * 0.3),
+			Vector3(0.02, 0.3, 0.02),
+			post
+		)
+	var plate := _mat(Color(0.9, 0.9, 0.92), 0.3)
+	plate.emission_enabled = true
+	plate.emission = Color(0.2, 0.84, 0.9)
+	_box_in(_stone_window, Vector3(0, 0.62, 0.13), Vector3(0.16, 0.06, 0.01), plate)
+	var price := Label3D.new()
+	price.text = ActOneScript.STONE_PRICE
+	price.font_size = 48
+	price.pixel_size = 0.005
+	price.modulate = Color(0.2, 0.16, 0.1)
+	price.position = Vector3(1.05, 0.35, 0.2)
+	_stone_window.add_child(price)
+	var heritage := Label3D.new()
+	heritage.text = "HERITAGE COLLECTION"
+	heritage.font_size = 48
+	heritage.pixel_size = 0.005
+	heritage.modulate = Color(0.3, 0.22, 0.12)
+	heritage.position = Vector3(0, 1.75, -0.55)
+	_stone_window.add_child(heritage)
+	var warm := OmniLight3D.new()
+	warm.light_color = Color(1.0, 0.86, 0.62)
+	warm.light_energy = 2.5
+	warm.omni_range = 3.0
+	warm.position = Vector3(0, 1.4, 0.4)
+	_stone_window.add_child(warm)

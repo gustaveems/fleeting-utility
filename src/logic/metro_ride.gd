@@ -24,11 +24,14 @@ const START := Vector3(-2.5, 0, 0.1)
 @export var hud: CoreHud
 @export var fader: ScreenFader
 @export var carriage: MetroCarriage
+## 18a: after the realisation (a completed loop), the stone in the Heritage window.
+@export var game_flow: GameFlow
 
 ## Saved (Persistence "metro").
 var rides_taken: int = 0
 var last_ride_day: int = -1
 var is_riding: bool = false
+var stone_seen: bool = false
 
 var _saved_env: Environment
 var _saved_pos: Vector3
@@ -61,6 +64,10 @@ func start_ride() -> void:
 	if apartment_root != null:
 		apartment_root.set_active(false)
 	carriage.set_stage(stage())
+	var stone := _stone_due()
+	carriage.show_stone(stone)
+	if stone:
+		stone_seen = true
 	carriage.set_active(true)
 	if world_environment != null:
 		_saved_env = world_environment.environment
@@ -72,7 +79,7 @@ func start_ride() -> void:
 	)
 	ride_started.emit(stage())
 	if runner != null:
-		runner.run(ActOneScript.RIDE_THOUGHTS[stage()])
+		runner.run(ActOneScript.STONE_RIDE if stone else ActOneScript.RIDE_THOUGHTS[stage()])
 		await runner.finished
 	await get_tree().create_timer(LINGER, false).timeout
 	end_ride()
@@ -102,9 +109,15 @@ func end_ride() -> void:
 
 
 func snapshot() -> Dictionary:
-	return {"rides_taken": rides_taken, "last_ride_day": last_ride_day}
+	return {"rides_taken": rides_taken, "last_ride_day": last_ride_day, "stone_seen": stone_seen}
 
 
 func restore(data: Dictionary) -> void:
 	rides_taken = int(data.get("rides_taken", 0))
 	last_ride_day = int(data.get("last_ride_day", -1))
+	stone_seen = bool(data.get("stone_seen", false))
+
+
+## The first ride after the realisation (he has been through a whole loop).
+func _stone_due() -> bool:
+	return not stone_seen and game_flow != null and game_flow.loops_completed >= 1

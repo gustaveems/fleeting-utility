@@ -75,8 +75,19 @@ left to cook (`BenchStation.is_dry()`):
 - **Later cycles:** one line. *"Elite pricing applies. It has gone up again."*
 - Saved (`enclosure_told`, `in_debt`); reset per cycle.
 
+## Phase 4 (2026-10-23): 18a, the stone in the window
+- **When:** on the first metro ride after the realisation, meaning a completed loop:
+  `GameFlow.loops_completed >= 1`, which is saved.
+- **What:** the train stops at the Heritage Quarter. The city stops scrolling, and outside
+  the carriage glass is a lit boutique display, `MetroCarriage.show_stone`:
+  - the fenced stone from the parking lot back home, with its logo plate, on a plinth;
+  - *"HERITAGE STONE · Authentic origin. Hand-fenced. Price on application."*
+- **His thoughts:** *"…Lit like a jewel… Even the last true thing has been leased."*
+- **Once only:** `stone_seen`, saved in `metro`.
+- **Placement:** the display sits above the carriage's wall line, so the iso camera sees
+  it over the wall.
+
 ## Next phases
-- **18a:** the fenced stone priced in the Heritage window, after the realisation.
 - **Graphics:** the neighbour's door visit staged, the crate's label, the call card.
 
 ## Verification

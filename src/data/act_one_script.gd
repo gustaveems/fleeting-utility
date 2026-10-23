@@ -235,3 +235,13 @@ const FRONT_ARRIVED := "Two compounds on the worktop. Fronted. You owe."
 const DEBT_COLLECTED := "They took what you owed. With interest."
 ## How many compounds the friend fronts.
 const FRONT_COMPOUNDS := 2
+
+## ----- 18a: THE STONE IN THE WINDOW (the first ride after the realisation) -------------
+
+const STONE_PRICE := "HERITAGE STONE\nAuthentic origin. Hand-fenced.\nPrice on application."
+const STONE_RIDE: Array = [
+	{"think": ["The train stops. Heritage Quarter.", 2.2]},
+	{"think": ["In the window. The stone. From the parking lot back home.", 3.0]},
+	{"think": ["The fence. The logo plate. Lit like a jewel.", 2.8]},
+	{"think": ["Even the last true thing has been leased.", 3.0]},
+]

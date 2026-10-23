@@ -43,6 +43,7 @@ func wire(ctx: BootstrapContext) -> void:
 	m.hud = ctx.core_hud
 	m.fader = ctx.fader
 	m.carriage = ctx.metro_carriage
+	m.game_flow = ctx.game_flow
 	ctx.persistence.metro_ride = m
 	ctx.door.metro_ride = m
 	ctx.door.runner = ctx.dialogue
