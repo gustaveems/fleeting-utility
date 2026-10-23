@@ -169,12 +169,21 @@ func _run() -> void:
 	check("into the park", flow.phase == GameFlow.Phase.PARK_WALK)
 	park.transition_to_apartment()
 	await wait(0.5)
-	check("ransacked", flow.phase == GameFlow.Phase.RANSACKED)
+	var ransacked := _n("RansackedStateManager") as RansackedStateManager
+	check("ransacked", ransacked.is_ransacked)
 	check("the crate went with it, and the debt", act._crate == null and not act.in_debt)
 	check("the neighbour came", act.neighbour_said.has("ransack"))
 	Engine.time_scale = FAST
 	await _talk(runner, act)
 	Engine.time_scale = 1.0
+
+	# Forced detox: the stash is gone, he collapses into a calm dream and wakes in the wreck.
+	for i in 300:
+		if flow.phase == GameFlow.Phase.RANSACKED and not dm.in_dreamscape() and not dm.is_busy():
+			break
+		await wait(0.1)
+	check("the detox dream returns him to the ruined room", flow.phase == GameFlow.Phase.RANSACKED)
+	_calm(sm)
 
 	section("the hesitation, the visions, the climax")
 	var hesitation := _n("HesitationController") as HesitationController

@@ -14,6 +14,9 @@ signal finished
 
 const LOCK := &"night_zero"
 const BOX_COUNT := 3
+## A new game's room is freshly leased: cleaner than the demo seed a direct boot uses
+## (38), so the betrayal threshold (70) lands around day 6 with the days' pacing.
+const NEW_GAME_ENTROPY := 20.0
 ## Where the boxes wait (by the door) and where they go (the west wall), room-local.
 ## (Out of the door's sensor, which reaches 1.4 m into the room.)
 const BOX_SPOTS: Array[Vector3] = [
@@ -28,6 +31,7 @@ const PERSON_SCALE := 0.47
 @export var interaction: InteractionController
 @export var head_call: HeadCall
 @export var hud: CoreHud
+@export var entropy_data: WorkspaceEntropyData
 ## The evening (Phase 2) the chapter continues into; empty ends Night Zero here (tests).
 @export var evening_scene_path: String = ""
 
@@ -46,6 +50,9 @@ func start() -> void:
 		return
 	is_running = true
 	placed = 0
+	if entropy_data != null:
+		entropy_data.entropy = NEW_GAME_ENTROPY
+		entropy_data.entropy_changed.emit(entropy_data.entropy)
 	friend = StreetFigure.new()
 	friend.name = "Friend"
 	friend.dress = StreetFigure.Dress.FRIEND
@@ -73,6 +80,9 @@ func start() -> void:
 ## Home from the evening: the boxes are where he stacked them, Day 1 begins, and the
 ## friend's gift is in his bag (whether he took it or not).
 func restore_moved_in(gift_refused: bool) -> void:
+	if entropy_data != null:
+		entropy_data.entropy = NEW_GAME_ENTROPY
+		entropy_data.entropy_changed.emit(entropy_data.entropy)
 	for at in BOX_SPOTS.size():
 		var box := MovingBox.new()
 		box.position = Vector3(DROP_ZONE.position.x + 0.4 + at * 0.45, 0, DROP_ZONE.get_center().y)

@@ -17,6 +17,7 @@ func wire(ctx: BootstrapContext) -> void:
 	nz.interaction = ctx.interaction
 	nz.head_call = ctx.head_call
 	nz.hud = ctx.core_hud
+	nz.entropy_data = ctx.entropy_data
 	nz.evening_scene_path = "res://scenes/evening.tscn"
 	ctx.lease_signing.signed.connect(nz.start)
 

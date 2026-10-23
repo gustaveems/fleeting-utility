@@ -104,6 +104,8 @@ func wire(ctx: BootstrapContext) -> void:
 	# Ticket-14: days. Sleep → night dream → morning.
 	ctx.day_cycle.dreamscape_manager = ctx.dreamscape_manager
 	ctx.day_cycle.state_machine = ctx.state_machine
+	# Each morning the room starts a little more decayed (the days' pacing).
+	ctx.day_cycle.morning.connect(func(_day: int): ctx.entropy_data.decay_overnight())
 
 
 func attach(ctx: BootstrapContext) -> void:

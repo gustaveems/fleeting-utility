@@ -27,12 +27,22 @@ extends Resource
 ## Emitted whenever the entropy value moves after a growth tick.
 signal entropy_changed(new_entropy: float)
 
+## The first cycle's per-second growth (later cycles and the co-sign multiply it).
+const BASE_GROWTH_RATE := 0.05
+
 ## 0..100 — how cluttered the room currently is. 0 = freshly leased, 100 = hoarded.
 @export var entropy: float = 0.0
 
 ## Entropy gained per second. Constant: the room does not wait for the player.
-## 0.5/s means the room reaches ~30/100 after a minute and ~60/100 after two.
-@export var entropy_growth_rate: float = 0.5
+## Retuned for the days (full-run playtest 2026-10-23): at the old 0.5/s the room hit
+## the betrayal threshold (70) on Day 1 and sat at 100 through Act I. Now a slow clock
+## (~9 points over a ~3-minute day) plus the overnight step below: the threshold lands
+## around day 5, after the friend's favours and the borrowed painting.
+@export var entropy_growth_rate: float = BASE_GROWTH_RATE
+
+## Each morning the room starts this much more decayed (STORY: "Morning. The room is a
+## little more decayed."), scaled by how fast it is decaying now (co-sign, later cycles).
+@export var morning_decay: float = 8.0
 
 ## Fraction of current entropy added to sensory_overload per second.
 ## At entropy 60 this feeds 60 * 0.05 = 3.0/s — exactly canceling PlayerStateData's
@@ -44,4 +54,11 @@ signal entropy_changed(new_entropy: float)
 ## Reset to a tidy room. Used at scene start and by Ticket-05's dreamscape transition.
 func reset() -> void:
 	entropy = 0.0
+	entropy_changed.emit(entropy)
+
+
+## Overnight: the room starts the day a little more decayed.
+func decay_overnight() -> void:
+	var step := morning_decay * entropy_growth_rate / BASE_GROWTH_RATE
+	entropy = clampf(entropy + step, 0.0, 100.0)
 	entropy_changed.emit(entropy)
