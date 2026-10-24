@@ -5,8 +5,10 @@ set -u
 cd "$(dirname "$0")/.."
 
 GODOT="${GODOT:-godot}"
-LINT=".venv/bin/gdlint"
-FMT=".venv/bin/gdformat"
+VENV_BIN=".venv/bin"
+[ -d "$VENV_BIN" ] || VENV_BIN=".venv/Scripts"  # Windows venvs put their tools here
+LINT="$VENV_BIN/gdlint"
+FMT="$VENV_BIN/gdformat"
 LOG_DIR="tools/out/logs"
 mkdir -p "$LOG_DIR"
 
@@ -21,7 +23,7 @@ if [ -x "$LINT" ]; then
 		status=1
 	fi
 else
-	results+=("SKIP  lint (.venv missing: python3 -m venv .venv && .venv/bin/pip install 'gdtoolkit==4.*')")
+	results+=("SKIP  lint (.venv missing: python3 -m venv .venv && $VENV_BIN/pip install 'gdtoolkit==4.*')")
 fi
 
 for script in tools/ticket*_verify.gd tools/probe_*.gd; do
