@@ -11,9 +11,12 @@ on purpose, so they need copying over by hand:
   `notes.md` and the walk-layout sketch are in git.
 
 On the Mac they were packed as:
-- `~/Desktop/fleeting_utility_assets.zip`: unzip so that you get
-  `<repo>/assets/third_party/...`
-- `~/Desktop/fleeting_utility_references.zip`: unzip into `<repo>/docs/references/`
+- `~/Desktop/fleeting_utility_assets.zip` (1.2 GB)
+- `~/Desktop/fleeting_utility_references.zip` (2.4 MB)
+
+Both store their full paths (`assets/third_party/…`, `docs/references/…`), so **unzip
+each at the repo root**. Godot's `.import` files are not included; step 5 regenerates
+them.
 
 Without the assets the game still runs, in greybox: every real-asset call falls back to
 boxes and capsules.
@@ -26,7 +29,7 @@ boxes and capsules.
    `tools/run_all.sh`.
 3. **Clone:**
    `git clone https://github.com/gustaveems/fleeting-utility.git`
-4. **Unzip the two archives** into the clone, as above.
+4. **Unzip the two archives** at the root of the clone, as above.
 5. **Import** (generates `.godot/` and the asset imports; the first run takes several
    minutes because of the 4k textures):
    `godot --headless --import`
