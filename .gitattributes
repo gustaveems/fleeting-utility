@@ -1,0 +1,23 @@
+# Keep GDScript and text files LF on every OS (gdformat --check and diffs depend on it).
+* text=auto eol=lf
+*.gd text eol=lf
+*.tscn text eol=lf
+*.tres text eol=lf
+*.godot text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.import text eol=lf
+*.uid text eol=lf
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.glb binary
+*.gltf text eol=lf
+*.bin binary
+*.fbx binary
+*.wav binary
+*.ogg binary
+*.hdr binary
