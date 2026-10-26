@@ -119,12 +119,12 @@ func _run() -> void:
 		await dm.transition_completed  # morning
 		await wait(ActOne.CALL_DELAY + 0.3)
 		Engine.time_scale = FAST
-		await _talk(runner, act)
+		await _talk(runner)
 		Engine.time_scale = 1.0
 		check("it is day %d" % d, days.day == d)
 		print("  [pace] morning of day %d: entropy %.0f" % [d, sm.entropy_data.entropy])
 		if d == 5:
-			await _ride(runner, act)
+			await _ride(runner)
 	check(
 		"the friend called on days 2, 3, 4, 6",
 		(
@@ -152,7 +152,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	Engine.time_scale = FAST
-	await _talk(runner, act)
+	await _talk(runner)
 	Engine.time_scale = 1.0
 	check("the enclosure; the friend fronts him", act.enclosure_told and act.in_debt)
 
@@ -174,7 +174,7 @@ func _run() -> void:
 	check("the crate went with it, and the debt", act._crate == null and not act.in_debt)
 	check("the neighbour came", act.neighbour_said.has("ransack"))
 	Engine.time_scale = FAST
-	await _talk(runner, act)
+	await _talk(runner)
 	Engine.time_scale = 1.0
 
 	# Forced detox: the stash is gone, he collapses into a calm dream and wakes in the wreck.
@@ -255,16 +255,16 @@ func _wait_for(scene_name: String, tries: int = 80) -> void:
 
 
 ## Let every queued line play out, answering choices with the first option.
-func _talk(runner: DialogueRunner, act: ActOne) -> void:
+func _talk(runner: DialogueRunner) -> void:
 	for i in 6000:
 		if runner.awaiting_choice:
 			runner.choices_ui.choose(0)
-		if not runner.is_running and act._queue.is_empty():
+		if runner.is_idle():
 			return
 		await process_frame
 
 
-func _ride(runner: DialogueRunner, act: ActOne) -> void:
+func _ride(runner: DialogueRunner) -> void:
 	var metro := _n("MetroRide") as MetroRide
 	var door := _n("ApartmentDoor") as ApartmentDoor
 	var park_open := door._park_open()
@@ -278,7 +278,7 @@ func _ride(runner: DialogueRunner, act: ActOne) -> void:
 			break
 		await process_frame
 	Engine.time_scale = 1.0
-	await _talk(runner, act)
+	await _talk(runner)
 
 
 ## Keep him medicated so no collapse or compulsion interrupts a beat.

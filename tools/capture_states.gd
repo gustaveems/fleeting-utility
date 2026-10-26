@@ -50,7 +50,7 @@ func _run() -> void:
 	if act != null:
 		_atmo.set_broken_mode(false)
 		_set_entropy(30.0)
-		act._queue.clear()
+		act.runner.clear_queue()
 		var talk := node("DialogueRunner") as DialogueRunner
 		if talk.is_running:
 			talk.cancel()

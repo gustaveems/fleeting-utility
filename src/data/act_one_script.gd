@@ -11,6 +11,8 @@ extends RefCounted
 const FRIEND := NightZeroScript.FRIEND
 const HIM := NightZeroScript.HIM
 const NEIGHBOUR := "NEIGHBOUR"
+## The choice keys that are favours (ActOne records these; other keys belong elsewhere).
+const FAVOURS: Array[String] = ["cosign", "crate", "lend", "front"]
 
 ## ----- 7a: THE FRIEND'S CALLS, by day (a head call a few seconds after he wakes) --------
 

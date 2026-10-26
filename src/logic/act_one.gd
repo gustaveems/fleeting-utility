@@ -56,7 +56,6 @@ var cycles_seen: int = 0
 var enclosure_told: bool = false
 var in_debt: bool = false
 
-var _queue: Array = []
 var _crate: Node3D
 
 
@@ -70,7 +69,6 @@ func _ready() -> void:
 	if game_flow != null:
 		game_flow.phase_changed.connect(_on_phase)
 	if runner != null:
-		runner.finished.connect(_next_in_queue)
 		runner.choice_made.connect(_on_choice)
 	if bench_station != null:
 		bench_station.interacted.connect(_on_bench_used)
@@ -87,7 +85,8 @@ func reset_cycle() -> void:
 	in_debt = false
 	favours.erase("front")
 	_remove_crate()
-	_queue.clear()
+	if runner != null:
+		runner.clear_queue()
 
 
 func snapshot() -> Dictionary:
@@ -124,12 +123,7 @@ func restore(data: Dictionary) -> void:
 
 ## Play steps now, or after whatever is playing (calls don't talk over each other).
 func play(steps: Array, as_call: bool = false) -> void:
-	if steps.is_empty():
-		return
-	if runner.is_running:
-		_queue.append([steps, as_call])
-		return
-	runner.run(steps, as_call)
+	runner.enqueue(steps, as_call)
 
 
 ## ----- TRIGGERS -----------------------------------------------------------------------
@@ -186,6 +180,8 @@ func _on_phase(_from: GameFlow.Phase, to: GameFlow.Phase) -> void:
 
 
 func _on_choice(key: String, tag: String) -> void:
+	if key not in ActOneScript.FAVOURS:
+		return  # someone else's choice (the corporation's offers)
 	favours[key] = tag
 	if tag != "gave":
 		return
@@ -204,13 +200,6 @@ func _on_choice(key: String, tag: String) -> void:
 			if easel != null and easel.lend_work():
 				lent_on_day = day_cycle.day if day_cycle != null else 1
 				_line(ActOneScript.LENT_LINE)
-
-
-func _next_in_queue() -> void:
-	if _queue.is_empty():
-		return
-	var next: Array = _queue.pop_front()
-	runner.run(next[0], next[1])
 
 
 ## Act II: the first time this cycle he takes the last of it, the enclosure.

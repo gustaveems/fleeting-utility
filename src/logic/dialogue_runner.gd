@@ -23,6 +23,8 @@ var awaiting_choice: bool = false
 
 var _cancelled: bool = false
 var _as_call: bool = false
+## [steps, as_call] waiting for the current script to end (calls don't talk over each other).
+var _queue: Array = []
 
 
 ## `as_call`: lines come as a head call (the caller card), not in-person subtitles.
@@ -33,6 +35,29 @@ func run(steps: Array, as_call: bool = false) -> void:
 	await _steps(steps)
 	is_running = false
 	finished.emit()
+	if not is_running and not _queue.is_empty():
+		var next: Array = _queue.pop_front()
+		run(next[0], next[1])
+
+
+## Play steps now, or after whatever is playing and queued before them.
+func enqueue(steps: Array, as_call: bool = false) -> void:
+	if steps.is_empty():
+		return
+	if is_running:
+		_queue.append([steps, as_call])
+		return
+	run(steps, as_call)
+
+
+## Nothing playing and nothing waiting.
+func is_idle() -> bool:
+	return not is_running and _queue.is_empty()
+
+
+## Drop whatever is waiting (a renewed lease; the current script plays out).
+func clear_queue() -> void:
+	_queue.clear()
 
 
 ## Stop mid-script (a film segment ending under its lines). run() then finishes.

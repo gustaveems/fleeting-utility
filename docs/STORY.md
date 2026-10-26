@@ -183,6 +183,8 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
   veils.
 - The brand: one conglomerate behind the billboards, the campaign, the drug and the
   ambulance? (Proposed: yes.)
+- If he refuses Corporate Care (not built yet): no ambulance comes; he wakes on his own,
+  alive, with no clinic, and the end card follows (decided 2026-10-26).
 - What "walk away" means: leaving, giving up or dying (currently ambiguous on purpose).
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).

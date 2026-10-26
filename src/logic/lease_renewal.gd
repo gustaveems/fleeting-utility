@@ -30,6 +30,7 @@ const MAX_START_ENTROPY := 65.0  # below the door's 70: the walk must still be e
 @export var compound_scene: PackedScene
 @export var day_cycle: DayCycle
 @export var act_one: ActOne
+@export var promises: Promises
 
 
 func renew() -> void:
@@ -60,6 +61,8 @@ func renew() -> void:
 		day_cycle.reset_cycle()
 	if act_one != null:
 		act_one.reset_cycle()
+	if promises != null:
+		promises.reset_cycle()
 	if game_flow != null:
 		game_flow.restore(GameFlow.Phase.WORKSPACE, loops)
 

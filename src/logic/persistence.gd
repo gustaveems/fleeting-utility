@@ -62,6 +62,7 @@ static var save_path: String = "user://save.json"
 ## Act I's people (Ticket-17): an additive optional field, no VERSION bump.
 @export var act_one: ActOne
 @export var metro_ride: MetroRide
+@export var promises: Promises
 
 ## item_id → scene, to rebuild the bench worktop.
 @export var item_scenes: Dictionary[StringName, PackedScene] = {}
@@ -196,6 +197,8 @@ func snapshot() -> Dictionary:
 		data["act_one"] = act_one.snapshot()
 	if metro_ride != null:
 		data["metro"] = metro_ride.snapshot()
+	if promises != null:
+		data["promises"] = promises.snapshot()
 	return data
 
 
@@ -226,6 +229,8 @@ func apply(data: Dictionary) -> void:
 		act_one.restore(data["act_one"])
 	if metro_ride != null and data.has("metro"):
 		metro_ride.restore(data["metro"])
+	if promises != null and data.has("promises"):
+		promises.restore(data["promises"])
 
 	if park != null:
 		park.walk_taken = bool(data.get("walk_taken", false))

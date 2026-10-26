@@ -90,3 +90,5 @@ var act_one: ActOne
 var bench_station: BenchStation
 var metro_carriage: MetroCarriage
 var metro_ride: MetroRide
+var promises: Promises
+var ad_screen: AdScreen

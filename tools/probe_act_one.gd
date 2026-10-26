@@ -26,6 +26,8 @@ func _run() -> void:
 	var entropy := _act.entropy_data
 	var hc := ws.find_child("HeadCall", true, false) as HeadCall
 	check("Act I is wired", _act != null and _days != null and _runner != null)
+	# The corporation's offers have their own probe; keep this one about the people.
+	(ws.find_child("Promises", true, false) as Promises).pro = "refused"
 	Engine.time_scale = SPEED
 
 	section("day 2: the friend calls, the neighbour says hello")
@@ -178,6 +180,6 @@ func _settle(picks: Array) -> void:
 		if _runner.awaiting_choice and i < picks.size():
 			_runner.choices_ui.choose(int(picks[i]))
 			i += 1
-		if not _runner.is_running and _act._queue.is_empty():
+		if _runner.is_idle():
 			return
 		await process_frame
