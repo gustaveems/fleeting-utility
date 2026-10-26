@@ -58,6 +58,8 @@ const BILLBOARDS: Array = [
 	[1010.0, 1, 18.0, "FOCUS+ NOW IN YOUR DISTRICT", Color(0.2, 0.84, 0.9)],
 ]
 const CAMPAIGN_BILLBOARD := 2
+## Its lettering under the image (CampaignArt): the brand, small; the image sells.
+const CAMPAIGN_BRAND := "HERITAGE COLLECTION\nAuthentic origin."
 
 ## Where the train stops (the end of the line).
 const END_OF_LINE := 1108.0

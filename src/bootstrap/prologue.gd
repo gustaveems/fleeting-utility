@@ -792,12 +792,17 @@ func _build_billboards() -> void:
 		var scale := 1.8 if i == PrologueScript.CAMPAIGN_BILLBOARD else 1.3
 		quad.size = Vector2(26, 10) * scale
 		panel.mesh = quad
-		var glow := _mat(spec[4], 0.4)
-		glow.emission_enabled = true
-		glow.emission = spec[4]
-		glow.emission_energy_multiplier = 1.6
-		glow.cull_mode = BaseMaterial3D.CULL_DISABLED
-		panel.material_override = glow
+		var campaign := i == PrologueScript.CAMPAIGN_BILLBOARD
+		if campaign:
+			# The luxury campaign's image: the valley he'll dream of, sold as heritage.
+			panel.material_override = CampaignArt.material(quad.size.x / quad.size.y)
+		else:
+			var glow := _mat(spec[4], 0.4)
+			glow.emission_enabled = true
+			glow.emission = spec[4]
+			glow.emission_energy_multiplier = 1.6
+			glow.cull_mode = BaseMaterial3D.CULL_DISABLED
+			panel.material_override = glow
 		panel.rotation_degrees = Vector3(0, 180, 0)  # face along +Z → toward the track
 		board.add_child(panel)
 		var label := Label3D.new()
@@ -807,6 +812,12 @@ func _build_billboards() -> void:
 		label.modulate = Color.WHITE
 		label.outline_size = 12
 		label.position = Vector3(0, 0, -0.2)
+		if campaign:
+			# The brand sits low and small: the image sells.
+			label.text = PrologueScript.CAMPAIGN_BRAND
+			label.pixel_size = 0.0045 * scale
+			label.modulate = Color(1.0, 0.93, 0.78)
+			label.position = Vector3(0, -quad.size.y * 0.36, -0.2)
 		label.rotation_degrees = Vector3(0, 180, 0)
 		board.add_child(label)
 		if i == PrologueScript.CAMPAIGN_BILLBOARD:

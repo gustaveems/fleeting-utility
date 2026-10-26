@@ -84,6 +84,14 @@ func _run() -> void:
 	if DirAccess.dir_exists_absolute(CityKit.DIR):
 		check("the street has real facades (%d kit modules)" % kit_pieces, kit_pieces > 800)
 	check("gaze targets exist", p.gaze_target_position("campaign") != Vector3.ZERO)
+	var board := p.find_child("Billboard_%d" % PrologueScript.CAMPAIGN_BILLBOARD, true, false)
+	var wears := false
+	if board != null:
+		for c in board.get_children():
+			if c is MeshInstance3D and (c as MeshInstance3D).material_override is ShaderMaterial:
+				var shader := ((c as MeshInstance3D).material_override as ShaderMaterial).shader
+				wears = shader != null and shader.code == CampaignArt.SHADER
+	check("the campaign board shows the campaign (the valley, sold)", wears)
 	check("colossus head target exists", p.gaze_target_position("colossus") != Vector3.ZERO)
 
 	section("the full film")
