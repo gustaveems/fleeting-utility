@@ -40,7 +40,8 @@ func _ready() -> void:
 
 
 func _on_timer_updated(seconds: float) -> void:
-	_timer_label.text = "Fading memory: %ds" % int(seconds)
+	# A stopped countdown (the confession, the ambulance) has nothing left to show.
+	_timer_label.text = "Fading memory: %ds" % int(seconds) if seconds > 0.0 else ""
 
 
 func _on_transition_completed(now_in_dreamscape: bool) -> void:

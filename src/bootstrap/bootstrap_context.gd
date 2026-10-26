@@ -93,3 +93,5 @@ var metro_ride: MetroRide
 var promises: Promises
 var ad_screen: AdScreen
 var self_belief: SelfBelief
+var dream_memory: DreamMemory
+var dream_text: DreamText

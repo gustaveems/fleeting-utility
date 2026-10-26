@@ -74,7 +74,8 @@ func _run() -> void:
 		ev.action = "interact"
 		ev.pressed = true
 		Input.parse_input_event(ev)
-		await create_timer(5.0).timeout  # flash + fade + world swap
+		# The reach for the meaning (Ticket-20), then flash + fade + world swap.
+		await create_timer(DreamMemory.reach_seconds() + 5.0).timeout
 		check("D anchor returned", not _manager.in_dreamscape())
 
 

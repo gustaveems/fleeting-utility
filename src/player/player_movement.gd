@@ -188,6 +188,16 @@ func facing_direction() -> Vector3:
 	return Vector3(-sin(_heading_yaw), 0.0, -cos(_heading_yaw))
 
 
+## Turn him to face `direction` at once (scripted moments: the confession).
+func face(direction: Vector3) -> void:
+	if direction.length_squared() < 0.0001:
+		return
+	_heading_yaw = atan2(-direction.x, -direction.z)
+	velocity = Vector3.ZERO
+	if _body_pivot != null:
+		_body_pivot.rotation.y = _heading_yaw
+
+
 ## Horizontal speed in m/s (what a body animation should keep pace with).
 func planar_speed() -> float:
 	return Vector2(velocity.x, velocity.z).length()

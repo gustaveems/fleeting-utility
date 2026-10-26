@@ -47,6 +47,8 @@ signal forced_return_completed
 ## Emitted each second during the dreamscape with the auto-return timer remaining.
 signal timer_updated(seconds_remaining: float)
 
+## Emitted under the white, the moment the worlds swap (a scripted dream can move him).
+signal worlds_swapped(to_dreamscape: bool)
 ## Emitted when the player enters/leaves a memory anchor zone.
 signal anchor_proximity_changed(near: bool)
 
@@ -66,6 +68,8 @@ signal anchor_proximity_changed(near: bool)
 
 ## Ticket-06: the interaction lock gate. When locked, E-key returns are disabled.
 @export var interaction_controller: InteractionController
+## Ticket-20: "[E] Remember" reaches for the meaning, and loses it, before the flash home.
+@export var dream_memory: DreamMemory
 
 ## --- TIMING (spec: 1.5 out / 0.5 hold / 1.5 in) ----------------------------------------
 
@@ -92,6 +96,7 @@ var _in_dreamscape: bool = false
 var _transitioning: bool = false
 var _near_statue: bool = false
 var _near_anchor: MemoryAnchor = null
+var _reaching: bool = false
 var _apartment_extents: Vector2
 
 ## Last whole-second value pushed to timer_updated, so the HUD gets one signal per
@@ -168,15 +173,31 @@ func _process(_delta: float) -> void:
 	# Memory anchor return: standing near an anchor and pressing E. The anchor's own
 	# memory_triggered signal fires first so lore/audio listeners have the hook the
 	# guide flagged as decorative (4.5) — it was declared but never emitted.
-	if _in_dreamscape and _near_anchor != null:
+	if _in_dreamscape and _near_anchor != null and not _reaching:
 		if Input.is_action_just_pressed(InputActionData.ACTION_INTERACT):
 			if interaction_controller == null or interaction_controller.try_interact():
-				_near_anchor.memory_triggered.emit()
-				trigger_memory_flash()
-				return_to_workspace()
+				_remember(_near_anchor)
 
 
 ## ----- PUBLIC API -----------------------------------------------------------------------
+
+
+## An anchor's memory: he reaches for it (and loses it), then the flash home. The
+## countdown pauses while he reaches; a timeout can't cut the sentence off.
+func _remember(anchor: MemoryAnchor) -> void:
+	anchor.memory_triggered.emit()
+	if dream_memory != null:
+		_reaching = true
+		_lock_player(true)
+		_auto_return_timer.paused = true
+		await dream_memory.reach()
+		_auto_return_timer.paused = false
+		_lock_player(false)
+		_reaching = false
+	if not _in_dreamscape:
+		return
+	trigger_memory_flash()
+	return_to_workspace()
 
 
 ## Called by DreamscapeEnvironment.statue_proximity_changed via bootstrap wiring.
@@ -350,6 +371,7 @@ func _swap_worlds(to_dreamscape: bool) -> void:
 	if camera != null:
 		camera.far = 150.0 if to_dreamscape else 45.0
 		camera.set_dream_framing(to_dreamscape)
+	worlds_swapped.emit(to_dreamscape)
 
 
 ## Plays a quick white flash (0.3 s) for the memory-trigger effect.

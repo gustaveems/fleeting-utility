@@ -64,6 +64,7 @@ static var save_path: String = "user://save.json"
 @export var metro_ride: MetroRide
 @export var promises: Promises
 @export var self_belief: SelfBelief
+@export var dream_memory: DreamMemory
 
 ## item_id → scene, to rebuild the bench worktop.
 @export var item_scenes: Dictionary[StringName, PackedScene] = {}
@@ -202,6 +203,8 @@ func snapshot() -> Dictionary:
 		data["promises"] = promises.snapshot()
 	if self_belief != null:
 		data["self_belief"] = self_belief.snapshot()
+	if dream_memory != null:
+		data["dream_memory"] = dream_memory.snapshot()
 	return data
 
 
@@ -236,6 +239,8 @@ func apply(data: Dictionary) -> void:
 		promises.restore(data["promises"])
 	if self_belief != null and data.has("self_belief"):
 		self_belief.restore(data["self_belief"])
+	if dream_memory != null and data.has("dream_memory"):
+		dream_memory.restore(data["dream_memory"])
 
 	if park != null:
 		park.walk_taken = bool(data.get("walk_taken", false))
