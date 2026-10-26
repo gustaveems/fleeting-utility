@@ -41,6 +41,8 @@ const HOOKS: Array[Vector3] = [
 
 ## 0..1, rises with practice; never buys satisfaction.
 var skill: float = 0.0
+## The last canvas lent (lend_work), as PaintedWork parameters: the campaign copies it.
+var last_lent: Dictionary = {}
 ## 0..1 progress of the canvas on the easel.
 var progress: float = 0.0
 
@@ -114,6 +116,7 @@ func lend_work() -> bool:
 	if _works.is_empty():
 		return false
 	var w: PaintedWork = _works.pop_back()
+	last_lent = w.to_dict()
 	w.queue_free()
 	return true
 

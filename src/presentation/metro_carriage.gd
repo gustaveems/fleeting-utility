@@ -14,6 +14,9 @@ const PERSON_SCALE := 0.47
 
 ## The ride's own Environment (MetroRide swaps it in).
 var environment: Environment
+## 7d: the Heritage campaign's billboard, sliding past with the city (hidden until the
+## campaign wears his canvas: CampaignImage shows it).
+var campaign_board: CampaignBoard
 
 var _ads: Array[Label3D] = []
 var _skyline: Array[Node3D] = []
@@ -44,6 +47,10 @@ func _process(delta: float) -> void:
 		b.position.x += 9.0 * delta
 		if b.position.x > 30.0:
 			b.position.x -= 60.0
+	if campaign_board != null:
+		campaign_board.position.x += 9.0 * delta
+		if campaign_board.position.x > 8.0:
+			campaign_board.position.x -= 16.0
 
 
 ## 18a: the train stops at the Heritage Quarter, and outside the window is a boutique
@@ -56,6 +63,11 @@ func show_stone(on: bool) -> void:
 		_stone_window.visible = on
 	for b in _skyline:
 		b.visible = not on
+
+
+## Stopped at a station (the Heritage window): nothing slides past.
+func is_stopped() -> bool:
+	return _stopped
 
 
 ## Show the ads for barometer stage `stage` (ActOneScript.RIDE_ADS).
@@ -207,6 +219,12 @@ func _build() -> void:
 				var at := Vector3(rng.randf_range(-0.8, 0.8), rng.randf_range(0, h - 2), 1.26)
 				_box_in(b, at, Vector3(0.3, 0.2, 0.02), lit)
 		_skyline.append(b)
+	# On its own short loop, so it comes round every few seconds of the ride.
+	campaign_board = CampaignBoard.new()
+	campaign_board.name = "CampaignBoard"
+	campaign_board.board_scale = 2.6
+	campaign_board.position = Vector3(-7.0, 1.7, -HALF_WIDTH - 3.5)
+	add_child(campaign_board)
 
 
 func _wall_body(at: Vector3, size: Vector3) -> void:

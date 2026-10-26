@@ -22,6 +22,9 @@ extends Node3D
 ## After the betrayal (a renewed lease) the friend never calls again.
 ## Lives under the apartment WorldRoot (the crate is a room prop).
 
+## 7d: the canvas "sold" (the campaign picks it up from here).
+signal sold(day: int)
+
 const CALL_DELAY := 4.0
 const COSIGN_RATE := 1.15
 const DECAY_THRESHOLDS: Array[int] = [40, 70]
@@ -49,6 +52,8 @@ const PROP_SCALE := 0.47
 var calls_done: Dictionary = {}
 var favours: Dictionary = {}
 var lent_on_day: int = -1
+## The lent canvas's PaintedWork parameters (the campaign's copy is made from it).
+var lent_work: Dictionary = {}
 var sold_told: bool = false
 var neighbour_said: Dictionary = {}
 var friend_gone: bool = false
@@ -94,6 +99,7 @@ func snapshot() -> Dictionary:
 		"calls_done": calls_done.keys(),
 		"favours": favours,
 		"lent_on_day": lent_on_day,
+		"lent_work": lent_work,
 		"sold_told": sold_told,
 		"neighbour_said": neighbour_said.keys(),
 		"friend_gone": friend_gone,
@@ -109,6 +115,7 @@ func restore(data: Dictionary) -> void:
 		calls_done[int(d)] = true
 	favours = data.get("favours", {})
 	lent_on_day = int(data.get("lent_on_day", -1))
+	lent_work = data.get("lent_work", {})
 	sold_told = bool(data.get("sold_told", false))
 	neighbour_said.clear()
 	for k in data.get("neighbour_said", []):
@@ -138,6 +145,7 @@ func _on_morning(day: int) -> void:
 		if lent_on_day > 0 and not sold_told and day >= lent_on_day + 2:
 			sold_told = true
 			play(ActOneScript.SOLD_CALL, true)
+			sold.emit(day)
 	if day == 2 and not neighbour_said.has("hello"):
 		neighbour_said["hello"] = true
 		play(ActOneScript.NEIGHBOUR_HELLO)
@@ -199,6 +207,7 @@ func _on_choice(key: String, tag: String) -> void:
 		"lend":
 			if easel != null and easel.lend_work():
 				lent_on_day = day_cycle.day if day_cycle != null else 1
+				lent_work = easel.last_lent.duplicate()
 				_line(ActOneScript.LENT_LINE)
 
 

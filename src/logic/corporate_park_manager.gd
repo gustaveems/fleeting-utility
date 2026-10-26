@@ -141,6 +141,16 @@ func transition_to_apartment() -> void:
 	return_from_walk.emit()
 
 
+## Hold the walk's end while something is being said in the park (the campaign beat).
+func hold_return(on: bool) -> void:
+	if _auto_timer != null:
+		_auto_timer.paused = on
+
+
+func is_in_park() -> bool:
+	return _in_park
+
+
 ## ----- INTERNALS ----------------------------------------------------------------------
 
 

@@ -86,7 +86,9 @@ func start_ride() -> void:
 		while runner.is_running:
 			await get_tree().process_frame
 		runner.run(ActOneScript.STONE_RIDE if stone else ActOneScript.RIDE_THOUGHTS[stage()])
-		await runner.finished
+		# Ride until all talk is done (a beat may queue behind his thoughts: the campaign).
+		while not runner.is_idle():
+			await runner.finished
 	await get_tree().create_timer(LINGER, false).timeout
 	end_ride()
 
