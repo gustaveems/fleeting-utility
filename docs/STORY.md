@@ -189,9 +189,9 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).
 
-## Built vs. not yet (2026-10-19)
+## Built vs. not yet (2026-10-26)
 Canon since 2026-10-19: human colossi, the golden corporate colossus.
 
 | Built | Not yet |
 |---|---|
-| 5 (Day 1), 6 (painting, reclaim), 9 (compulsion), 10 (dreams, without the forgetting), 11, 13–22 | Prologue 1–4; 7 (status, friend); 8 (promises); 9's self-belief; 10's forgetting and confession; 12 as a story beat; the advert link in 2, 6, 15 and 18; colossus statues (the valley still has cylinder placeholders) and the golden colossus |
+| Prologue 1–4 (greybox film, the lease); Night Zero; 5; 6; 7 (the friend 7a, the neighbour 7b, metro or park 7c, the painting 7d); 8 (Focus+ Pro, the wall screen); 9 (compulsion, self-belief); 10 (dreams, stone colossi); 11; 12 (the enclosure, the front); 13–22; 16a; 18a | 7's wider status loop; 7d's second half (his canvas becomes the campaign image); 8's Corporate Care (no ambulance if refused); 10's forgetting and confession; the advert link in 2, 6, 15 and 18; the golden colossus outside the prologue; prologue phases B–D (layout, look, sound) |

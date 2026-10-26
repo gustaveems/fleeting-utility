@@ -36,6 +36,8 @@ const HOOKS: Array[Vector3] = [
 
 @export var state_data: PlayerStateData
 @export var day_cycle: DayCycle
+## Off the drug, his belief in himself sets the pace, the verdict, and whether he paints.
+@export var self_belief: SelfBelief
 
 ## 0..1, rises with practice; never buys satisfaction.
 var skill: float = 0.0
@@ -77,6 +79,8 @@ func _process(delta: float) -> void:
 func can_interact() -> bool:
 	if interaction_controller != null and interaction_controller.is_locked:
 		return false
+	if self_belief != null and not self_belief.will_paint():
+		return false
 	return _works.size() < HOOKS.size()
 
 
@@ -85,12 +89,14 @@ func current_prompt() -> String:
 		return blocked_prompt()
 	if progress > 0.0:
 		return "Painting… %d%%" % int(progress * 100.0)
-	return prompt_text
+	return self_belief.paint_prompt() if self_belief != null else prompt_text
 
 
 func blocked_prompt() -> String:
 	if _works.size() >= HOOKS.size():
 		return FULL_TEXT
+	if self_belief != null and not self_belief.will_paint():
+		return SelfBeliefScript.REFUSE
 	return ""  # locked by a compulsion: the compulsion's own prompt shows
 
 
@@ -141,13 +147,14 @@ func restore(data: Dictionary) -> void:
 
 
 func _paint_seconds() -> float:
+	var belief := self_belief.paint_time_scale() if self_belief != null else 1.0
 	if state_data == null:
 		return BASE_PAINT_SECONDS
 	if state_data.is_crashed():
-		return BASE_PAINT_SECONDS * 2.0
+		return BASE_PAINT_SECONDS * 2.0 * belief
 	if state_data.is_high_focus():
 		return BASE_PAINT_SECONDS * 0.5
-	return BASE_PAINT_SECONDS
+	return BASE_PAINT_SECONDS * belief
 
 
 func _state_params() -> Dictionary:
@@ -177,6 +184,8 @@ func _update_wet() -> void:
 func _finish() -> void:
 	var p := _state_params()
 	var quality: float = skill * 0.6 + float(p["focus"]) * 0.4 - float(p["crash"]) * 0.3
+	if self_belief != null:
+		quality -= self_belief.verdict_penalty()
 	var work := _hang()
 	work.seed_value = _wet.seed_value
 	work.vividness = p["vividness"]

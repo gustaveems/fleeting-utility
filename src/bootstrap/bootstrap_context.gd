@@ -92,3 +92,4 @@ var metro_carriage: MetroCarriage
 var metro_ride: MetroRide
 var promises: Promises
 var ad_screen: AdScreen
+var self_belief: SelfBelief
