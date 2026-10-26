@@ -21,7 +21,7 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[2]
 DL = ROOT / "assets" / "_downloads"
 TARGET = "assets/third_party"
-OUT = ROOT / "manifest.json"
+OUT = Path(__file__).resolve().parent / "manifest.json"
 SRC = ROOT / "src"
 
 TEX_EXT = {".png", ".jpg", ".jpeg", ".hdr", ".exr", ".tga", ".webp"}

@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DL = ROOT / "assets" / "_downloads"
-MANIFEST = ROOT / "manifest.json"
+MANIFEST = Path(__file__).resolve().parent / "manifest.json"
 
 
 def find_godot(explicit):
@@ -39,6 +39,9 @@ def find_godot(explicit):
     hits = sorted(glob.glob(pattern))
     if hits:
         return hits[-1]
+    mac = "/Applications/Godot.app/Contents/MacOS/Godot"
+    if os.path.exists(mac):
+        return mac
     sys.exit("Godot not found: pass --godot or set GODOT")
 
 

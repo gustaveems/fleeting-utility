@@ -20,7 +20,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PLAN = ROOT / "asset_downloads.json"
+PLAN = Path(__file__).resolve().parent / "asset_downloads.json"
 DL = ROOT / "assets" / "_downloads"
 GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list"}
 UA = "Mozilla/5.0 (fleeting-utility asset setup)"
