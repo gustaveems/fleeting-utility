@@ -14,5 +14,8 @@ __pycache__/
 # OS
 .DS_Store
 .venv/
-assets/third_party/
+# Third-party packs: rebuilt by tools/assets/ (free) or carried as a zip (Fab).
+assets/third_party/*
+# Except the easel: CC0, 27 KB, and not downloadable by script (Poly Pizza).
+!assets/third_party/polypizza/
 assets/_downloads/
