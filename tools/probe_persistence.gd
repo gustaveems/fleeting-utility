@@ -31,6 +31,9 @@ func _test_ransacked_round_trip() -> void:
 	section("ransacked checkpoint round-trip")
 	var sm := node("PlayerStateMachine") as PlayerStateMachine
 	sm.entropy_data.entropy = 76.0
+	# As in play: the room crosses the thresholds before the checkpoint, so the neighbour's
+	# decay remarks are in the save (otherwise the first tick after the reload adds them).
+	sm.entropy_data.entropy_changed.emit(76.0)
 	(node("CorporateParkManager") as CorporateParkManager).transition_to_park()
 	(node("CorporateParkManager") as CorporateParkManager).transition_to_apartment()
 	var shoes := node("Apartment/LuxuryShoes") as LuxuryShoes
