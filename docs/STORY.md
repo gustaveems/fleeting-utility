@@ -183,8 +183,8 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
   veils.
 - The brand: one conglomerate behind the billboards, the campaign, the drug and the
   ambulance? (Proposed: yes.)
-- If he refuses Corporate Care (not built yet): no ambulance comes; he wakes on his own,
-  alive, with no clinic, and the end card follows (decided 2026-10-26).
+- If he refuses Corporate Care: no ambulance comes; he wakes on his own, alive, with no
+  clinic, and the end card follows (decided 2026-10-26; built in Ticket-23).
 - What "walk away" means: leaving, giving up or dying (currently ambiguous on purpose).
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).
@@ -194,4 +194,4 @@ Canon since 2026-10-19: human colossi, the golden corporate colossus.
 
 | Built | Not yet |
 |---|---|
-| Prologue 1–4 (greybox film, the lease, the campaign advert on its billboard); Night Zero; 5; 6; 7 (the friend 7a, the neighbour 7b, metro or park 7c, the painting 7d, the campaign wears his canvas); 8 (Focus+ Pro, the wall screen); 9 (compulsion, self-belief); 10 (dreams, stone colossi, forgetting and confession); 11; 12 (the enclosure, the front); 13–22; 16a; 18a | 7's wider status loop; 8's Corporate Care (no ambulance if refused); the advert link in 6, 15 and 18; the golden colossus outside the prologue; prologue phases B–D (layout, look, sound) |
+| Prologue 1–4 (greybox film, the lease, the campaign advert on its billboard); Night Zero; 5; 6; 7 (the friend 7a, the neighbour 7b, metro or park 7c, the painting 7d, the campaign wears his canvas); 8 (Focus+ Pro, the wall screen, Corporate Care); 9 (compulsion, self-belief); 10 (dreams, stone colossi, forgetting and confession); 11; 12 (the enclosure, the front); 13–22; 16a; 18a | 7's wider status loop; the advert link in 6, 15 and 18; the golden colossus outside the prologue; prologue phases B–D (layout, look, sound) |

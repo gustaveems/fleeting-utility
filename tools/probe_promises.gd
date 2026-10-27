@@ -30,6 +30,7 @@ func _run() -> void:
 	if _p == null or _screen == null:
 		return
 	var data := _p.state_data
+	_p.care = "enrolled"  # Corporate Care has its own probe; keep its offer out of here
 	var base := data.chemical_depletion_rate
 	check("the wall screen sells the brand", PromisesScript.SCREEN_IDLE.has(_screen.headline))
 	check(

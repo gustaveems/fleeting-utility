@@ -21,6 +21,12 @@ func wire(ctx: BootstrapContext) -> void:
 	p.state_data = ctx.state_data
 	p.entropy_data = ctx.entropy_data
 	p.hud = ctx.core_hud
+	p.state_machine = ctx.state_machine
+	p.dreamscape_manager = ctx.dreamscape_manager
+	p.ransacked = ctx.ransacked
+	ctx.ambulance.care = p
+	ctx.endgame.care = p
+	ctx.end_card.care = p
 	ctx.ad_screen.promises = p
 	ctx.ad_screen.position = SCREEN_POSITION
 	ctx.ad_screen.rotation_degrees.y = 90.0

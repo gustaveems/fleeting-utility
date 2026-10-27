@@ -13,6 +13,8 @@ const EPILOGUE := "He let the lease lapse. Someone else moved in by Monday."
 @export var game_flow: GameFlow
 @export var lease_renewal: LeaseRenewal
 @export var entropy_data: WorkspaceEntropyData
+## Ticket-23: refused Care, he woke alone; the card says so.
+@export var care: Promises
 
 ## Seconds after the reset before the card: lets the flavor line land first.
 @export var show_delay: float = 4.0
@@ -47,6 +49,8 @@ func open() -> void:
 	is_open = true
 	var cycle := game_flow.loops_completed if game_flow != null else 1
 	_subtitle.text = "Cycle %d complete. The room remembers." % cycle
+	if care != null and care.care_refused():
+		_subtitle.text = PromisesScript.ALONE_FLAVOR + "\n" + _subtitle.text
 	_buttons.visible = true
 	_epilogue.visible = false
 	_set_visible(true)

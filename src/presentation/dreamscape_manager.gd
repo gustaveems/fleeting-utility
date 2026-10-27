@@ -47,6 +47,11 @@ signal forced_return_completed
 ## Emitted each second during the dreamscape with the auto-return timer remaining.
 signal timer_updated(seconds_remaining: float)
 
+## The ending without Care (Ticket-23): no one came. The slow fade to black begins…
+signal quiet_return_started
+## …and he has woken on his own, in the room. Like forced_return_completed, it precedes
+## transition_completed(false).
+signal quiet_return_completed
 ## Emitted under the white, the moment the worlds swap (a scripted dream can move him).
 signal worlds_swapped(to_dreamscape: bool)
 ## Emitted when the player enters/leaves a memory anchor zone.
@@ -274,6 +279,33 @@ func force_return_to_workspace() -> void:
 	_lock_player(false)
 	_transitioning = false
 	forced_return_completed.emit()
+	transition_completed.emit(false)
+
+
+## No one comes (Ticket-23): he fades out at peace. A slow fade to BLACK, a long hold,
+## the room again, slowly. Not a rescue: he simply wakes.
+func quiet_return_to_workspace(
+	fade_out: float = 5.0, hold: float = 4.0, fade_in: float = 3.0
+) -> void:
+	if _transitioning or not _in_dreamscape:
+		return
+	_transitioning = true
+	is_forced_return = false
+	_lock_player(true)
+	_auto_return_timer.stop()
+	quiet_return_started.emit()
+	_fade_rect.color = Color.BLACK
+	await _fade_to(1.0, fade_out)
+	_swap_worlds(false)
+	_in_dreamscape = false
+	if state_machine != null:
+		state_machine.on_dreamscape_returned()
+	await get_tree().create_timer(hold, false).timeout
+	await _fade_to(0.0, fade_in)
+	_fade_rect.color = Color.WHITE
+	_lock_player(false)
+	_transitioning = false
+	quiet_return_completed.emit()
 	transition_completed.emit(false)
 
 

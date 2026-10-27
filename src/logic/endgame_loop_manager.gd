@@ -48,6 +48,9 @@ const CLIMAX_LOCK := &"climax"
 
 ## --- REFERENCES ----------------------------------------------------------------------
 
+## Ticket-23: Care decides who comes. Its consent line shows in the clinic.
+@export var care: Promises
+
 @export var dreamscape_manager: DreamscapeManager
 @export var state_machine: PlayerStateMachine
 @export var player: PlayerMovement
@@ -89,11 +92,14 @@ var _timer: Timer
 var _message_layer: CanvasLayer
 var _message_label: Label
 var _loop_armed: bool = false
+var _flavor: String = FLAVOR_TEXT
 
 
 func _ready() -> void:
 	if dreamscape_manager != null:
 		dreamscape_manager.forced_return_completed.connect(_on_forced_return)
+		dreamscape_manager.quiet_return_started.connect(func(): _show_message(PromisesScript.ALONE))
+		dreamscape_manager.quiet_return_completed.connect(_on_woke_alone)
 
 
 func _on_forced_return() -> void:
@@ -102,7 +108,26 @@ func _on_forced_return() -> void:
 	_loop_armed = true
 
 	_apply_post_climax_state()
-	_show_message("SYSTEM RECALIBRATING...")
+	var message := "SYSTEM RECALIBRATING..."
+	if care != null and care.is_care_enrolled():
+		message += "\n" + PromisesScript.CARE_CONSENT % care.care_day
+	_show_message(message)
+	_flavor = FLAVOR_TEXT
+	_start_reset_timer()
+
+
+## Ticket-23: he refused Care. No clinic, no medics: he woke on the floor, alone, lucid,
+## unmedicated. The cycle's scars still land.
+func _on_woke_alone() -> void:
+	if _loop_armed:
+		return
+	_loop_armed = true
+	_apply_post_climax_state(false)
+	_flavor = PromisesScript.ALONE_FLAVOR
+	_start_reset_timer()
+
+
+func _start_reset_timer() -> void:
 	_timer = Timer.new()
 	_timer.name = "EndgameTimer"
 	_timer.one_shot = true
@@ -147,11 +172,11 @@ func restore_scarred() -> void:
 		camera.withdrawal_shake = post_climax_shake
 
 
-func _apply_post_climax_state() -> void:
+func _apply_post_climax_state(clinical: bool = true) -> void:
 	# Latch first: the meter pin below satisfies the collapse condition.
 	if state_machine != null:
 		state_machine.latch_climax()
-	if atmosphere_controller != null:
+	if atmosphere_controller != null and clinical:
 		atmosphere_controller.set_clinical_mode(true)
 	if interaction_controller != null:
 		interaction_controller.lock(CLIMAX_LOCK)
@@ -200,7 +225,7 @@ func _execute_scarred_reset() -> void:
 
 	# 7. Dismiss the recalibration message and broadcast the flavor text.
 	_hide_message()
-	loop_reset.emit(FLAVOR_TEXT)
+	loop_reset.emit(_flavor)
 
 
 ## ----- MESSAGE OVERLAY ---------------------------------------------------------------

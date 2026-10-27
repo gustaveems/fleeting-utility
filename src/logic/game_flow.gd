@@ -16,6 +16,7 @@ extends Node
 ##   RANSACKED ⇄ DREAMSCAPE            forced detox: calm dreams in the ruined room
 ##   RANSACKED → HESITATION → RANSACKED   at the door; dual visions arm the ambulance
 ##   RANSACKED → DREAMSCAPE → INTERCEPTION → CLINICAL → SCARRED   the climax and reset
+##   RANSACKED → DREAMSCAPE → ALONE → SCARRED     he refused Care: no one came
 
 signal phase_changed(from: Phase, to: Phase)
 
@@ -28,6 +29,8 @@ enum Phase {
 	PARK_WALK,
 	RANSACKED,
 	HESITATION,
+	## Ticket-23: he refused Care; no one came, and he woke on his own (then SCARRED).
+	ALONE,
 }
 
 @export var dreamscape_manager: DreamscapeManager
@@ -51,6 +54,7 @@ func _ready() -> void:
 	if dreamscape_manager != null:
 		dreamscape_manager.transition_completed.connect(_on_transition_completed)
 		dreamscape_manager.forced_return_completed.connect(_enter_phase.bind(Phase.CLINICAL))
+		dreamscape_manager.quiet_return_completed.connect(_enter_phase.bind(Phase.ALONE))
 	if ambulance != null:
 		ambulance.interception_started.connect(_enter_phase.bind(Phase.INTERCEPTION))
 	if endgame != null:

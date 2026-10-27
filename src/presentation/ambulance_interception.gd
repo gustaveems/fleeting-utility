@@ -43,6 +43,9 @@ signal defibrillation_triggered
 ## Emitted the moment the interception begins (sirens/lights on).
 signal interception_started
 
+## Ticket-23: he never enrolled in Corporate Care. The moment comes and no one does.
+signal nobody_came
+
 ## --- DEPENDENCIES ----------------------------------------------------------------------
 
 @export var dreamscape_manager: DreamscapeManager
@@ -50,6 +53,8 @@ signal interception_started
 
 ## The valley root, scanned for MemoryAnchor nodes to disable during the sequence.
 @export var valley_root: DreamscapeEnvironment
+## Ticket-23: the ambulance is his Care plan. Refused, it never comes (null: always).
+@export var care: Promises
 
 ## --- TIMING ----------------------------------------------------------------------------
 
@@ -122,6 +127,9 @@ func initiate_interception() -> void:
 		return
 	if _escalating:
 		return
+	if care != null and care.care_refused():
+		_nobody_comes()
+		return
 	_escalating = true
 	armed = false
 	interception_started.emit()
@@ -143,6 +151,16 @@ func initiate_interception() -> void:
 	if dreamscape_manager != null:
 		dreamscape_manager.force_return_to_workspace()
 	_escalating = false
+
+
+## No siren, no strobe. The exits close and he fades out, at peace; then he wakes alone.
+func _nobody_comes() -> void:
+	armed = false
+	nobody_came.emit()
+	dreamscape_manager.cancel_auto_return()
+	_disable_anchors()
+	dreamscape_manager.clear_anchor_proximity()
+	dreamscape_manager.quiet_return_to_workspace()
 
 
 func _disable_anchors() -> void:

@@ -27,7 +27,9 @@ func _run() -> void:
 	var hc := ws.find_child("HeadCall", true, false) as HeadCall
 	check("Act I is wired", _act != null and _days != null and _runner != null)
 	# The corporation's offers have their own probe; keep this one about the people.
-	(ws.find_child("Promises", true, false) as Promises).pro = "refused"
+	var promises := ws.find_child("Promises", true, false) as Promises
+	promises.pro = "refused"
+	promises.care = "enrolled"  # a collapse at 10x would otherwise bring the Care offer
 	Engine.time_scale = SPEED
 
 	section("day 2: the friend calls, the neighbour says hello")
