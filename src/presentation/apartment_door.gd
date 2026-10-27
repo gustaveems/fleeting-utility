@@ -28,6 +28,8 @@ const BETRAYAL_THRESHOLD := 70.0
 @export var corporate_park_manager: CorporateParkManager
 ## Act I, 7c: the metro across the city, any day (once a day), and the menu to choose.
 @export var metro_ride: MetroRide
+## Ticket-24: on an invitation night the door goes up to the crowd's rooftop.
+@export var standing: Standing
 @export var runner: DialogueRunner
 
 ## --- INTERNAL STATE ------------------------------------------------------------------
@@ -44,14 +46,16 @@ func _ready() -> void:
 func can_interact() -> bool:
 	if _betrayed():
 		return false
-	return _park_open() or _metro_open()
+	return _park_open() or _metro_open() or _event_open()
 
 
 ## Below the threshold the door is the metro; at it, the park (or the metro).
 func current_prompt() -> String:
 	if not can_interact():
 		return blocked_prompt()
-	return prompt_text if _park_open() else ActOneScript.DOOR_METRO_PROMPT
+	if _park_open():
+		return prompt_text
+	return StandingScript.DOOR_PROMPT if _event_open() else ActOneScript.DOOR_METRO_PROMPT
 
 
 func blocked_prompt() -> String:
@@ -69,6 +73,9 @@ func _on_interacted() -> void:
 	if _park_open():
 		options.append(ActOneScript.DOOR_PARK)
 		actions.append("park")
+	if _event_open():
+		options.append(str(StandingScript.EVENTS[standing.invitation()][2]))
+		actions.append("event")
 	if _metro_open():
 		options.append(ActOneScript.DOOR_METRO)
 		actions.append("metro")
@@ -89,6 +96,8 @@ func _go(action: String) -> void:
 				corporate_park_manager.transition_to_park()
 		"metro":
 			metro_ride.start_ride()
+		"event":
+			standing.go_out()
 
 
 func _betrayed() -> bool:
@@ -97,6 +106,10 @@ func _betrayed() -> bool:
 
 func _park_open() -> bool:
 	return entropy_data != null and entropy_data.entropy >= BETRAYAL_THRESHOLD and not _betrayed()
+
+
+func _event_open() -> bool:
+	return standing != null and standing.invitation() >= 0
 
 
 func _metro_open() -> bool:

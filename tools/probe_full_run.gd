@@ -267,10 +267,14 @@ func _talk(runner: DialogueRunner) -> void:
 func _ride(runner: DialogueRunner) -> void:
 	var metro := _n("MetroRide") as MetroRide
 	var door := _n("ApartmentDoor") as ApartmentDoor
-	var park_open := door._park_open()
 	door._on_interacted()
 	await process_frame
-	runner.choices_ui.choose(1 if park_open else 0)  # the metro
+	# The metro, by its label (the menu also holds the park and tonight's invitation).
+	var labels: Array = runner.choices_ui._labels
+	for i in labels.size():
+		if (labels[i] as Label).text.contains(ActOneScript.DOOR_METRO):
+			runner.choices_ui.choose(i)
+			break
 	await wait(0.3)
 	Engine.time_scale = FAST
 	for i in 3000:

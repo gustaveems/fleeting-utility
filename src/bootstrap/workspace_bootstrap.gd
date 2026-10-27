@@ -38,6 +38,7 @@ const MODULES: Array[GDScript] = [
 	preload("res://src/bootstrap/modules/night_zero_module.gd"),
 	preload("res://src/bootstrap/modules/act_one_module.gd"),
 	preload("res://src/bootstrap/modules/promises_module.gd"),
+	preload("res://src/bootstrap/modules/standing_module.gd"),
 	preload("res://src/bootstrap/modules/self_belief_module.gd"),
 	preload("res://src/bootstrap/modules/dream_memory_module.gd"),
 	preload("res://src/bootstrap/modules/campaign_module.gd"),

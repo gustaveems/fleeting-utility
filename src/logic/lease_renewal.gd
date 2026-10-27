@@ -34,6 +34,7 @@ const MAX_START_ENTROPY := 65.0  # below the door's 70: the walk must still be e
 @export var self_belief: SelfBelief
 @export var dream_memory: DreamMemory
 @export var campaign: CampaignImage
+@export var standing: Standing
 
 
 func renew() -> void:
@@ -72,6 +73,8 @@ func renew() -> void:
 		dream_memory.reset_cycle()
 	if campaign != null:
 		campaign.reset_cycle()
+	if standing != null:
+		standing.reset_cycle()
 	if game_flow != null:
 		game_flow.restore(GameFlow.Phase.WORKSPACE, loops)
 

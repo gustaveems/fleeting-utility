@@ -96,3 +96,5 @@ var self_belief: SelfBelief
 var dream_memory: DreamMemory
 var dream_text: DreamText
 var campaign: CampaignImage
+var standing: Standing
+var lounge: RooftopLounge

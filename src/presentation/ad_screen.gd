@@ -13,6 +13,8 @@ const GOLD := Color(0.95, 0.75, 0.3)
 const GLASS := Color(0.05, 0.06, 0.08)
 
 @export var promises: Promises
+## Ticket-24: his LeaseLink standing, in the corner, always sinking.
+@export var standing: Standing
 
 var headline: String = ""
 var fine_print: String = ""
@@ -21,6 +23,7 @@ var _glass: StandardMaterial3D
 var _title: Label3D
 var _small: Label3D
 var _glow: OmniLight3D
+var _standing_label: Label3D
 var _idle_index: int = 0
 var _idle_t: float = 0.0
 var _t: float = 0.0
@@ -30,6 +33,8 @@ func _ready() -> void:
 	_build()
 	if promises != null:
 		promises.changed.connect(refresh)
+	if standing != null:
+		standing.changed.connect(func(_p: float): refresh())
 	refresh()
 
 
@@ -49,6 +54,8 @@ func refresh() -> void:
 		fine_print = ""
 	_title.text = headline
 	_small.text = fine_print
+	if standing != null:
+		_standing_label.text = StandingScript.SCREEN % int(round(standing.standing))
 
 
 func _process(delta: float) -> void:
@@ -109,6 +116,15 @@ func _build() -> void:
 	_small.modulate = GOLD.darkened(0.35)
 	_small.position = Vector3(0, -SIZE.y * 0.38, 0.018)
 	add_child(_small)
+	_standing_label = Label3D.new()
+	_standing_label.name = "StandingLine"
+	_standing_label.font_size = 32
+	_standing_label.pixel_size = 0.0014
+	_standing_label.outline_size = 0
+	_standing_label.modulate = Color(0.2, 0.84, 0.9)
+	_standing_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_standing_label.position = Vector3(SIZE.x * 0.46, SIZE.y * 0.4, 0.018)
+	add_child(_standing_label)
 	_glow = OmniLight3D.new()
 	_glow.light_color = GOLD
 	_glow.omni_range = 1.4
