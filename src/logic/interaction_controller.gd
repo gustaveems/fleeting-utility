@@ -38,6 +38,13 @@ func unlock(lock_owner: StringName) -> void:
 	_locks.release(lock_owner)
 
 
+## Locked by anyone but `lock_owner` (a holder still acting under its own lock).
+func is_locked_except(lock_owner: StringName) -> bool:
+	var others := _locks.owners()
+	others.erase(lock_owner)
+	return not others.is_empty()
+
+
 func try_interact() -> bool:
 	if is_locked:
 		interaction_locked.emit()

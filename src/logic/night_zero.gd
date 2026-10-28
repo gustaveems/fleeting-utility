@@ -13,6 +13,9 @@ signal box_placed(count: int)
 signal finished
 
 const LOCK := &"night_zero"
+## Held while a box is in his arms: the bench and the door don't answer E (the drop zone
+## overlaps the bench's reach), only the put-down does.
+const CARRY_LOCK := &"carrying_box"
 const BOX_COUNT := 3
 ## A new game's room is freshly leased: cleaner than the demo seed a direct boot uses
 ## (38), so the betrayal threshold (70) lands around day 6 with the days' pacing.
@@ -102,6 +105,8 @@ func drop_carried() -> void:
 	var box := _carrying
 	_carrying = null
 	_set_carry_pose(false)
+	if interaction != null:
+		interaction.unlock(CARRY_LOCK)
 	var at := to_local(player.global_position) + _facing() * 0.45
 	at.y = 0.0
 	box.position = at
@@ -126,7 +131,7 @@ func _process(_delta: float) -> void:
 	_carrying.position = to_local(player.global_position) + _facing() * 0.22 + Vector3(0, 0.38, 0)
 	var put_down := Input.is_action_just_pressed(InputActionData.ACTION_INTERACT)
 	if put_down and Engine.get_process_frames() != _picked_frame:
-		if interaction == null or not interaction.is_locked:
+		if interaction == null or not interaction.is_locked_except(CARRY_LOCK):
 			drop_carried()
 
 
@@ -134,6 +139,8 @@ func _on_picked_up(box: MovingBox) -> void:
 	_carrying = box
 	_picked_frame = Engine.get_process_frames()
 	box.carried = true
+	if interaction != null:
+		interaction.lock(CARRY_LOCK)
 	for b in boxes:
 		b.hands_free = false
 	_set_carry_pose(true)

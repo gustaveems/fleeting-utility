@@ -38,10 +38,25 @@ func _run() -> void:
 	section("carrying the boxes")
 	var zone := NightZero.DROP_ZONE
 	var target := Vector3(zone.get_center().x + 0.3, 0, zone.get_center().y)
+	var bench := ws.find_child("BenchStation", true, false) as BenchStation
+	var cooked := [0]
+	bench.interacted.connect(func(): cooked[0] += 1)
 	for box in nz.boxes:
 		check("he picks up a box", box.try_interact() and box.carried)
 		check("one box at a time", not nz.boxes.any(func(b): return b != box and b.can_interact()))
 		await wait(0.1)
+		if box == nz.boxes[0]:
+			# The drop zone overlaps the bench's reach: E there must put the box down,
+			# not cook a dose (layout review 2026-10-28).
+			player.global_position = nz.to_global(Vector3(-3.4, 0, -0.6))
+			await wait(0.3)
+			await tap_action(InputActionData.ACTION_INTERACT)
+			await wait(0.2)
+			check(
+				"by the bench, E puts the box down (not a dose: %d)" % cooked[0],
+				not box.carried and cooked[0] == 0
+			)
+			continue
 		player.global_position = nz.to_global(target)
 		nz.drop_carried()
 		await wait(0.1)

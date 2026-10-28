@@ -74,7 +74,7 @@ func _init_spawn_positions() -> void:
 		Vector3(-1.5, 0.05, 3.0),
 		Vector3(-1.0, 0.05, -1.0),
 		Vector3(-0.5, 0.05, 1.5),
-		Vector3(0.0, 0.05, -3.0),
+		Vector3(0.9, 0.05, -2.9),  # off the threshold (the neighbour stands there)
 		Vector3(0.5, 0.05, 2.0),
 		Vector3(1.0, 0.05, -2.0),
 		Vector3(1.5, 0.05, 0.5),
@@ -82,7 +82,7 @@ func _init_spawn_positions() -> void:
 		Vector3(2.5, 0.05, 3.0),
 		Vector3(3.0, 0.05, -0.5),
 		Vector3(3.5, 0.05, 1.0),
-		Vector3(-4.0, 0.05, 0.0),
+		Vector3(-4.0, 0.05, 1.6),  # clear of the boxes' drop zone (Night Zero)
 		Vector3(-3.0, 0.05, -1.5),
 		Vector3(-2.5, 0.05, 2.0),
 		Vector3(-1.0, 0.05, -3.0),

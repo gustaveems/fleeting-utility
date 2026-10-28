@@ -86,7 +86,9 @@ signal anchor_proximity_changed(near: bool)
 @export var auto_return_seconds: float = 30.0
 
 ## The valley is open country: widen the movement clamp for the trip.
-@export var dreamscape_room_extents: Vector2 = Vector2(28.0, 28.0)
+## Wide enough to reach every colossus's feet (they stand up to 34 m out, their return
+## zones 3.5 m round; layout review 2026-10-28: at 28 two of the four were out of reach).
+@export var dreamscape_room_extents: Vector2 = Vector2(38.0, 38.0)
 
 ## --- INTERNAL STATE --------------------------------------------------------------------
 
