@@ -143,7 +143,16 @@ mechanics he will live under: decay, productivity review, works reclaimed, sanct
 focus, renewal at discretion, stay on your side of the line. It is gated by a static
 `pending` flag, so Continue and tests never see it. Verified by `tools/probe_lease.gd`.
 
-## Phase B proposal: the city layout (2026-10-28, for Alain's markup)
+## Phase B: the city layout (approved and built 2026-10-28)
+Built by `PrologueCity` (src/presentation), from the numbers in `PrologueCityPlan`
+(src/data), replacing Phase A's random towers. Every tall thing keeps off the shots'
+sightlines and the billboards, and now also off the lines from each external camera to the
+train while its shot runs. The aerial (shot 4) follows the train (`look: "train"`): before,
+the canyon's south wall hid it. The massing is one MultiMesh, the neon another, and the
+town's shopfronts are kit facades. Against Phase A: the descent runs 50 → 75 fps, the
+avenue 29 → 53 fps, the town 154 → 111 fps (`tools/fps_prologue.gd`).
+
+### The plan as proposed
 Plan: `docs/references/city_plan_v1.png`. The plan is drawn on the real track; the yellow
 circles are shots 1–9. It replaces the Phase A greybox (random box towers) with authored
 districts. Only what the cameras see gets built.

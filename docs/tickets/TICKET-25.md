@@ -34,15 +34,12 @@ interactable were then checked against where he can walk.
   (`MetroRide.START`). `probe_layout` checks the bodies, that they sleep, and that he never
   arrives inside one.
 
-## Observations (for Alain; not changed)
-1. **The valley's colossi barely read from where he wakes.** They stand 30–37 m out in
-   heavy mist, behind birches. To show them clearly: thin the fog toward them, bring
-   them in to about 22 m, or clear one sightline from the spawn to a colossus. As it is,
-   the dream's subject is only found by walking.
+## Observations (for Alain)
+1. ~~The valley's colossi barely read from where he wakes.~~ Done (above).
 2. **The apartment's things all hug the walls:** bench NW, wall screen and works W, door
    N, easel E, cot SE. The middle is empty floor. That's good for moving, but the room
    reads sparse until the clutter grows.
-3. **No one in the carriage or on the rooftop has a body:** he walks through commuters
+3. ~~No one in the carriage or on the rooftop has a body.~~ Done (above). Was: he walks through commuters
    and guests. Small colliders would make the crowds press, which suits the
    *"cramped and busy"* brief.
 4. **The park is a wide empty plaza:** a 4×4 grid of tree beds, the walls 5 m past the

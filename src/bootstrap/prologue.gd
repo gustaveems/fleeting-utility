@@ -657,7 +657,8 @@ func _build_track() -> void:
 		d += 6.0
 
 
-## The town he leaves: a dust plain, a dead mall, low houses, one fenced stone.
+## The town he leaves: the dust plain, the station, one fenced stone (its streets, the dead
+## mall, the depot and the leased fields are PrologueCity's).
 func _build_town() -> void:
 	var dust := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
@@ -666,21 +667,8 @@ func _build_town() -> void:
 	dust.material_override = _mat(Color(0.48, 0.34, 0.22), 1.0)
 	dust.position = Vector3(-520, 0.05, 0)
 	add_child(dust)
-	var concrete := _mat(Color(0.55, 0.47, 0.38), 0.9)
-	_box(Vector3(-600, 4, -40), Vector3(90, 8, 30), concrete)  # the dead mall
-	# The station platform.
+	# The station platform (the town's streets, mall, depot and fields: PrologueCity).
 	_box(Vector3(-610, 1.5, 6), Vector3(26, 3, 8), _mat(Color(0.4, 0.37, 0.34), 0.9))
-	# Low houses and shuttered lots, densest just beside the line (what the window sees).
-	for i in 60:
-		var x := _rng.randf_range(-700, -340)
-		var z := _rng.randf_range(10, 70) if i % 3 != 0 else _rng.randf_range(-150, 150)
-		if absf(z) < 14.0:
-			continue
-		_box(
-			Vector3(x, 2.5, z),
-			Vector3(_rng.randf_range(6, 12), 5, _rng.randf_range(6, 10)),
-			concrete
-		)
 	# The fenced stone, a corporate plate bolted to it. Nobody looks.
 	var stone_at := Vector3(-585, 0, 22)
 	_box(stone_at + Vector3(0, 1.8, 0), Vector3(1.2, 3.6, 0.8), _mat(Color(0.5, 0.49, 0.46), 1.0))
@@ -709,69 +697,19 @@ func _build_tunnel() -> void:
 	_box(mid + Vector3(0, 1.5, -6.0), Vector3(length, 10, 1.0), rock)
 
 
-## Teal-grey monoliths along the route, plus a taller skyline ring behind them.
+## The city, district by district (Phase B: PrologueCityPlan, built by PrologueCity). It
+## keeps every tall thing off the shots' sightlines and the billboards handed to it.
 func _build_city() -> void:
-	var length := _curve.get_baked_length()
-	var transforms: Array[Transform3D] = []
-	var colors: Array[Color] = []
-	var colossus := _frame_at(_colossus_distance()).origin
-	var sightlines := _sightlines()
-	var boards: Array[Vector3] = []
+	var city := PrologueCity.new()
+	city.name = "City"
+	city.curve = _curve
+	city.sightlines = _sightlines()
 	for i in PrologueScript.BILLBOARDS.size():
-		boards.append(_billboard_anchor(i))
-	var d := PrologueScript.TUNNEL_END + 10.0
-	while d < length:
-		var f := _frame_at(d)
-		for side in [-1.0, 1.0]:
-			for ring in [0, 1]:
-				if _rng.randf() > (0.8 if ring == 0 else 0.5):
-					continue
-				var lateral := _rng.randf_range(16, 60) if ring == 0 else _rng.randf_range(80, 200)
-				var at: Vector3 = f.origin + f.basis.x * side * lateral
-				at.y = 0.0
-				if (
-					_curve.get_closest_point(at + Vector3(0, f.origin.y, 0)).distance_to(
-						at + Vector3(0, f.origin.y, 0)
-					)
-					< 13.0
-				):
-					continue
-				if at.distance_to(Vector3(colossus.x, 0, colossus.z)) < 42.0:
-					continue
-				if AVENUE_CLEAR.has_point(Vector2(at.x, at.z)):
-					continue
-				if _blocks_view(at, sightlines, boards):
-					continue
-				var low := d > PrologueScript.LOW_BLOCKS_START
-				var h := _rng.randf_range(12, 34) if low else _rng.randf_range(40, 170)
-				if ring == 1:
-					h *= 1.4
-				var size := Vector3(_rng.randf_range(10, 26), h, _rng.randf_range(10, 26))
-				transforms.append(
-					Transform3D(
-						Basis().rotated(Vector3.UP, _rng.randf_range(0, 0.3)).scaled(size),
-						at + Vector3(0, h * 0.5, 0)
-					)
-				)
-				var shade := _rng.randf_range(0.0, 1.0)
-				colors.append(Color(0.18, 0.23, 0.25).lerp(Color(0.37, 0.45, 0.47), shade))
-		d += 12.0
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = true
-	mm.mesh = BoxMesh.new()
-	mm.instance_count = transforms.size()
-	for i in transforms.size():
-		mm.set_instance_transform(i, transforms[i])
-		mm.set_instance_color(i, colors[i])
-	var towers := MultiMeshInstance3D.new()
-	towers.name = "Monoliths"
-	towers.multimesh = mm
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.roughness = 0.85
-	towers.material_override = mat
-	add_child(towers)
+		city.boards.append(_billboard_anchor(i))
+	city.colossus = _frame_at(_colossus_distance()).origin
+	city.avenue_clear = AVENUE_CLEAR
+	add_child(city)
+	city.build()
 
 
 func _build_billboards() -> void:
@@ -841,12 +779,22 @@ func _sightlines() -> Array[PackedVector2Array]:
 		var world_cam := (
 			mode == PrologueScript.Mode.EXT_FIXED or mode == PrologueScript.Mode.EXT_PATH
 		)
-		if not world_cam or not shot.get("look") is Vector3:
+		if not world_cam:
 			continue
-		var look: Vector3 = shot["look"]
 		var cams: Array = shot["cam"] if shot["cam"] is Array else [shot["cam"]]
 		for cam: Vector3 in cams:
-			lines.append(PackedVector2Array([Vector2(cam.x, cam.z), Vector2(look.x, look.z)]))
+			if shot.get("look") is Vector3:
+				var look: Vector3 = shot["look"]
+				lines.append(PackedVector2Array([Vector2(cam.x, cam.z), Vector2(look.x, look.z)]))
+			# And to the train while the shot runs: the aerial must see it threading the
+			# canyon (Phase B's tower walls hid it).
+			var span: Array = shot.get("d", [])
+			if span.size() == 2 and float(span[1]) > float(span[0]):
+				for k in 3:
+					var train := _frame_at(lerpf(span[0], span[1], k / 2.0)).origin
+					lines.append(
+						PackedVector2Array([Vector2(cam.x, cam.z), Vector2(train.x, train.z)])
+					)
 	for i in PrologueScript.BILLBOARDS.size():
 		var spec: Array = PrologueScript.BILLBOARDS[i]
 		var track := _frame_at(float(spec[0]) - 40.0).origin
@@ -876,15 +824,7 @@ func _colossus_distance() -> float:
 func _build_colossus() -> void:
 	var d := _colossus_distance()
 	var f := _frame_at(d)
-	var canal := MeshInstance3D.new()
-	var plane := PlaneMesh.new()
-	plane.size = Vector2(26, 400)
-	canal.mesh = plane
-	canal.material_override = _mat(Color(0.12, 0.2, 0.24), 0.1)
-	add_child(canal)
-	canal.global_transform = Transform3D(
-		Basis.looking_at(f.basis.x, Vector3.UP), Vector3(f.origin.x, 0.1, f.origin.z)
-	)
+	# The canal it straddles, its quays and bridges: PrologueCity.
 	var figure := ColossusFigure.new()
 	figure.name = "GoldenColossus"
 	figure.style = ColossusFigure.Style.GOLD_COPY

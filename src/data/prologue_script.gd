@@ -128,7 +128,7 @@ static func shots() -> Array[Dictionary]:
 			"cut": true,
 			"d": [410.0, 530.0],
 			"cam": [Vector3(-60, 230, 330), Vector3(-20, 150, 200)],
-			"look": Vector3(40, 15, -30),
+			"look": "train",  # threading the canyon (Phase B: the walls part for it)
 			"fov": 55.0,
 			"lines": [[1.0, "RADIO: Upgrade your focus. Outperform yourself."]],
 		},
