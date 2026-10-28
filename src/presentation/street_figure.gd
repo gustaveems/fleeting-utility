@@ -3,7 +3,10 @@ extends Node3D
 ## PRESENTATION — a person on the prologue streets (Ticket-15). Faces local −Z.
 ##
 ## With the Quaternius Universal Animation Library present (assets/third_party, CC0) it is
-## a rigged mannequin, tinted by class (faceless, as the story wants: voices, no faces),
+## a rigged figure, faceless as the story wants (voices, no faces). With the Universal
+## Base Characters also present it wears their body (male or female) and hair on the same
+## skeleton, dressed by class in three tones: top, trousers and a skin-toned head with no
+## eyes (the eyes and brows are left out). Otherwise the UAL mannequin, tinted by class,
 ## playing real clips: Walk / Walk_Formal, Idle, Sitting_Idle, Idle_Talking, Idle_No,
 ## Push, Punch_Jab / Punch_Cross, Hit_Knockback. Without the pack it falls back to the
 ## primitive greybox figure below.
@@ -38,6 +41,65 @@ const CLOTH_ROUGH := {
 	Dress.MEDIC: 0.4,
 	Dress.FRIEND: 0.45,
 }
+## The class's outfit as [top, trousers] (the base bodies wear it; the mannequin, CLOTH).
+const OUTFIT := {
+	Dress.SUIT: [Color(0.13, 0.13, 0.15), Color(0.1, 0.1, 0.12)],
+	Dress.MIDDLE: [Color(0.34, 0.37, 0.42), Color(0.18, 0.21, 0.28)],
+	Dress.POOR: [Color(0.31, 0.3, 0.25), Color(0.19, 0.17, 0.15)],
+	Dress.HERO: [Color(0.33, 0.38, 0.32), Color(0.18, 0.18, 0.2)],
+	Dress.GUARD: [Color(0.05, 0.05, 0.06), Color(0.04, 0.04, 0.05)],
+	Dress.MEDIC: [Color(0.9, 0.93, 0.96), Color(0.82, 0.88, 0.92)],
+	# Away from skin tones, or the camel and cream read as bare skin.
+	Dress.FRIEND: [Color(0.46, 0.32, 0.19), Color(0.13, 0.12, 0.12)],
+}
+## Hair by class, [for men, for women] ("" = none: a shaved head, or the veil over it).
+const HAIR := {
+	Dress.SUIT: [["SimpleParted"], ["Buns", "Long"]],
+	Dress.MIDDLE: [["SimpleParted", "Buzzed", ""], ["Long", "Buns", "BuzzedFemale"]],
+	Dress.POOR: [["Beard", "Buzzed", "Long", ""], ["Long", "BuzzedFemale"]],
+	Dress.HERO: [["Buzzed"], ["Buzzed"]],
+	Dress.GUARD: [["Buzzed"], ["BuzzedFemale"]],
+	Dress.MEDIC: [["Buzzed", "SimpleParted"], ["Buns"]],
+	Dress.FRIEND: [["SimpleParted"], ["Long"]],
+}
+const BASE := "res://assets/third_party/quaternius_chars/"
+## Skin tones for the faceless heads (and hands).
+const SKIN: Array[Color] = [
+	Color(0.74, 0.56, 0.44),
+	Color(0.58, 0.42, 0.31),
+	Color(0.42, 0.29, 0.21),
+	Color(0.83, 0.67, 0.55),
+	Color(0.32, 0.22, 0.16),
+]
+## Three tones split by height on the skinned body (model space, the figure upright):
+## trousers below the hips, the top to the collar, the head and neck above.
+const CLOTH_SHADER := """
+shader_type spatial;
+
+uniform vec3 top_color : source_color;
+uniform vec3 bottom_color : source_color;
+uniform vec3 skin_color : source_color;
+uniform float hip = 0.95;
+uniform float collar = 1.47;
+uniform float rough = 0.8;
+varying float height;
+
+void vertex() {
+	height = VERTEX.y;
+}
+
+void fragment() {
+	bool head = height >= collar;
+	vec3 c = height < hip ? bottom_color : (head ? skin_color * 0.85 : top_color);
+	// Faceless: the head's shading flattened toward the viewer, so eyes, nose and mouth
+	// melt into one matte form under the hair. The bodysuit's muscle relief softened.
+	vec3 toward = normalize(vec3(0.0, 0.25, 1.0));
+	NORMAL = normalize(mix(NORMAL, toward, head ? 0.85 : 0.4));
+	ALBEDO = c;
+	ROUGHNESS = head ? 0.9 : rough;
+	SPECULAR = 0.12;
+}
+"""
 const RIG := "res://assets/third_party/quaternius_anim/UAL1_Standard.glb"
 const RIG_EXTRA := "res://assets/third_party/quaternius_anim/UAL2_Standard.glb"
 ## Clips that loop (the rest play once).
@@ -62,6 +124,8 @@ static var _rig_scene: PackedScene
 static var _rig_extra: AnimationLibrary
 static var _rig_checked: bool = false
 static var _tints: Dictionary = {}
+static var _cloth_shader: Shader
+static var _bodies: Dictionary = {}
 
 @export var dress: Dress = Dress.MIDDLE
 @export var pose: Pose = Pose.STAND
@@ -78,6 +142,9 @@ var follow: PlayerMovement
 var carrying: bool = false
 ## A sheer fashion-tech veil over the face (the rich at dinner: their faces a product).
 var veiled: bool = false
+## Which base body: 0 man, 1 woman, −1 picked from where the figure stands (a crowd's mix,
+## the same every run). Set before add_child.
+var body: int = -1
 ## A body he can't walk through (the crowds in the play spaces press; the film's extras
 ## stay ghosts). Set before add_child.
 var solid: bool = false
@@ -254,12 +321,85 @@ func _build_rig() -> void:
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
 	_anim.animation_finished.connect(_on_clip_finished)
 	_tint(_model, _tint_material())
+	_dress_body()
 	if veiled:
 		_add_veil()
 	if dress == Dress.HERO:
 		# His shoulder bag at the right hip.
 		var canvas := _mat(Color(0.24, 0.2, 0.15), 0.95)
 		_box(_model, Vector3(-0.2, 0.92, 0.0), Vector3(0.1, 0.28, 0.34), canvas)
+
+
+## The base character's body and hair on the rig's skeleton (same 65 joints), the
+## mannequin hidden. No eyes, no brows: faceless. Nothing happens without the pack.
+func _dress_body() -> void:
+	var skeleton := _find_skeleton(_model)
+	if skeleton == null:
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector3i(position * 10.0)) + int(dress) * 7919
+	# He is a man; so is the friend, the same body in every scene (the game's lines say
+	# "He sold me out"). The crowds mix.
+	var fixed := dress == Dress.HERO or dress == Dress.FRIEND
+	var woman := body == 1 or (body < 0 and not fixed and rng.randf() < 0.45)
+	var body_scene := _base("Superhero_Female_FullBody" if woman else "Superhero_Male_FullBody")
+	if body_scene == null:
+		return
+	var hair_pool: Array = HAIR[dress][1 if woman else 0]
+	var hair_name: String = hair_pool[rng.randi() % hair_pool.size()]
+	if veiled:
+		hair_name = ""  # under the veil
+	var meshes: Array[MeshInstance3D] = []
+	var source := body_scene.instantiate()
+	for mi: MeshInstance3D in source.find_children("*", "MeshInstance3D", true, false):
+		if mi.name != "Eyes" and mi.name != "Eyebrows":
+			meshes.append(mi)
+	var hair_source: Node = null
+	var hair_scene := _base("Hair_" + hair_name) if not hair_name.is_empty() else null
+	if hair_scene != null:
+		hair_source = hair_scene.instantiate()
+	for mi in _model.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).visible = false
+	var outfit: Array = OUTFIT[dress]
+	var cloth := ShaderMaterial.new()
+	cloth.shader = _cloth_outfit_shader()
+	cloth.set_shader_parameter("top_color", outfit[0])
+	cloth.set_shader_parameter("bottom_color", outfit[1])
+	cloth.set_shader_parameter("skin_color", SKIN[rng.randi() % SKIN.size()])
+	cloth.set_shader_parameter("rough", maxf(float(CLOTH_ROUGH.get(dress, 0.85)), 0.8))
+	for mi in meshes:
+		_move_to(mi, skeleton, cloth)
+	if hair_source != null:
+		var hair := StandardMaterial3D.new()
+		hair.albedo_color = Color(0.08, 0.07, 0.06).lerp(Color(0.32, 0.22, 0.14), rng.randf())
+		hair.roughness = 0.7
+		for mi: MeshInstance3D in hair_source.find_children("*", "MeshInstance3D", true, false):
+			_move_to(mi, skeleton, hair)
+		hair_source.free()
+	source.free()
+
+
+## Re-parent a skinned mesh under `skeleton` (its skin binds by bone name).
+func _move_to(mi: MeshInstance3D, skeleton: Skeleton3D, mat: Material) -> void:
+	mi.get_parent().remove_child(mi)
+	mi.owner = null
+	skeleton.add_child(mi)
+	mi.skeleton = NodePath("..")
+	mi.material_override = mat
+
+
+static func _base(asset: String) -> PackedScene:
+	if not _bodies.has(asset):
+		var path := BASE + asset + ".gltf"
+		_bodies[asset] = load(path) if ResourceLoader.exists(path) else null
+	return _bodies[asset]
+
+
+static func _cloth_outfit_shader() -> Shader:
+	if _cloth_shader == null:
+		_cloth_shader = Shader.new()
+		_cloth_shader.code = CLOTH_SHADER
+	return _cloth_shader
 
 
 ## The veil rides the head bone: a sheer dark shell with a cold sheen.
