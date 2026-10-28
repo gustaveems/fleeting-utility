@@ -111,10 +111,10 @@ func _build_environment() -> void:
 	# (confirmed on the first valley render).
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.82, 0.78, 0.72)
-	env.fog_density = 0.018
+	env.fog_density = 0.011
 	env.fog_sky_affect = 0.5
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.004
+	env.volumetric_fog_density = 0.0025
 
 	# High saturation is the whole visual brief for the valley.
 	env.adjustment_enabled = true

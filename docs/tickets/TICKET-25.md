@@ -23,6 +23,17 @@ interactable were then checked against where he can walk.
   inside where he can walk, the apartment's prompts don't overlap, and he arrives inside
   the carriage and on the roof.
 
+## Done after review (Alain: "do 1 and 2")
+- **1, the colossi from the spawn:** the valley fog is thinned (exponential 0.018 → 0.011,
+  volumetric 0.004 → 0.0025) and the stone colossi darkened (albedo 0.52 → 0.34), so the
+  one in frame reads as a silhouette out of the mist, arm raised. The trees already kept
+  every spawn-to-colossus sightline clear.
+- **2, the crowds have bodies:** `StreetFigure.solid` adds a capsule on the world layer
+  for the carriage's commuters and the rooftop's guests and friend. It lives under their
+  `WorldRoot`, so it sleeps with it. The carriage's boarding spot moved into an aisle gap
+  (`MetroRide.START`). `probe_layout` checks the bodies, that they sleep, and that he never
+  arrives inside one.
+
 ## Observations (for Alain; not changed)
 1. **The valley's colossi barely read from where he wakes.** They stand 30–37 m out in
    heavy mist, behind birches. To show them clearly: thin the fog toward them, bring

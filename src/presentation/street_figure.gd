@@ -78,6 +78,9 @@ var follow: PlayerMovement
 var carrying: bool = false
 ## A sheer fashion-tech veil over the face (the rich at dinner: their faces a product).
 var veiled: bool = false
+## A body he can't walk through (the crowds in the play spaces press; the film's extras
+## stay ghosts). Set before add_child.
+var solid: bool = false
 
 var _body: Node3D
 var _legs: Array[Node3D] = []
@@ -93,6 +96,8 @@ var _punch: int = 0
 
 func _ready() -> void:
 	_phase = randf() * TAU
+	if solid:
+		_add_body()
 	if _rig_available():
 		_build_rig()
 		_home = position
@@ -444,3 +449,19 @@ func _mat(c: Color, roughness: float) -> StandardMaterial3D:
 	m.albedo_color = c
 	m.roughness = roughness
 	return m
+
+
+## A capsule his size (scaled with the figure), on the world layer the player collides with.
+func _add_body() -> void:
+	var body := StaticBody3D.new()
+	body.name = "Body"
+	body.collision_layer = PhysicsLayers.WORLD
+	body.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.28
+	capsule.height = HEIGHT
+	shape.shape = capsule
+	shape.position.y = HEIGHT * 0.5
+	body.add_child(shape)
+	add_child(body)

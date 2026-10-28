@@ -78,7 +78,8 @@ func _material() -> StandardMaterial3D:
 		m.emission = Color(0.55, 0.38, 0.08)
 		m.emission_energy_multiplier = 0.25
 	else:
-		m.albedo_color = Color(0.52, 0.50, 0.47)
+		# Dark, weathered: it has to stand out of the valley's pale mist as a silhouette.
+		m.albedo_color = Color(0.34, 0.32, 0.30)
 		m.roughness = 0.95
 	return m
 

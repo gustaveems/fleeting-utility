@@ -7,7 +7,8 @@ extends "res://tools/lib/verify_harness.gd"
 ##              bench is handled by the carry lock: see probe_night_zero)
 ##   valley     every colossus's return zone and every memory anchor is reachable within
 ##              the dream's bounds (at ±28 m two colossi were out of reach)
-##   carriage, rooftop   he arrives inside the walkable rect
+##   carriage, rooftop   he arrives inside the walkable rect, the crowds have bodies (asleep
+##                       while he's elsewhere) and he never arrives inside one
 ##
 ## Run: godot --headless --path . -s tools/probe_layout.gd
 
@@ -49,6 +50,20 @@ func _run() -> void:
 	check("he boards inside the carriage", carriage.has_point(_xz(MetroRide.START)))
 	var roof := _rect(Vector2(RooftopLounge.HALF_LENGTH - 0.3, RooftopLounge.HALF_WIDTH - 0.25))
 	check("he arrives on the roof", roof.has_point(_xz(RooftopLounge.START)))
+
+	section("the crowds have bodies")
+	for world_name in ["MetroCarriage", "RooftopLounge"]:
+		var world := ws.find_child(world_name, true, false) as WorldRoot
+		var bodies := world.find_children("Body", "StaticBody3D", true, false)
+		check("%s: everyone has a body (%d)" % [world_name, bodies.size()], bodies.size() >= 5)
+		check("%s: asleep while he's elsewhere (Rule 2)" % world_name, live_shapes(world) == 0)
+		var start := MetroRide.START if world_name == "MetroCarriage" else RooftopLounge.START
+		var nearest := 99.0
+		for b: Node3D in bodies:
+			nearest = minf(nearest, _xz(b.global_position).distance_to(_xz(start)))
+		check(
+			"%s: he doesn't arrive inside someone (%.2f m)" % [world_name, nearest], nearest > 0.45
+		)
 
 
 func _rect(half: Vector2) -> Rect2:

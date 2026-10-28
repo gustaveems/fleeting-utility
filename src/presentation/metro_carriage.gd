@@ -184,6 +184,7 @@ func _build() -> void:
 		var sitting := k % 3 == 0
 		f.pose = StreetFigure.Pose.SLUMP if sitting else StreetFigure.Pose.STAND
 		f.scale = Vector3.ONE * PERSON_SCALE
+		f.solid = true  # a packed carriage: he has to edge between them
 		var x := -HALF_LENGTH + 0.6 + k * 1.1
 		f.position = Vector3(
 			x,

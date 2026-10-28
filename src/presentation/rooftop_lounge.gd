@@ -186,6 +186,7 @@ func _crowd() -> void:
 		var f := StreetFigure.new()
 		f.dress = StreetFigure.Dress.SUIT
 		f.veiled = true
+		f.solid = true
 		f.pose = spec[2]
 		f.position = spec[0]
 		f.rotation_degrees.y = spec[1]
@@ -198,6 +199,7 @@ func _crowd() -> void:
 	friend.position = Vector3(2.6, 0, -0.5)
 	friend.rotation_degrees.y = 260.0
 	friend.scale = Vector3.ONE * PERSON_SCALE
+	friend.solid = true
 	add_child(friend)
 
 

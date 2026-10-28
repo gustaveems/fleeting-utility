@@ -13,7 +13,8 @@ signal ride_ended
 const LINGER := 2.0
 const OVERLOAD_RELIEF := 25.0
 const MOVE_SPEED := 2.5
-const START := Vector3(-2.5, 0, 0.1)
+## In the aisle gap between two standing commuters (they have bodies).
+const START := Vector3(-1.75, 0, 0.1)
 
 @export var world_environment: WorldEnvironment
 @export var apartment_root: WorldRoot
