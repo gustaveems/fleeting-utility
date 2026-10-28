@@ -152,6 +152,32 @@ the canyon's south wall hid it. The massing is one MultiMesh, the neon another, 
 town's shopfronts are kit facades. Against Phase A: the descent runs 50 → 75 fps, the
 avenue 29 → 53 fps, the town 154 → 111 fps (`tools/fps_prologue.gd`).
 
+## Phase C: look development (2026-10-28)
+The palettes and references in `docs/references/notes.md`, applied per stretch of the
+film. The values live in `PrologueLook`, as one stage per stretch; each shot plays in its
+stage (`SHOT_STAGE`).
+- **town:** decay. Rust and orange dust haze (#B9875A), a low dawn sun, and the station's
+  sodium lamps (#E8A040) still burning (2049's dead Vegas outlets).
+- **canyon:** teal-grey monoliths (#2E3B3F → #5F7478) in an oppressive haze, a low sun
+  burning through the warm horizon (Heywood flyover, 2049's massing). The ads are the
+  brightest thing in the sky (`AD_GLOW`).
+- **colossus:** the same city, warmer: the gold copy catches the last sun.
+- **descent:** dusk going to night in the low blocks, the neon picked out by glow.
+- **street:** the avenue's night as Phase A had it, with light glow.
+
+How it's done:
+- **The massing shader** (`PrologueCity.MASSING_SHADER`): per instance (`Look`), the
+  megatowers get the endless lit windows, sparse (one in eight), warm and cool. The low
+  blocks get fewer, there's grime toward the street, and the roofs are a shade lighter.
+  It works in world space, so the scaled boxes need no UVs.
+- **The shadows** are lit by the palette's base (`ambient_color`), not the sky. The warm
+  horizon had been turning the teal towers tan.
+- **Glow** only blooms past white (threshold 1): the ads, the neon, the lit windows.
+- **The warm-up** renders every spot under every stage behind the black.
+- **Cost:** about 20% in the early shots (the town 111 → ~80 fps, the canyon 102 → ~85),
+  measured once under the same conditions. Glow isn't it. The window shader is the
+  suspect, but the measurements on this Mac were too noisy to confirm.
+
 ### The plan as proposed
 Plan: `docs/references/city_plan_v1.png`. The plan is drawn on the real track; the yellow
 circles are shots 1–9. It replaces the Phase A greybox (random box towers) with authored

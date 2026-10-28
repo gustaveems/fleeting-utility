@@ -17,13 +17,78 @@ extends Node3D
 ## Prologue). Massing is one MultiMesh (per-instance colour), neon another; the town's
 ## shopfronts are Downtown kit facades. Seeded: the same city every run.
 
+## How a mass is shaded (MultiMesh custom data): plain, a tower's endless lit windows, a
+## low block's few windows, the town's dusty brick and render.
+enum Look { PLAIN, TOWER, BLOCK, TOWN }
+
+## The massing's look (Phase C): instance colour for the body, a lit window grid on the
+## walls by style, grime toward the street, the roofs a shade lighter. World-space, so it
+## needs no UVs on the scaled boxes.
+const MASSING_SHADER := """
+shader_type spatial;
+render_mode diffuse_burley;
+
+varying vec3 world_pos;
+varying vec3 world_normal;
+varying float look;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(41.3, 289.1))) * 45758.5453);
+}
+
+void vertex() {
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	look = INSTANCE_CUSTOM.x;
+}
+
+void fragment() {
+	vec3 base = COLOR.rgb;
+	float y = world_pos.y;
+	// Grime toward the street; roofs catch the sky.
+	base *= mix(0.62, 1.0, smoothstep(0.0, 9.0, y));
+	if (world_normal.y > 0.5) {
+		base *= 1.12;
+	}
+	vec3 glow = vec3(0.0);
+	bool wall = abs(world_normal.y) < 0.5;
+	if (wall && look > 0.5 && look < 2.5) {
+		bool tower = look < 1.5;
+		vec2 along = normalize(vec2(-world_normal.z, world_normal.x));
+		float u = dot(world_pos.xz, along);
+		vec2 cell_size = tower ? vec2(2.4, 3.6) : vec2(3.2, 3.0);
+		vec2 g = vec2(u, y) / cell_size;
+		vec2 cell = floor(g);
+		vec2 f = fract(g);
+		bool pane = f.x > 0.25 && f.x < 0.75 && f.y > 0.3 && f.y < 0.72 && y > 4.0;
+		if (pane) {
+			float h = hash(cell + floor(world_pos.xz / 40.0));
+			float lit_share = tower ? 0.12 : 0.1;
+			if (h < lit_share) {
+				vec3 warm = vec3(1.0, 0.78, 0.5);
+				vec3 cool = vec3(0.62, 0.86, 1.0);
+				glow = mix(warm, cool, step(0.6, fract(h * 13.7))) * (tower ? 1.15 : 1.05);
+				base *= 0.4;
+			} else {
+				base *= 0.72;  // dark glass
+			}
+		}
+	}
+	ALBEDO = base;
+	ROUGHNESS = 0.88;
+	EMISSION = glow;
+}
+"""
+
 const MASS_TINTS := {
-	"town": Color(0.55, 0.46, 0.36),
-	"edge": Color(0.36, 0.37, 0.38),
-	"tower": Color(0.2, 0.26, 0.28),
-	"tower_hi": Color(0.33, 0.41, 0.43),
-	"low": Color(0.34, 0.36, 0.36),
-	"block": Color(0.24, 0.2, 0.22),
+	# Palettes (notes.md): decay rust #7A4A2E and dust #B9875A; the city teal-grey
+	# #2E3B3F → #5F7478.
+	"town": Color("#8A6040"),
+	"edge": Color("#3E4A4C"),
+	"tower": Color("#2E3B3F"),
+	"tower_hi": Color("#5F7478"),
+	"low": Color("#46504F"),
+	"block": Color("#3A3134"),
 }
 
 var curve: Curve3D
@@ -35,6 +100,7 @@ var avenue_clear: Rect2
 var _rng := RandomNumberGenerator.new()
 var _mass: Array[Transform3D] = []
 var _mass_colors: Array[Color] = []
+var _mass_looks: Array[int] = []
 var _neon: Array[Transform3D] = []
 var _neon_colors: Array[Color] = []
 var _kit := CityKit.new()
@@ -79,7 +145,12 @@ func _town() -> void:
 			var centre := Vector3(
 				x0 + PrologueCityPlan.SHOP_WIDTH * 0.5, h * 0.5, face_z - out * depth * 0.5
 			)
-			_box(centre, Vector3(PrologueCityPlan.SHOP_WIDTH, h, depth), MASS_TINTS["town"])
+			_box(
+				centre,
+				Vector3(PrologueCityPlan.SHOP_WIDTH, h, depth),
+				MASS_TINTS["town"],
+				Look.TOWN
+			)
 			# The street face: brick shopfronts, two or three floors.
 			var origin := Vector3(x0 if out > 0.0 else x0 + PrologueCityPlan.SHOP_WIDTH, 0, face_z)
 			var outward := Vector3(0, 0, out)
@@ -186,7 +257,12 @@ func _edge() -> void:
 			var c := Vector3(x + size * 0.5, 0, z + size * 0.5)
 			if absf(c.x - PrologueCityPlan.RING_X) > size * 0.5 + 6.0 and _clear_of_track(c, 18.0):
 				var h := _rng.randf_range(10, 22)
-				_box(c + Vector3(0, h * 0.5, 0), Vector3(size, h, size), MASS_TINTS["edge"])
+				_box(
+					c + Vector3(0, h * 0.5, 0),
+					Vector3(size, h, size),
+					MASS_TINTS["edge"],
+					Look.BLOCK
+				)
 			z += step
 		x += step
 	# The ring highway on stilts, under the line.
@@ -243,7 +319,8 @@ func _canyon() -> void:
 					_box(
 						c + Vector3(0, h * 0.5, 0),
 						Vector3(cell - 1.5, h, cell - 1.5),
-						MASS_TINTS["low"].darkened(_rng.randf() * 0.25)
+						MASS_TINTS["low"].darkened(_rng.randf() * 0.25),
+						Look.BLOCK
 					)
 			z += cell
 			j += 1
@@ -257,6 +334,7 @@ func _tower(at: Vector3, size: Vector3, along: Basis, tint: Color) -> void:
 	var b := Basis().rotated(Vector3.UP, yaw)
 	_mass.append(Transform3D(b.scaled(size), at + Vector3(0, size.y * 0.5, 0)))
 	_mass_colors.append(tint)
+	_mass_looks.append(Look.TOWER)
 	if _rng.randf() < 0.5:
 		_neon.append(
 			Transform3D(
@@ -370,7 +448,8 @@ func _low_blocks() -> void:
 				_box(
 					c + Vector3(0, h * 0.5, 0),
 					Vector3(size, h, size),
-					MASS_TINTS["block"].lightened(_rng.randf() * 0.12)
+					MASS_TINTS["block"].lightened(_rng.randf() * 0.12),
+					Look.BLOCK
 				)
 				if _rng.randf() < 0.45:  # a neon sign on the face toward the line
 					var face := _toward_track(c)
@@ -417,6 +496,7 @@ func _skyline() -> void:
 				)
 			)
 			_mass_colors.append(MASS_TINTS["tower"].lerp(MASS_TINTS["tower_hi"], _rng.randf()))
+			_mass_looks.append(Look.TOWER)
 		d += 14.0
 
 
@@ -424,37 +504,54 @@ func _skyline() -> void:
 
 
 func _commit() -> void:
-	_multimesh("Massing", _mass, _mass_colors, false)
+	_multimesh("Massing", _mass, _mass_colors, false, _mass_looks)
 	_multimesh("Neon", _neon, _neon_colors, true)
 	_kit.build(self)
 
 
 func _multimesh(
-	node_name: String, xfs: Array[Transform3D], colors: Array[Color], glow: bool
+	node_name: String,
+	xfs: Array[Transform3D],
+	colors: Array[Color],
+	glow: bool,
+	looks: Array[int] = []
 ) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
+	mm.use_custom_data = not looks.is_empty()
 	mm.mesh = BoxMesh.new()
 	mm.instance_count = xfs.size()
 	for i in xfs.size():
 		mm.set_instance_transform(i, xfs[i])
 		mm.set_instance_color(i, colors[i])
+		if not looks.is_empty():
+			mm.set_instance_custom_data(i, Color(float(looks[i]), 0, 0, 0))
 	var mi := MultiMeshInstance3D.new()
 	mi.name = node_name
 	mi.multimesh = mm
-	var mat := StandardMaterial3D.new()
-	mat.vertex_color_use_as_albedo = true
-	mat.roughness = 0.85
-	if glow:
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mi.material_override = mat
+	if looks.is_empty():
+		var mat := StandardMaterial3D.new()
+		mat.vertex_color_use_as_albedo = true
+		mat.roughness = 0.85
+		if glow:
+			# Past white, so it blooms (the stage's glow threshold is 1).
+			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			mat.albedo_color = Color(2.2, 2.2, 2.2)
+		mi.material_override = mat
+	else:
+		var shader := Shader.new()
+		shader.code = MASSING_SHADER
+		var sm := ShaderMaterial.new()
+		sm.shader = shader
+		mi.material_override = sm
 	add_child(mi)
 
 
-func _box(centre: Vector3, size: Vector3, color: Color) -> void:
+func _box(centre: Vector3, size: Vector3, color: Color, look: Look = Look.PLAIN) -> void:
 	_mass.append(Transform3D(Basis().scaled(size), centre))
 	_mass_colors.append(color)
+	_mass_looks.append(look)
 
 
 ## A flat patch on the ground (roads, lots, plazas, furrows), `y` its height.

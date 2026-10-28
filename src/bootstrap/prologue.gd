@@ -45,8 +45,9 @@ var _curve: Curve3D
 var _camera: Camera3D
 var _overlay: PrologueOverlay
 var _world_env: WorldEnvironment
-var _env_town: Environment
-var _env_city: Environment
+## The film's looks, one Environment per stage (PrologueLook), and the low sun they share.
+var _looks: Dictionary = {}
+var _sun: DirectionalLight3D
 var _carriages: Array[Node3D] = []
 ## His carriage's window glass: hidden for the interior shot (it would glow in the way).
 var _seat_glass: Array[MeshInstance3D] = []
@@ -60,7 +61,8 @@ var _head_call: HeadCall
 ## Pre-warm: before the film starts the camera looks at each heavy area for a few frames
 ## behind a black screen, so their textures and shaders load up front instead of
 ## hitching mid-film.
-var _warmup: Array[Transform3D] = []
+## [camera transform, look stage] rendered behind the black before the film.
+var _warmup: Array = []
 var _rumble: AudioStreamPlayer
 ## The glide into the current shot: where the camera was, and over how long.
 var _blend_from: Transform3D
@@ -114,7 +116,11 @@ func _ready() -> void:
 		[Vector3(150, 20, 120), Vector3(230, 30, 30)],  # the colossus
 		[Vector3(-560, 9, 34), Vector3(-610, 10, 0)],  # the town
 	]:
-		_warmup.append(Transform3D().looking_at(spot[1] - spot[0], Vector3.UP).translated(spot[0]))
+		var xf := Transform3D().looking_at(spot[1] - spot[0], Vector3.UP).translated(spot[0])
+		# Every spot under every stage's look: each environment compiles its shaders
+		# behind the black, not at its first shot (Phase C's glow hitched there).
+		for stage: String in PrologueLook.STAGES:
+			_warmup.append([xf, stage])
 	_start_shot(0)
 
 
@@ -122,8 +128,11 @@ func _process(delta: float) -> void:
 	if is_finished:
 		return
 	if not _warmup.is_empty():
-		_camera.global_transform = _warmup.pop_front()
+		var step: Array = _warmup.pop_front()
+		_camera.global_transform = step[0]
+		_apply_look(step[1])
 		if _warmup.is_empty():
+			_apply_look(PrologueLook.stage_for(str(_shots[shot_index]["name"])))
 			_overlay.set_black(false)
 		return
 	_update_skip(delta)
@@ -194,7 +203,7 @@ func _start_shot(index: int) -> void:
 		pane.visible = mode != PrologueScript.Mode.INTERIOR
 	for n in _interior:
 		n.visible = mode == PrologueScript.Mode.INTERIOR or shot.get("interior", false)
-	_world_env.environment = _env_town if index < 2 else _env_city
+	_apply_look(PrologueLook.stage_for(str(shot["name"])))
 	if _rumble != null:
 		if mode == PrologueScript.Mode.INTERIOR and not _rumble.playing:
 			_rumble.play()
@@ -575,25 +584,29 @@ func _place_train() -> void:
 
 
 func _build_environment() -> void:
-	_env_city = _environment(
-		Color(0.04, 0.07, 0.09), Color(0.42, 0.26, 0.18), Color(0.18, 0.24, 0.26), 0.0045
-	)
-	_env_town = _environment(
-		Color(0.36, 0.30, 0.24), Color(0.78, 0.52, 0.30), Color(0.55, 0.42, 0.30), 0.0012
-	)
+	for stage: String in PrologueLook.STAGES:
+		_looks[stage] = _environment(PrologueLook.STAGES[stage])
 	_world_env = WorldEnvironment.new()
-	_world_env.environment = _env_town
 	add_child(_world_env)
-	var sun := DirectionalLight3D.new()
-	sun.name = "LowSun"
-	sun.light_color = Color(1.0, 0.72, 0.45)
-	sun.light_energy = 1.1
-	sun.rotation_degrees = Vector3(-12, -60, 0)
-	sun.shadow_enabled = true
-	add_child(sun)
+	_sun = DirectionalLight3D.new()
+	_sun.name = "LowSun"
+	_sun.shadow_enabled = true
+	add_child(_sun)
+	_apply_look("town")
 
 
-func _environment(top: Color, horizon: Color, fog: Color, density: float) -> Environment:
+## A stage's sky, fog, glow and grade, and its sun (PrologueLook).
+func _apply_look(stage: String) -> void:
+	var spec: Dictionary = PrologueLook.STAGES[stage]
+	_world_env.environment = _looks[stage]
+	_sun.light_color = spec["sun"]
+	_sun.light_energy = spec["sun_energy"]
+	_sun.rotation_degrees = spec["sun_angle"]
+
+
+func _environment(spec: Dictionary) -> Environment:
+	var top: Color = spec["sky_top"]
+	var horizon: Color = spec["sky_horizon"]
 	var sky_mat := ProceduralSkyMaterial.new()
 	sky_mat.sky_top_color = top
 	sky_mat.sky_horizon_color = horizon
@@ -604,12 +617,24 @@ func _environment(top: Color, horizon: Color, fog: Color, density: float) -> Env
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.7
+	if spec.has("ambient_color"):
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = spec["ambient_color"]
+	else:
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_energy = spec["ambient"]
 	env.fog_enabled = true
-	env.fog_light_color = fog
-	env.fog_density = density
+	env.fog_light_color = spec["fog"]
+	env.fog_density = spec["fog_density"]
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_exposure = spec["exposure"]
+	# Only what glows past white blooms: the ads, the neon, the lit windows.
+	env.glow_enabled = float(spec["glow"]) > 0.0
+	env.glow_intensity = spec["glow"]
+	env.glow_hdr_threshold = 1.0
+	env.glow_bloom = 0.02
+	env.adjustment_enabled = true
+	env.adjustment_saturation = spec["saturation"]
 	return env
 
 
@@ -669,6 +694,21 @@ func _build_town() -> void:
 	add_child(dust)
 	# The station platform (the town's streets, mall, depot and fields: PrologueCity).
 	_box(Vector3(-610, 1.5, 6), Vector3(26, 3, 8), _mat(Color(0.4, 0.37, 0.34), 0.9))
+	# Sodium lamps over it, still burning at dawn (the decay palette's one accent).
+	var post := _mat(Color(0.18, 0.17, 0.16), 0.7)
+	var glass := _mat(PrologueLook.SODIUM, 0.4)
+	glass.emission_enabled = true
+	glass.emission = PrologueLook.SODIUM
+	glass.emission_energy_multiplier = 3.0
+	for x in [-620.0, -610.0, -600.0]:
+		_box(Vector3(x, 5.0, 9.0), Vector3(0.25, 4.0, 0.25), post)
+		_box(Vector3(x, 7.1, 9.0), Vector3(0.6, 0.25, 0.4), glass)
+		var lamp := OmniLight3D.new()
+		lamp.light_color = PrologueLook.SODIUM
+		lamp.light_energy = 2.5
+		lamp.omni_range = 14.0
+		lamp.position = Vector3(x, 6.8, 9.0)
+		add_child(lamp)
 	# The fenced stone, a corporate plate bolted to it. Nobody looks.
 	var stone_at := Vector3(-585, 0, 22)
 	_box(stone_at + Vector3(0, 1.8, 0), Vector3(1.2, 3.6, 0.8), _mat(Color(0.5, 0.49, 0.46), 1.0))
@@ -738,7 +778,7 @@ func _build_billboards() -> void:
 			var glow := _mat(spec[4], 0.4)
 			glow.emission_enabled = true
 			glow.emission = spec[4]
-			glow.emission_energy_multiplier = 1.6
+			glow.emission_energy_multiplier = PrologueLook.AD_GLOW
 			glow.cull_mode = BaseMaterial3D.CULL_DISABLED
 			panel.material_override = glow
 		panel.rotation_degrees = Vector3(0, 180, 0)  # face along +Z → toward the track
