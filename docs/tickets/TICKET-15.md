@@ -142,3 +142,29 @@ E still held from skipping the prologue doesn't sign it. Its six clauses are the
 mechanics he will live under: decay, productivity review, works reclaimed, sanctioned
 focus, renewal at discretion, stay on your side of the line. It is gated by a static
 `pending` flag, so Continue and tests never see it. Verified by `tools/probe_lease.gd`.
+
+## Phase B proposal: the city layout (2026-10-28, for Alain's markup)
+Plan: `docs/references/city_plan_v1.png`. The plan is drawn on the real track; the yellow
+circles are shots 1–9. It replaces the Phase A greybox (random box towers) with authored
+districts. Only what the cameras see gets built.
+- **A. The town:**
+  - a shuttered main street of low brick shopfronts running beside the line (shots 1–2);
+  - the station and the fenced stone in its car park;
+  - the dead mall with its empty car park, and a logistics depot with a truck yard;
+  - the agri-corp's leased fields, fenced, to the south;
+  - the same billboards, older and peeling.
+- **B. The ridge** the tunnel cuts through (shot 3).
+- **C. The city's edge:** an old grid of low blocks, crossed by a ring highway on stilts.
+- **D. The monolith canyon** (shots 4–6):
+  - two walls of megatowers, 80–200 m tall, 26–44 m either side of the track;
+  - a cross street every 90 m, so the aerial shot reads streets and not a forest of
+    pillars;
+  - the old low blocks crammed beneath and between them, 8–15 m (*"megatowers over older
+    low blocks crammed beneath"*).
+- **E. The colossus canal** (shots 7–8):
+  - a 36 m canal running north–south under the colossus, with quays and two bridges;
+  - Colossus Plaza on the west bank, kept open for the reveal's sightline;
+  - the Heritage Quarter upstream (18a's boutique window lives here);
+  - warehouses on the east bank.
+- **F. The low blocks** (shot 9): dense 12–34 m blocks and neon, descending to Block 31,
+  where the avenue (Alain's walk sketch, already built) takes over.
