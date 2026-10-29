@@ -76,7 +76,7 @@ func _run() -> void:
 	check("SSR on in the clinical room", env.ssr_enabled)
 	check(
 		"floor polished (roughness %.2f)" % atmo.floor_material.roughness,
-		atmo.floor_material.roughness < 0.2
+		atmo.floor_material.roughness <= AtmosphereController.CLINICAL_FLOOR_ROUGHNESS + 0.001
 	)
 	atmo.set_subdued_mode(true)
 	check("SSR off after the reset", not env.ssr_enabled)

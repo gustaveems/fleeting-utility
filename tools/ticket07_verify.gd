@@ -240,12 +240,12 @@ func _test_climax_and_scarred_reset():
 
 	var env := _atmo.environment
 	check(
-		"subdued ambient energy == 0.1 (got %.2f)" % env.ambient_light_energy,
-		is_equal_approx(env.ambient_light_energy, 0.1)
+		"subdued ambient energy (got %.2f)" % env.ambient_light_energy,
+		is_equal_approx(env.ambient_light_energy, AtmosphereController.SUBDUED_AMBIENT_ENERGY)
 	)
 	check(
-		"subdued key energy == 0.5 (got %.2f)" % _atmo.key_light.light_energy,
-		is_equal_approx(_atmo.key_light.light_energy, 0.5)
+		"subdued key energy (got %.2f)" % _atmo.key_light.light_energy,
+		is_equal_approx(_atmo.key_light.light_energy, AtmosphereController.SUBDUED_KEY_ENERGY)
 	)
 	var ac := env.ambient_light_color
 	check(

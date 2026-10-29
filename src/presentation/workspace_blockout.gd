@@ -207,17 +207,19 @@ func _add_wall_collision(
 	add_child(body)
 
 
-## Real surfaces when the city kit is installed: worn concrete underfoot, plaster on the
-## walls (tinted to the palette). Triplanar, so boxes of any size tile cleanly.
+## Underfoot, the reference room's hex tiles (RoomTiles: cream, oxblood, slate, worn),
+## with the kit's concrete normal for wear when it's installed; plaster on the walls
+## (tinted to the palette). Triplanar, so boxes of any size tile cleanly.
 func _texture_surfaces() -> void:
-	if not ResourceLoader.exists(KIT_TEX + "T_Concrete_BaseColor.png"):
-		return
-	floor_material.albedo_texture = load(KIT_TEX + "T_Concrete_BaseColor.png")
-	floor_material.normal_enabled = true
-	floor_material.normal_texture = load(KIT_TEX + "T_Concrete_Normal.png")
-	floor_material.albedo_color = Color(0.82, 0.77, 0.69)
+	floor_material.albedo_texture = RoomTiles.texture()
+	floor_material.albedo_color = Color(0.9, 0.88, 0.84)
 	floor_material.uv1_triplanar = true
-	floor_material.uv1_scale = Vector3.ONE * 0.6
+	# One texture (8 hexes across) per 1.6 m: tiles about 20 cm at the diorama's scale.
+	floor_material.uv1_scale = RoomTiles.uv_scale(1.6)
+	if ResourceLoader.exists(KIT_TEX + "T_Concrete_Normal.png"):
+		floor_material.normal_enabled = true
+		floor_material.normal_texture = load(KIT_TEX + "T_Concrete_Normal.png")
+		floor_material.normal_scale = 0.6
 
 
 ## The wall material: plaster (or the dado's grey-green), textured if the kit is in.
@@ -230,7 +232,35 @@ func _wall_mat(color: Color) -> StandardMaterial3D:
 		m.normal_scale = 0.5
 		m.uv1_triplanar = true
 		m.uv1_scale = Vector3.ONE * 0.9
+	_damp(m)
 	return m
+
+
+## Damp coming through the plaster (the reference room; the palette's damp #5A5240): a
+## blotchy noise mask mixing in the stain colour, triplanar like the rest.
+func _damp(m: StandardMaterial3D) -> void:
+	var noise := FastNoiseLite.new()
+	noise.seed = 52
+	noise.frequency = 0.012
+	noise.fractal_octaves = 4
+	var mask := NoiseTexture2D.new()
+	mask.noise = noise
+	mask.seamless = true
+	mask.width = 256
+	mask.height = 256
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0, 0, 0))
+	ramp.set_color(1, Color(1, 1, 1))
+	ramp.set_offset(0, 0.42)
+	ramp.set_offset(1, 0.68)
+	mask.color_ramp = ramp
+	var stain := Image.create(4, 4, false, Image.FORMAT_RGB8)
+	stain.fill(Color("#5A5240"))
+	m.detail_enabled = true
+	m.detail_mask = mask
+	m.detail_albedo = ImageTexture.create_from_image(stain)
+	m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_1
 
 
 ## Dress the room with real things (Poly Haven, CC0): the tool cart IS the workbench

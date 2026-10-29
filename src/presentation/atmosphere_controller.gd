@@ -87,17 +87,21 @@ const DECAYED_LAMP_DIM := 0.55
 
 ## Ambient: cold desaturated blue-grey, moderate energy — the overexposed white wash of
 ## the original clinical look is gone.
-const CLINICAL_AMBIENT_COLOR := Color(0.7, 0.75, 0.8)
-const CLINICAL_AMBIENT_ENERGY := 0.3
+## Look pass (2026-10-29): the palette's clinical teal #8FB3B5.
+const CLINICAL_AMBIENT_COLOR := Color("#8FB3B5")
+const CLINICAL_AMBIENT_ENERGY := 0.45
 
 ## Key: bright but not blinding, and SHADOWLESS. The flat, sourceless light of an
 ## operating theatre makes the room creepier (decision, 2026-10-12).
 const CLINICAL_KEY_ENERGY := 1.2
-const CLINICAL_KEY_COLOR := Color(0.85, 0.90, 1.0)
+## The bare bulb's hard white (#FFF6E0) over the teal.
+const CLINICAL_KEY_COLOR := Color("#FFF6E0")
 
 ## Ticket-11: wet, cold hospital floor for screen-space reflections.
-const CLINICAL_FLOOR_ROUGHNESS := 0.08
-const CLINICAL_FLOOR_COLOR := Color(0.22, 0.23, 0.25)
+## Look pass: the palette's worn pale floor (#B9C4C2) over the tiles, still glossy enough
+## to reflect (it read black at 0.22).
+const CLINICAL_FLOOR_ROUGHNESS := 0.2
+const CLINICAL_FLOOR_COLOR := Color("#B9C4C2")
 const CLINICAL_SSR_STEPS := 64
 
 ## Tone mapping + exposure (Ticket-07 Task 3). ACES clamps highlights gracefully where
@@ -107,7 +111,7 @@ const CLINICAL_TONE_MAPPER := Environment.TONE_MAPPER_ACES
 const CLINICAL_TONEMAP_EXPOSURE := 0.8
 
 ## Background + fog: sterile near-white, no murk at all.
-const CLINICAL_BACKGROUND_COLOR := Color(0.55, 0.60, 0.68)
+const CLINICAL_BACKGROUND_COLOR := Color(0.5, 0.64, 0.65)
 const CLINICAL_SATURATION := 0.55  # desaturated — colour is a memory, not a present
 
 ## --- SUBDUED / POST-LOOP ENDPOINTS (Ticket-07) ----------------------------------------
@@ -116,8 +120,9 @@ const CLINICAL_SATURATION := 0.55  # desaturated — colour is a memory, not a p
 ## drained of colour and life. The lamp is dead and stays dead.
 
 const SUBDUED_AMBIENT_COLOR := Color(0.35, 0.38, 0.30)
-const SUBDUED_AMBIENT_ENERGY := 0.1
-const SUBDUED_KEY_ENERGY := 0.5
+## Dim and drained, but the room has to read (look pass: it was near black).
+const SUBDUED_AMBIENT_ENERGY := 0.3
+const SUBDUED_KEY_ENERGY := 0.9
 const SUBDUED_KEY_COLOR := Color(0.52, 0.56, 0.48)
 const SUBDUED_BACKGROUND_COLOR := Color(0.04, 0.04, 0.05)
 const SUBDUED_FOG_DENSITY := 0.002
@@ -130,7 +135,7 @@ const SUBDUED_VOLUMETRIC_DENSITY := 0.003
 ## is no longer a home or a clinic; it is a crime scene.
 
 const BROKEN_AMBIENT_COLOR := Color(0.28, 0.30, 0.35)
-const BROKEN_AMBIENT_ENERGY := 0.24  # dark, but readable on a normal screen (playtest)
+const BROKEN_AMBIENT_ENERGY := 0.34  # dark, but readable (playtest; lifted in the look pass)
 const BROKEN_KEY_ENERGY := 0.8
 const BROKEN_KEY_COLOR := Color(0.55, 0.58, 0.65)
 const BROKEN_BACKGROUND_COLOR := Color(0.03, 0.03, 0.04)
