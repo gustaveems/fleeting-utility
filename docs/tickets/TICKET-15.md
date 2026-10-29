@@ -178,6 +178,35 @@ How it's done:
   measured once under the same conditions. Glow isn't it. The window shader is the
   suspect, but the measurements on this Mac were too noisy to confirm.
 
+## Phase B+: the greybox detailed (2026-10-29)
+Detail goes where each shot looks. It's all batched like the massing: one MultiMesh of
+boxes, one of prisms (`PrismMesh`), and kit facades only on the faces the train passes.
+- **The town (1–2):**
+  - the ridge is one sloped prism of mottled, faintly stratified rock (`Look.ROCK`), and
+    the line meets it through concrete portals; the tunnel's own walls and roof run out
+    onto the slopes as a covered cutting;
+  - the dead mall has a dark metal arcade (kit METAL) toward the line, and its walls are
+    corrugated (`Look.RIBBED`);
+  - the depot has shuttered loading bays, with shipping containers stacked in its yard.
+- **The canyon (4–6):**
+  - every megatower is a podium, a shaft and a set-back crown, with plant on the roof and
+    sometimes a mast;
+  - the inner wall's podiums face the line in kit facades (METAL or CONCRETE, four
+    floors);
+  - the low blocks stand on paved pavements (`Look.PAVING`) with roof clutter (AC units,
+    stair huts), and their faces toward the line become kit facades when they're within
+    24 m of it.
+- **The canal (7–8):**
+  - the water is a shader: deep teal, drifting ripples, a glassy sheen;
+  - railings run along both quays;
+  - the plaza and the Heritage Quarter are paved;
+  - the warehouses are corrugated, with sawtooth roofs.
+- **The edge and the low blocks (3, 9):** the same block treatment, with brick facades
+  toward the line (within 30–32 m).
+
+**Frame rates** (`tools/fps_prologue.gd`): 63–128 fps across the film, the best yet. The
+one-off long frames at the start, the descent and the avenue predate this.
+
 ### The plan as proposed
 Plan: `docs/references/city_plan_v1.png`. The plan is drawn on the real track; the yellow
 circles are shots 1–9. It replaces the Phase A greybox (random box towers) with authored

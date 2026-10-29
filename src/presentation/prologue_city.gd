@@ -18,8 +18,9 @@ extends Node3D
 ## shopfronts are Downtown kit facades. Seeded: the same city every run.
 
 ## How a mass is shaded (MultiMesh custom data): plain, a tower's endless lit windows, a
-## low block's few windows, the town's dusty brick and render.
-enum Look { PLAIN, TOWER, BLOCK, TOWN }
+## low block's few windows, the town's dusty brick and render, the ridge's rock, paving
+## (pavements, plazas: the top face jointed), corrugated metal (depot, warehouses).
+enum Look { PLAIN, TOWER, BLOCK, TOWN, ROCK, PAVING, RIBBED }
 
 ## The massing's look (Phase C): instance colour for the body, a lit window grid on the
 ## walls by style, grime toward the street, the roofs a shade lighter. World-space, so it
@@ -34,6 +35,14 @@ varying float look;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(41.3, 289.1))) * 45758.5453);
+}
+
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
 }
 
 void vertex() {
@@ -74,9 +83,60 @@ void fragment() {
 			}
 		}
 	}
+	if (look > 3.5 && look < 4.5) {
+		// Rock: two octaves of mottling, faint strata.
+		vec2 q = world_pos.xz + vec2(world_pos.y * 0.7);
+		float n = vnoise(q * 0.07) * 0.6 + vnoise(q * 0.45) * 0.4;
+		base = COLOR.rgb * mix(0.55, 1.25, n) * (0.92 + 0.08 * sin(world_pos.y * 1.6));
+	} else if (look > 4.5 && look < 5.5 && world_normal.y > 0.5) {
+		// Paving: 1.5 m slabs, each a shade off, dark joints.
+		vec2 t = world_pos.xz / 1.5;
+		vec2 j = fract(t);
+		float joint = max(step(j.x, 0.04), step(j.y, 0.04));
+		base *= mix(0.9 + 0.16 * hash(floor(t)), 0.62, joint);
+	} else if (look > 5.5 && wall) {
+		// Corrugated metal: vertical ribs every 0.6 m.
+		vec2 along2 = normalize(vec2(-world_normal.z, world_normal.x));
+		base *= 0.84 + 0.16 * sin(dot(world_pos.xz, along2) * 10.5);
+	}
 	ALBEDO = base;
 	ROUGHNESS = 0.88;
 	EMISSION = glow;
+}
+"""
+
+## The canal: deep teal water, ripples drifting, a glassy sheen for the sky and the sun.
+const WATER_SHADER := """
+shader_type spatial;
+
+varying vec3 wp;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(41.3, 289.1))) * 45758.5453);
+}
+
+float vnoise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+void vertex() {
+	wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+}
+
+void fragment() {
+	vec2 p = wp.xz * 0.3;
+	float t = TIME * 0.35;
+	float a = vnoise(p + vec2(t, t * 0.6));
+	float b = vnoise(p * 2.3 - vec2(t * 0.7, t));
+	vec3 n = normalize(vec3((a - 0.5) * 0.5 + (b - 0.5) * 0.25, 1.0, (b - 0.5) * 0.5));
+	NORMAL = normalize((VIEW_MATRIX * vec4(n, 0.0)).xyz);
+	ALBEDO = vec3(0.04, 0.09, 0.11);
+	ROUGHNESS = 0.05;
+	SPECULAR = 0.8;
 }
 """
 
@@ -101,6 +161,9 @@ var _rng := RandomNumberGenerator.new()
 var _mass: Array[Transform3D] = []
 var _mass_colors: Array[Color] = []
 var _mass_looks: Array[int] = []
+var _prisms: Array[Transform3D] = []
+var _prism_colors: Array[Color] = []
+var _prism_looks: Array[int] = []
 var _neon: Array[Transform3D] = []
 var _neon_colors: Array[Color] = []
 var _kit := CityKit.new()
@@ -167,12 +230,28 @@ func _town() -> void:
 			if not sign_text.is_empty():
 				_label(sign_text, Vector3(centre.x, 3.3, face_z + out * 0.12), out, 0.02)
 	var mall: Array = PrologueCityPlan.DEAD_MALL
-	_box(mall[0], mall[1], Color(0.55, 0.47, 0.38))
+	_box(mall[0], mall[1], Color(0.55, 0.47, 0.38), Look.RIBBED)
+	# Its storefront toward the line: a glass-and-metal arcade gone dark.
+	var front_z: float = mall[0].z + mall[1].z * 0.5
+	var modules := int(mall[1].x / CityKit.MODULE)
+	_kit.facade(
+		Vector3(mall[0].x - mall[1].x * 0.5, 0, front_z),
+		Vector3.BACK,
+		modules,
+		2,
+		CityKit.Style.METAL,
+		404
+	)
 	_label("M A L L", mall[0] + Vector3(0, 2.5, mall[1].z * 0.5 + 0.1), 1.0, 0.06)
 	var park: Array = PrologueCityPlan.MALL_PARKING
 	_flat(park[0], park[1], park[2], park[3], 0.07, Color(0.24, 0.23, 0.22))
 	var depot: Array = PrologueCityPlan.DEPOT
-	_box(depot[0], depot[1], Color(0.5, 0.52, 0.54))
+	_box(depot[0], depot[1], Color(0.5, 0.52, 0.54), Look.RIBBED)
+	# Loading bays along its front, shutters down.
+	var bay_z: float = depot[0].z + depot[1].z * 0.5 + 0.1
+	for bay in 6:
+		var bx: float = depot[0].x - depot[1].x * 0.5 + 8.0 + bay * 12.5
+		_box(Vector3(bx, 2.6, bay_z), Vector3(5.0, 5.2, 0.2), Color(0.3, 0.31, 0.32), Look.RIBBED)
 	_box(
 		depot[0] + Vector3(0, depot[1].y * 0.5 + 0.4, 0),
 		depot[1] * Vector3(1.02, 0, 1.02) + Vector3(0, 0.8, 0),
@@ -181,11 +260,38 @@ func _town() -> void:
 	_label("LOGISTICS · DEPOT 4", depot[0] + Vector3(0, 3.5, depot[1].z * 0.5 + 0.1), 1.0, 0.05)
 	var yard: Array = PrologueCityPlan.DEPOT_YARD
 	_flat(yard[0], yard[1], yard[2], yard[3], 0.07, Color(0.3, 0.3, 0.3))
+	_containers(Rect2(Vector2(-500, -40), Vector2(70, 24)))
 	for f: Array in PrologueCityPlan.FIELDS:
 		_field(f[0], f[1], f[2], f[3])
 	_label("AGRI-LEASE · PRIVATE CROP", Vector3(-480, 3.2, 69.5), -1.0, 0.04)
 	for b: Array in PrologueCityPlan.TOWN_BOARDS:
 		_peeling_board(Vector3(b[0], 0, b[1]), b[2])
+
+
+## Shipping containers stacked in a yard, in faded corporate colours.
+func _containers(area: Rect2) -> void:
+	var colors := [
+		Color(0.48, 0.2, 0.14),
+		Color(0.18, 0.28, 0.4),
+		Color(0.25, 0.33, 0.24),
+		Color(0.42, 0.4, 0.36)
+	]
+	var x := area.position.x
+	while x + 13.0 < area.end.x:
+		var z := area.position.y
+		while z + 3.0 < area.end.y:
+			if _rng.randf() < 0.7:
+				var stack := 1 + _rng.randi() % 2
+				for level in stack:
+					var c: Color = colors[_rng.randi() % colors.size()]
+					_box(
+						Vector3(x + 6.0, 1.3 + level * 2.6, z + 1.2),
+						Vector3(12.0, 2.5, 2.4),
+						c,
+						Look.RIBBED
+					)
+			z += 3.0
+		x += 14.0
 
 
 ## A leased field: furrowed dirt, a fence round it.
@@ -230,16 +336,24 @@ func _ridge() -> void:
 	var r: Array = PrologueCityPlan.RIDGE
 	var zr: Array = PrologueCityPlan.Z_RANGE
 	var h := PrologueCityPlan.RIDGE_HEIGHT
-	var half := PrologueCityPlan.TUNNEL_HALF
 	var cx := (float(r[0]) + float(r[1])) * 0.5
 	var w := float(r[1]) - float(r[0])
-	var rock := Color(0.2, 0.17, 0.14)
-	var north := float(zr[0])
-	var south := float(zr[1])
-	_box(Vector3(cx, h * 0.5, (north - half) * 0.5), Vector3(w, h, -half - north), rock)
-	_box(Vector3(cx, h * 0.5, (south + half) * 0.5), Vector3(w, h, south - half), rock)
+	var length := float(zr[1]) - float(zr[0])
+	# One long ridge, its crest running north-south; the tunnel's own walls and roof (the
+	# Prologue's) run through it and out onto its slopes as a covered cutting.
+	_prism(
+		Vector3(cx, h * 0.5, 0), Vector3(w, h, length), Basis(), Color(0.3, 0.24, 0.18), Look.ROCK
+	)
+	# The portals where the line meets the rock: concrete, stained.
 	var ceiling := PrologueCityPlan.TUNNEL_CEILING
-	_box(Vector3(cx, (h + ceiling) * 0.5, 0), Vector3(w, h - ceiling, half * 2.0), rock)
+	var half := PrologueCityPlan.TUNNEL_HALF
+	var reach := w * 0.5 * (1.0 - (ceiling + 1.0) / h)
+	var concrete := Color(0.45, 0.43, 0.4)
+	for side in [-1.0, 1.0]:
+		var px: float = cx + side * reach
+		for pz in [-half, half]:
+			_box(Vector3(px, ceiling * 0.5, pz), Vector3(2.0, ceiling + 1.0, 1.6), concrete)
+		_box(Vector3(px, ceiling + 1.4, 0), Vector3(2.0, 2.4, half * 2.0 + 1.6), concrete)
 
 
 ## ----- C. THE CITY'S EDGE ----------------------------------------------------------------
@@ -257,12 +371,7 @@ func _edge() -> void:
 			var c := Vector3(x + size * 0.5, 0, z + size * 0.5)
 			if absf(c.x - PrologueCityPlan.RING_X) > size * 0.5 + 6.0 and _clear_of_track(c, 18.0):
 				var h := _rng.randf_range(10, 22)
-				_box(
-					c + Vector3(0, h * 0.5, 0),
-					Vector3(size, h, size),
-					MASS_TINTS["edge"],
-					Look.BLOCK
-				)
+				_block(c, size, h, MASS_TINTS["edge"], CityKit.Style.BRICK, 30.0)
 			z += step
 		x += step
 	# The ring highway on stilts, under the line.
@@ -300,7 +409,12 @@ func _canyon() -> void:
 					var hr: Array = PrologueCityPlan.WALL_HEIGHT[w]
 					var h := _rng.randf_range(hr[0], hr[1])
 					var tint: Color = MASS_TINTS["tower"].lerp(MASS_TINTS["tower_hi"], _rng.randf())
-					_tower(at, Vector3(foot, h, foot), f.basis, tint)
+					# The inner wall's podiums face the line in real facades.
+					var toward: Vector3 = -f.basis.x * side if w == 0 else Vector3.ZERO
+					toward.y = 0.0
+					if toward != Vector3.ZERO:
+						toward = toward.normalized()
+					_tower(at, Vector3(foot, h, foot), f.basis, tint, toward)
 		d += PrologueCityPlan.WALL_FOOTPRINT[1] + 2.0
 	# The old low blocks crammed beneath and between.
 	var cell := PrologueCityPlan.LOW_CELL
@@ -316,33 +430,100 @@ func _canyon() -> void:
 				if _clear_of_track(c, 14.0) and _clear_of_canal(c):
 					var lh: Array = PrologueCityPlan.LOW_HEIGHT
 					var h := _rng.randf_range(lh[0], lh[1])
-					_box(
-						c + Vector3(0, h * 0.5, 0),
-						Vector3(cell - 1.5, h, cell - 1.5),
-						MASS_TINTS["low"].darkened(_rng.randf() * 0.25),
-						Look.BLOCK
-					)
+					var tint: Color = MASS_TINTS["low"].darkened(_rng.randf() * 0.25)
+					_block(c, cell - 1.5, h, tint, CityKit.Style.CONCRETE, 24.0)
 			z += cell
 			j += 1
 		cx += cell
 		i += 1
 
 
-## A megatower: the massing, turned with the line, a lit crown.
-func _tower(at: Vector3, size: Vector3, along: Basis, tint: Color) -> void:
+## A megatower, turned with the line: a podium at the street (its face toward the line in
+## real kit facades when it stands close), the shaft, a set-back crown, plant on the roof,
+## sometimes a mast; half of them a lit band under the crown.
+func _tower(at: Vector3, size: Vector3, along: Basis, tint: Color, toward: Vector3) -> void:
 	var yaw := atan2(along.z.x, along.z.z)
-	var b := Basis().rotated(Vector3.UP, yaw)
-	_mass.append(Transform3D(b.scaled(size), at + Vector3(0, size.y * 0.5, 0)))
+	var b := Basis(Vector3.UP, yaw)
+	var podium_h := 4.0 * CityKit.FLOOR + 0.4
+	var podium := Vector3(size.x * 1.3, podium_h, size.z * 1.3)
+	_mass.append(Transform3D(b * Basis.from_scale(podium), at + Vector3(0, podium_h * 0.5, 0)))
+	_mass_colors.append(tint.darkened(0.15))
+	_mass_looks.append(Look.BLOCK)
+	var shaft_h := size.y * 0.8
+	_mass.append(
+		Transform3D(
+			b * Basis.from_scale(Vector3(size.x, shaft_h, size.z)),
+			at + Vector3(0, shaft_h * 0.5, 0)
+		)
+	)
 	_mass_colors.append(tint)
 	_mass_looks.append(Look.TOWER)
+	var crown := Vector3(size.x * 0.72, size.y - shaft_h, size.z * 0.72)
+	_mass.append(
+		Transform3D(b * Basis.from_scale(crown), at + Vector3(0, shaft_h + crown.y * 0.5, 0))
+	)
+	_mass_colors.append(tint.lightened(0.06))
+	_mass_looks.append(Look.TOWER)
+	var plant := Vector3(size.x * 0.3, 4.0, size.z * 0.3)
+	_box(at + Vector3(0, size.y + 2.0, 0), plant, tint.darkened(0.3))
+	if _rng.randf() < 0.45:
+		var mast := _rng.randf_range(10, 26)
+		_box(
+			at + Vector3(size.x * 0.1, size.y + 4.0 + mast * 0.5, 0),
+			Vector3(0.6, mast, 0.6),
+			Color(0.15, 0.15, 0.16)
+		)
+	if toward != Vector3.ZERO:
+		var face := at + toward * (podium.z * 0.5)
+		var left := Basis.looking_at(-toward, Vector3.UP).x
+		var width := podium.x
+		_kit.facade(
+			face - left * (width * 0.5),
+			toward,
+			int(width / CityKit.MODULE),
+			4,
+			CityKit.Style.METAL if _rng.randf() < 0.5 else CityKit.Style.CONCRETE,
+			_rng.randi()
+		)
 	if _rng.randf() < 0.5:
 		_neon.append(
 			Transform3D(
-				b.scaled(Vector3(size.x * 1.02, 0.6, size.z * 1.02)),
-				at + Vector3(0, size.y - 3.0, 0)
+				b * Basis.from_scale(Vector3(size.x * 1.02, 0.6, size.z * 1.02)),
+				at + Vector3(0, shaft_h - 3.0, 0)
 			)
 		)
 		_neon_colors.append(Color(0.6, 0.9, 0.95))
+
+
+## A low block: the mass on its pavement, plant on the roof, and when it stands close to
+## the line (`facade_within` m) its face toward it in kit facades, up to six floors.
+func _block(
+	c: Vector3, size: float, h: float, tint: Color, style: CityKit.Style, facade_within: float
+) -> void:
+	_box(
+		c + Vector3(0, 0.08, 0),
+		Vector3(size + 3.0, 0.16, size + 3.0),
+		Color(0.36, 0.36, 0.35),
+		Look.PAVING
+	)
+	_box(c + Vector3(0, h * 0.5, 0), Vector3(size, h, size), tint, Look.BLOCK)
+	for k in 1 + _rng.randi() % 3:
+		var spot := Vector3(
+			_rng.randf_range(-0.32, 0.32) * size, 0, _rng.randf_range(-0.32, 0.32) * size
+		)
+		if _rng.randf() < 0.6:
+			_box(c + spot + Vector3(0, h + 0.55, 0), Vector3(1.6, 1.1, 1.6), Color(0.5, 0.51, 0.52))
+		else:
+			_box(c + spot + Vector3(0, h + 1.3, 0), Vector3(3.0, 2.6, 3.0), tint.darkened(0.1))
+	var p := curve.get_closest_point(Vector3(c.x, 10.0, c.z))
+	if Vector2(p.x, p.z).distance_to(Vector2(c.x, c.z)) - size * 0.5 > facade_within:
+		return
+	var out := _toward_track(c)
+	var face := c + out * (size * 0.5)
+	var left := Basis.looking_at(-out, Vector3.UP).x
+	var modules := int(size / CityKit.MODULE)
+	var origin := face - left * (modules * CityKit.MODULE * 0.5)
+	_kit.facade(origin, out, modules, mini(int(h / CityKit.FLOOR), 6), style, _rng.randi())
 
 
 ## ----- E. THE COLOSSUS CANAL ----------------------------------------------------------------
@@ -358,19 +539,25 @@ func _canal() -> void:
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(half * 2.0, length)
 	water.mesh = plane
-	var wm := StandardMaterial3D.new()
-	wm.albedo_color = Color(0.08, 0.15, 0.2)
-	wm.metallic = 0.6
-	wm.roughness = 0.12
+	var water_shader := Shader.new()
+	water_shader.code = WATER_SHADER
+	var wm := ShaderMaterial.new()
+	wm.shader = water_shader
 	water.material_override = wm
 	water.position = Vector3(cx, 0.15, 0)
 	add_child(water)
-	for side in [-1.0, 1.0]:  # the quay walls
+	for side in [-1.0, 1.0]:  # the quay walls, a railing along the top
 		_box(
 			Vector3(cx + side * (half + 0.5), 0.8, 0),
 			Vector3(1.0, 1.6, length),
 			Color(0.42, 0.4, 0.37)
 		)
+		var rail_x: float = cx + side * (half + 0.9)
+		_box(Vector3(rail_x, 2.65, 0), Vector3(0.12, 0.12, length), Color(0.16, 0.16, 0.17))
+		var pz := float(zr[0])
+		while pz < float(zr[1]):
+			_box(Vector3(rail_x, 2.1, pz), Vector3(0.12, 1.1, 0.12), Color(0.16, 0.16, 0.17))
+			pz += 4.0
 	for bz: float in PrologueCityPlan.BRIDGES_Z:
 		_box(Vector3(cx, 3.0, bz), Vector3(half * 2.0 + 8.0, 0.8, 8.0), Color(0.45, 0.44, 0.42))
 		for rz in [-3.8, 3.8]:
@@ -380,7 +567,7 @@ func _canal() -> void:
 				Color(0.2, 0.2, 0.21)
 			)
 	var p: Array = PrologueCityPlan.PLAZA
-	_flat(cx + p[0], cx + p[1], p[2], p[3], 0.1, Color(0.62, 0.58, 0.5))
+	_flat(cx + p[0], cx + p[1], p[2], p[3], 0.1, Color(0.62, 0.58, 0.5), Look.PAVING)
 	for k in 5:
 		var lamp := CityKit.prop(
 			CityKit.polyhaven("street_lamp_01"),
@@ -392,7 +579,7 @@ func _canal() -> void:
 		if lamp != null:
 			lamp.scale = Vector3.ONE * 1.6
 	var hq: Array = PrologueCityPlan.HERITAGE
-	_flat(cx + hq[0], cx + hq[1], hq[2], hq[3], 0.1, Color(0.7, 0.66, 0.58))
+	_flat(cx + hq[0], cx + hq[1], hq[2], hq[3], 0.1, Color(0.7, 0.66, 0.58), Look.PAVING)
 	var pavilion_z := float(hq[2]) + 6.0
 	var n := 0
 	while pavilion_z + 18.0 < float(hq[3]):
@@ -421,11 +608,23 @@ func _canal() -> void:
 	var wh: Array = PrologueCityPlan.WAREHOUSES
 	var wz := float(wh[2])
 	while wz + 40.0 <= float(wh[3]):
+		var wx: float = cx + (wh[0] + wh[1]) * 0.5
+		var ww: float = wh[1] - wh[0]
 		_box(
-			Vector3(cx + (wh[0] + wh[1]) * 0.5, 6.0, wz + 20.0),
-			Vector3(wh[1] - wh[0], 12.0, 36.0),
-			Color(0.4, 0.38, 0.36)
+			Vector3(wx, 6.0, wz + 20.0),
+			Vector3(ww, 12.0, 36.0),
+			Color(0.4, 0.38, 0.36),
+			Look.RIBBED
 		)
+		# A sawtooth roof: ridges across it, every 6 m.
+		for k in 6:
+			_prism(
+				Vector3(wx, 13.5, wz + 5.0 + k * 6.0),
+				Vector3(6.0, 3.0, ww),
+				Basis(Vector3.UP, PI * 0.5),
+				Color(0.34, 0.33, 0.32),
+				Look.RIBBED
+			)
 		wz += 44.0
 
 
@@ -445,12 +644,8 @@ func _low_blocks() -> void:
 			if not near_avenue and _rng.randf() < 0.8 and _may_stand(c, 14.0):
 				var hr: Array = PrologueCityPlan.LOW_BLOCK_HEIGHT
 				var h := _rng.randf_range(hr[0], hr[1])
-				_box(
-					c + Vector3(0, h * 0.5, 0),
-					Vector3(size, h, size),
-					MASS_TINTS["block"].lightened(_rng.randf() * 0.12),
-					Look.BLOCK
-				)
+				var tint: Color = MASS_TINTS["block"].lightened(_rng.randf() * 0.12)
+				_block(c, size, h, tint, CityKit.Style.BRICK, 32.0)
 				if _rng.randf() < 0.45:  # a neon sign on the face toward the line
 					var face := _toward_track(c)
 					var at := (
@@ -505,6 +700,7 @@ func _skyline() -> void:
 
 func _commit() -> void:
 	_multimesh("Massing", _mass, _mass_colors, false, _mass_looks)
+	_multimesh("Prisms", _prisms, _prism_colors, false, _prism_looks, PrismMesh.new())
 	_multimesh("Neon", _neon, _neon_colors, true)
 	_kit.build(self)
 
@@ -514,13 +710,14 @@ func _multimesh(
 	xfs: Array[Transform3D],
 	colors: Array[Color],
 	glow: bool,
-	looks: Array[int] = []
+	looks: Array[int] = [],
+	mesh: Mesh = null
 ) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
 	mm.use_custom_data = not looks.is_empty()
-	mm.mesh = BoxMesh.new()
+	mm.mesh = mesh if mesh != null else BoxMesh.new()
 	mm.instance_count = xfs.size()
 	for i in xfs.size():
 		mm.set_instance_transform(i, xfs[i])
@@ -554,12 +751,22 @@ func _box(centre: Vector3, size: Vector3, color: Color, look: Look = Look.PLAIN)
 	_mass_looks.append(look)
 
 
+## A triangular prism (a ridge, a sawtooth): its crest along local Z, `size` in its own axes.
+func _prism(centre: Vector3, size: Vector3, turn: Basis, color: Color, look: Look) -> void:
+	_prisms.append(Transform3D(turn * Basis.from_scale(size), centre))
+	_prism_colors.append(color)
+	_prism_looks.append(look)
+
+
 ## A flat patch on the ground (roads, lots, plazas, furrows), `y` its height.
-func _flat(x0: float, x1: float, z0: float, z1: float, y: float, color: Color) -> void:
+func _flat(
+	x0: float, x1: float, z0: float, z1: float, y: float, color: Color, look: Look = Look.PLAIN
+) -> void:
 	_box(
 		Vector3((x0 + x1) * 0.5, y * 0.5, (z0 + z1) * 0.5),
 		Vector3(absf(x1 - x0), y, absf(z1 - z0)),
-		color
+		color,
+		look
 	)
 
 
