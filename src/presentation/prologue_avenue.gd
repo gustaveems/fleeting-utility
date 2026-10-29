@@ -172,6 +172,11 @@ func hero_head() -> Vector3:
 	return hero.global_position + Vector3(0, 1.6, 0)
 
 
+## Where his feet are (the film's footsteps).
+func hero_position() -> Vector3:
+	return hero.global_position
+
+
 ## His facing (yaw only), for a camera that follows him round the corner.
 func hero_basis() -> Basis:
 	return Basis(Vector3.UP, hero.rotation.y)

@@ -57,6 +57,12 @@ def place(files):
     copied = same = 0
     for e in files:
         src, dst = DL / e["src"], ROOT / e["dst"]
+        if not src.exists():
+            # Not downloaded on this machine (e.g. only one group fetched): keep what's placed.
+            if dst.exists():
+                same += 1
+                continue
+            raise SystemExit(f"missing download: {src} (run download_assets.py)")
         if dst.exists() and dst.stat().st_size == src.stat().st_size and sha1(dst) == sha1(src):
             same += 1
             continue

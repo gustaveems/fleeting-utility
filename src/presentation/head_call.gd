@@ -65,6 +65,18 @@ func play(lines: Array, as_call: bool = true) -> void:
 	_next()
 
 
+## The line on screen now as [speaker, text, seconds], or [] (the voice under it: Phase D).
+func current_line() -> Array:
+	if not is_playing or _index < 0 or _index >= _lines.size():
+		return []
+	return _lines[_index]
+
+
+## A head call (the caller card is up), not people talking in the room.
+func is_call() -> bool:
+	return _card.visible
+
+
 ## Skip to the end (scripted sequences, tests).
 func stop() -> void:
 	if not is_playing:

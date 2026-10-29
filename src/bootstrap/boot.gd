@@ -49,6 +49,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	AudioBuses.register()
 	var bank := ProceduralAudio.default_bank()
+	# Phase D: the real bank and the game's voices, rendered once behind the splash.
+	RealSounds.bank()
+	VoiceSynth.warm(VoiceSynth.GAME_VOICES)
 	GameSettings.current().apply_engine()
 	_start_ambience(bank)
 	splash.queue_free()

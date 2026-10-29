@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = Path(__file__).resolve().parent / "asset_downloads.json"
 DL = ROOT / "assets" / "_downloads"
-GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list"}
+GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list", "E": "E_audio"}
 UA = "Mozilla/5.0 (fleeting-utility asset setup)"
 CHUNK = 1 << 20
 
@@ -31,18 +31,21 @@ opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
 opener.addheaders = [("User-Agent", UA)]
 
 
-def fetch(url, data=None):
+def fetch(url, data=None, referer=None):
     body = urllib.parse.urlencode(data).encode() if data is not None else None
-    return opener.open(url, data=body, timeout=120)
+    req = urllib.request.Request(url, data=body)
+    if referer:
+        req.add_header("Referer", referer)
+    return opener.open(req, timeout=120)
 
 
-def save(url, dest, expected=None):
+def save(url, dest, expected=None, referer=None):
     """Stream url to dest. Skips if dest exists at the expected size; writes via a .part file."""
     if dest.exists() and (expected is None or dest.stat().st_size == expected):
         return "skip"
     dest.parent.mkdir(parents=True, exist_ok=True)
     part = dest.with_suffix(dest.suffix + ".part")
-    with fetch(url) as r, open(part, "wb") as fh:
+    with fetch(url, referer=referer) as r, open(part, "wb") as fh:
         while chunk := r.read(CHUNK):
             fh.write(chunk)
     part.replace(dest)
@@ -67,7 +70,11 @@ def itch_url(page, file_name):
 
 
 def kenney_url(page, file_name):
+    """Kenney's pages ask /download-link/<id> (with the page's session cookie) for a signed URL."""
     html = fetch(page).read().decode("utf-8", "replace")
+    m = re.search(r"data-download-id=[\"']([^\"']+)", html)
+    if m:
+        return json.load(fetch("https://kenney.nl/download-link/" + m.group(1), referer=page))["url"]
     return re.search(r"https://kenney\.nl/media/[^\"' ]+/" + re.escape(file_name), html).group(0)
 
 
@@ -94,7 +101,8 @@ def run_pack(pack):
     dest = DL / f["file"]
     if not dest.exists():
         resolve = kenney_url if "kenney.nl" in pack["source"] else itch_url
-        results.append((f["file"], save(resolve(pack["source"], f["file"]), dest)))
+        url = resolve(pack["source"], f["file"])
+        results.append((f["file"], save(url, dest, referer=pack["source"])))
     else:
         results.append((f["file"], "skip"))
     results.append((f"{f['file']} (extract)", extract(dest)))
@@ -103,7 +111,7 @@ def run_pack(pack):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--groups", default="A,B")
+    ap.add_argument("--groups", default="A,B,E")
     args = ap.parse_args()
     plan = json.loads(PLAN.read_text(encoding="utf-8"))
     DL.mkdir(parents=True, exist_ok=True)

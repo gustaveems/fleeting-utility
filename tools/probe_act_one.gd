@@ -129,7 +129,7 @@ func _run() -> void:
 		"getting out eased the overload (%.0f → %.0f)" % [riding_overload, home_overload[0]],
 		(
 			home_overload[0] >= 0.0
-			and home_overload[0] <= riding_overload - MetroRide.OVERLOAD_RELIEF + 3.0
+			and home_overload[0] <= maxf(riding_overload - MetroRide.OVERLOAD_RELIEF, 0.0) + 3.0
 		)
 	)
 	check("one ride a day", not metro.available())

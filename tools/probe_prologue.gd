@@ -92,6 +92,10 @@ func _run() -> void:
 				var shader := ((c as MeshInstance3D).material_override as ShaderMaterial).shader
 				wears = shader != null and shader.code == CampaignArt.SHADER
 	check("the campaign board shows the campaign (the valley, sold)", wears)
+	var sound := p.find_child("Sound", false, false) as PrologueSound
+	var voiced := [0]
+	p.line_spoken.connect(func(t: String): voiced[0] += int(not t.is_empty()))
+	check("the film has its sound (Phase D)", sound != null)
 	check("colossus head target exists", p.gaze_target_position("colossus") != Vector3.ZERO)
 
 	section("the full film")
@@ -162,6 +166,7 @@ func _run() -> void:
 	)
 	await _wait_for("Workspace")
 	check("the film ends in the game", current_scene != null and current_scene.name == "Workspace")
+	check("every radio and PA line is voiced (%d lines)" % voiced[0], voiced[0] >= 5)
 
 	section("skipping")
 	current_scene.queue_free()

@@ -74,6 +74,14 @@ UAL1 = "Universal Animation Library[Standard]/Universal Animation Library[Standa
 UAL2 = "Universal Animation Library 2[Standard]/Universal Animation Library 2[Standard]"
 SCIFI = "Sci-Fi Essentials Kit[Standard]"
 KENNEY = "kenney_retro-urban-kit"
+## Kenney's CC0 audio packs (Phase D): extracted folder → kenney_audio/<pack>.
+KENNEY_AUDIO = {
+    "kenney_impact-sounds": "impact",
+    "kenney_interface-sounds": "interface",
+    "kenney_rpg-audio": "rpg",
+    "kenney_sci-fi-sounds": "scifi",
+    "kenney_ui-audio": "ui",
+}
 
 
 def rule(rel: PurePosixPath):
@@ -135,6 +143,13 @@ def rule(rel: PurePosixPath):
         if name == "License.txt":
             return "kenney_retro_urban", "kenney_retro_urban/License.txt", ""
         return "kenney_retro_urban", None, "FBX/OBJ duplicate of the GLB" if r.startswith("Models/") else "preview / web page"
+    if rel.parts[0].startswith("kenney_") and rel.parts[0] in KENNEY_AUDIO:
+        pack = "kenney_audio/" + KENNEY_AUDIO[rel.parts[0]]
+        if len(rel.parts) >= 3 and rel.parts[1] == "Audio" and name.endswith(".ogg"):
+            return "kenney_audio", f"{pack}/{name}", ""
+        if name == "License.txt":
+            return "kenney_audio", f"{pack}/License.txt", ""
+        return "kenney_audio", None, "preview / web link"
     return "unknown", None, "no pack rule matches"
 
 

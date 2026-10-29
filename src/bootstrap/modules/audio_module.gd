@@ -28,6 +28,12 @@ func wire(ctx: BootstrapContext) -> void:
 	a.valley = ctx.valley
 	a.easel = ctx.easel
 	a.day_cycle = ctx.day_cycle
+	a.player = ctx.player
+	a.head_call = ctx.head_call
+	a.metro_ride = ctx.metro_ride
+	a.carriage = ctx.metro_carriage
+	a.standing = ctx.standing
+	a.lounge = ctx.lounge
 
 
 func attach(ctx: BootstrapContext) -> void:

@@ -33,6 +33,19 @@ extends Node
 ##   compulsion    heartbeat pulse whose tempo tracks overload; a tap per soothe
 ##   hesitation    heartbeat climbing through the dual visions, under the rumble
 ##
+## PHASE D (Ticket-28)
+## -----------------
+##   the bank      RealSounds: Kenney CC0 recordings, Cyberwave, synthesis; the
+##                 placeholders behind it
+##   more worlds   the carriage on its rails; the rooftop's murmur, its speakers' music and
+##                 a glass now and then
+##   footsteps     a step per stride, by surface: tiles, grass, the park's concrete, the
+##                 carriage's floor, the roof's teak
+##   voices        under every line a murmur in the speaker's voice (VoiceSynth), phone-band
+##                 on a call (which opens and closes with a tone), muffled through the wall;
+##                 his thoughts are silent
+##   music         sparse: the dream's pad, the realisation, the end of a cycle
+##
 ## Dream transitions duck the Ambience bus as the screen whites out, and lift it from
 ## the world swap (at full white) through the fade-in, so the new world fades in with
 ## the picture. The forced return does not duck: it cuts.
@@ -71,6 +84,13 @@ const APARTMENT_BEDS: Array[StringName] = [
 @export var valley: DreamscapeEnvironment
 @export var easel: Easel
 @export var day_cycle: DayCycle
+## Phase D.
+@export var player: PlayerMovement
+@export var head_call: HeadCall
+@export var metro_ride: MetroRide
+@export var carriage: WorldRoot
+@export var standing: Standing
+@export var lounge: WorldRoot
 
 ## Where the 3D apartment emitters sit (room coordinates).
 @export var fluorescent_position: Vector3 = Vector3(0.0, 2.4, 0.0)
@@ -81,6 +101,9 @@ const APARTMENT_BEDS: Array[StringName] = [
 
 ## Hesitation heartbeat tempo, start → end of the dual visions.
 @export var hesitation_bpm_range: Vector2 = Vector2(70.0, 150.0)
+
+## A footstep every this far (the play spaces are dioramas: he is 0.8 m tall).
+@export var stride: float = 0.42
 
 ## 0..1, smoothed. Read by tests (and later by VFX that want to sync to the crash).
 var crash_intensity: float = 0.0
@@ -101,6 +124,14 @@ var _heart_tween: Tween
 var _duck_tween: Tween
 var _ducked: bool = false
 var _phase: GameFlow.Phase = GameFlow.Phase.WORKSPACE
+var _voice: AudioStreamPlayer
+var _voice_left: float = 0.0
+var _in_call: bool = false
+var _music: AudioStreamPlayer
+var _music_cue: StringName = &""
+var _music_tween: Tween
+var _walked: float = 0.0
+var _last_pos: Vector3
 
 ## ----- LIFECYCLE -----------------------------------------------------------------------
 
@@ -108,7 +139,7 @@ var _phase: GameFlow.Phase = GameFlow.Phase.WORKSPACE
 func _ready() -> void:
 	var defaults := ProceduralAudio.default_bank()
 	if bank == null:
-		bank = defaults
+		bank = RealSounds.bank()  # real recordings, the placeholders behind them
 	elif bank.fallback == null and bank != defaults:
 		bank.fallback = defaults
 	_build_players()
@@ -121,6 +152,10 @@ func _process(delta: float) -> void:
 	_drive_crash(delta)
 	_drive_decay()
 	_drive_compulsion_tempo()
+	_drive_footsteps()
+	_drive_voice(delta)
+	if lounge != null and lounge.is_active and randf() < delta * 0.35:
+		play_one_shot(SoundBank.GLASS)
 
 
 ## Statue narratives exist only after the valley module's post_attach.
@@ -192,6 +227,14 @@ func _build_players() -> void:
 	_heart.cue = bank.cue(SoundBank.HEARTBEAT)
 	add_child(_heart)
 
+	_voice = AudioStreamPlayer.new()
+	_voice.name = "Voice"
+	add_child(_voice)
+	_music = AudioStreamPlayer.new()
+	_music.name = "Music"
+	_music.bus = AudioBuses.MUSIC
+	add_child(_music)
+
 
 func _build_beds() -> void:
 	if apartment != null:
@@ -206,6 +249,14 @@ func _build_beds() -> void:
 	if park_root != null:
 		_add_bed(SoundBank.PARK_AIR, park_root, null)
 		_set_bed(SoundBank.PARK_AIR, 1.0, 0.0)
+	if carriage != null:
+		_add_bed(SoundBank.CARRIAGE, carriage, null)
+		_set_bed(SoundBank.CARRIAGE, 1.0, 0.0)
+	if lounge != null:
+		_add_bed(SoundBank.PARTY, lounge, null)
+		_set_bed(SoundBank.PARTY, 1.0, 0.0)
+		_add_bed(SoundBank.PARTY_MUSIC, lounge, Vector3(3.2, 0.6, -0.9))  # by the bar
+		_set_bed(SoundBank.PARTY_MUSIC, 1.0, 0.0)
 	# The rumble is in his head: not part of any world.
 	_add_bed(SoundBank.RUMBLE, self, null)
 
@@ -229,7 +280,11 @@ func _add_bed(bed: StringName, parent: Node, at: Variant) -> void:
 	p.set("bus", cue.bus)
 	p.set("volume_db", SILENT_DB)
 	parent.add_child(p)
-	p.call("play")
+	# A world built by a later module enters the tree after this director: start then.
+	if p.is_inside_tree():
+		p.call("play")
+	else:
+		p.tree_entered.connect(Callable(p, "play"), CONNECT_ONE_SHOT)
 	_beds[bed] = p
 	_bed_levels[bed] = 0.0
 	if parent is WorldRoot:
@@ -284,6 +339,15 @@ func _connect_signals() -> void:
 	if valley != null:
 		for anchor in valley.memory_anchors:
 			anchor.memory_triggered.connect(play_one_shot.bind(SoundBank.CHIME))
+	if head_call != null:
+		head_call.line_shown.connect(_on_line_shown)
+		head_call.finished.connect(_on_lines_finished)
+	if metro_ride != null:
+		metro_ride.ride_started.connect(func(_stage: int): play_one_shot(SoundBank.DOOR))
+	if standing != null:
+		standing.event_started.connect(func(_i: int): play_one_shot(SoundBank.DOOR))
+	if park_manager != null:
+		park_manager.walk_started.connect(play_one_shot.bind(SoundBank.DOOR))
 
 
 ## ----- PHASE MIX ---------------------------------------------------------------------------
@@ -301,6 +365,7 @@ func _on_phase_changed(_from: GameFlow.Phase, to: GameFlow.Phase) -> void:
 
 
 func _apply_phase(phase: GameFlow.Phase, fade: float) -> void:
+	_apply_music(phase)
 	_set_bed(SoundBank.RUMBLE, 1.0 if phase == GameFlow.Phase.HESITATION else 0.0, 0.3)
 	var mix: Dictionary
 	match phase:
@@ -419,6 +484,7 @@ func _on_hesitation() -> void:
 func _on_visions_ended() -> void:
 	_kill(_heart_tween)
 	_heart.stop()
+	play_reveal()  # the meaning stays
 
 
 ## ----- DREAM, AMBULANCE ----------------------------------------------------------------
@@ -483,3 +549,111 @@ func _on_defibrillation() -> void:
 func _kill(tween: Tween) -> void:
 	if tween != null and tween.is_valid():
 		tween.kill()
+
+
+## ----- PHASE D: FOOTSTEPS, VOICES, MUSIC ------------------------------------------------
+
+
+## A step per stride of real movement (not while he's held), on the surface under him.
+func _drive_footsteps() -> void:
+	if player == null:
+		return
+	var at := player.global_position
+	var moved := Vector2(at.x - _last_pos.x, at.z - _last_pos.z).length()
+	_last_pos = at
+	if moved > 1.0 or player.input_locked:  # a teleport (a world swap), or held
+		_walked = 0.0
+		return
+	_walked += moved
+	if _walked >= stride:
+		_walked = 0.0
+		play_one_shot(_surface())
+
+
+func _surface() -> StringName:
+	if dreamscape_manager != null and dreamscape_manager.in_dreamscape():
+		return SoundBank.STEP_GRASS
+	if park_manager != null and park_manager.is_in_park():
+		return SoundBank.STEP_CONCRETE
+	if metro_ride != null and metro_ride.is_riding:
+		return SoundBank.STEP_CARPET
+	if standing != null and standing.is_out:
+		return SoundBank.STEP_WOOD
+	return SoundBank.STEP_TILE
+
+
+## A murmur in the speaker's voice for as long as the line shows. A call opens with a
+## tone; his thoughts make no sound.
+func _on_line_shown(_index: int) -> void:
+	var line := head_call.current_line()
+	if line.is_empty():
+		return
+	var speaker := str(line[0])
+	var call := head_call.is_call()
+	if call and not _in_call:
+		_in_call = true
+		play_one_shot(SoundBank.CALL_OPEN)
+	if speaker == NightZeroScript.THOUGHT:
+		_voice.stop()
+		return
+	var stream := VoiceSynth.voice(speaker, call)
+	_voice.stream = stream
+	_voice.bus = AudioBuses.UI if call else AudioBuses.SFX  # a call is inside his head
+	_voice.volume_db = -14.0 if call else -12.0
+	_voice.play(randf() * maxf(stream.get_length() - 1.0, 0.0))
+	_voice_left = float(line[2]) * 0.85
+
+
+func _on_lines_finished() -> void:
+	_voice.stop()
+	_voice_left = 0.0
+	if _in_call:
+		_in_call = false
+		play_one_shot(SoundBank.CALL_CLOSE)
+
+
+func _drive_voice(delta: float) -> void:
+	if _voice_left <= 0.0:
+		return
+	_voice_left -= delta
+	if _voice_left <= 0.0:
+		_voice.stop()
+
+
+## Sparse: the dream's pad while he dreams calmly, the end-of-cycle bed after the reset
+## (or waking alone); silence in the room, the clinic and the climax.
+func _apply_music(phase: GameFlow.Phase) -> void:
+	var want: StringName = &""
+	match phase:
+		GameFlow.Phase.DREAMSCAPE:
+			want = SoundBank.MUSIC_DREAM
+		GameFlow.Phase.SCARRED, GameFlow.Phase.ALONE:
+			want = SoundBank.MUSIC_END
+	if want == _music_cue:
+		return
+	_music_cue = want
+	_kill(_music_tween)
+	_music_tween = create_tween()
+	if want == &"":
+		_music_tween.tween_property(_music, "volume_db", SILENT_DB, SLOW_FADE_SECONDS)
+		_music_tween.tween_callback(_music.stop)
+		return
+	var cue := bank.cue(want)
+	if cue == null or cue.stream == null:
+		return
+	_music.stream = cue.stream
+	_music.volume_db = SILENT_DB
+	_music.play()
+	_music_tween.tween_property(_music, "volume_db", cue.volume_db, SLOW_FADE_SECONDS)
+
+
+## The realisation: the meaning stays (after the dual visions), over whatever plays.
+func play_reveal() -> void:
+	var cue := bank.cue(SoundBank.MUSIC_REVEAL)
+	if cue == null or cue.stream == null:
+		return
+	_kill(_music_tween)
+	_music_cue = SoundBank.MUSIC_REVEAL
+	_music.stream = cue.stream
+	_music.volume_db = cue.volume_db
+	_music.play()

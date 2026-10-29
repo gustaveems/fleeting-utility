@@ -12,6 +12,8 @@ extends Node3D
 
 signal shot_started(index: int, shot_name: String, mode: PrologueScript.Mode)
 signal gaze_started(target: String)
+## A subtitle line comes up ("" when it clears): PrologueSound voices it.
+signal line_spoken(text: String)
 signal finished
 
 const GAME_SCENE_PATH := "res://scenes/workspace.tscn"
@@ -56,14 +58,12 @@ var _avenue: PrologueAvenue
 ## His carriage's interior: shown for the interior and fly-through shots only.
 var _interior: Array[Node3D] = []
 var _events_fired: int = 0
-var _bed: AudioStreamPlayer
 var _head_call: HeadCall
+var _line_text: String = ""
 ## Pre-warm: before the film starts the camera looks at each heavy area for a few frames
 ## behind a black screen, so their textures and shaders load up front instead of
-## hitching mid-film.
-## [camera transform, look stage] rendered behind the black before the film.
+## hitching mid-film: [camera transform, look stage].
 var _warmup: Array = []
-var _rumble: AudioStreamPlayer
 ## The glide into the current shot: where the camera was, and over how long.
 var _blend_from: Transform3D
 var _blend_fov_from: float = 60.0
@@ -92,7 +92,6 @@ func _ready() -> void:
 	_build_billboards()
 	_build_colossus()
 	_build_landmarks()
-	_build_audio()
 	_avenue = PrologueAvenue.new()
 	_avenue.name = "Avenue"
 	add_child(_avenue)
@@ -108,6 +107,7 @@ func _ready() -> void:
 	_head_call = HeadCall.new()
 	_head_call.name = "HeadCall"
 	add_child(_head_call)
+	_build_audio()
 	_overlay.set_black(true)
 	for spot in [
 		[Vector3(418, 60, -40), Vector3(440, 0, -100)],  # the avenue from above
@@ -204,11 +204,6 @@ func _start_shot(index: int) -> void:
 	for n in _interior:
 		n.visible = mode == PrologueScript.Mode.INTERIOR or shot.get("interior", false)
 	_apply_look(PrologueLook.stage_for(str(shot["name"])))
-	if _rumble != null:
-		if mode == PrologueScript.Mode.INTERIOR and not _rumble.playing:
-			_rumble.play()
-		elif mode != PrologueScript.Mode.INTERIOR:
-			_rumble.stop()
 	shot_started.emit(index, str(shot["name"]), mode)
 	if shot.has("gaze"):
 		gaze_started.emit(str(shot["gaze"]))
@@ -342,6 +337,9 @@ func _update_lines(shot: Dictionary) -> void:
 	for line in shot.get("lines", []):
 		if shot_time >= float(line[0]) and shot_time < float(line[0]) + 4.5:
 			text = str(line[1])
+	if text != _line_text:
+		_line_text = text
+		line_spoken.emit(text)
 	_overlay.set_subtitle(text)
 
 
@@ -915,22 +913,13 @@ func _build_landmarks() -> void:
 ## The film's sound bed (Cyberwave Audio Pack, CC-BY): a low city atmosphere throughout,
 ## and the carriage's sub rumble under the metro shot.
 func _build_audio() -> void:
-	var dir := "res://assets/third_party/fab/cyberwave_audio/Cyberwave/"
-	_bed = _loop_player(dir + "Sound/Sound - Monol Atmos.wav", -10.0)
-	_rumble = _loop_player(dir + "Ambient/Ambient - Amb Sub Dplr.wav", -6.0)
-	if _bed != null:
-		_bed.play()
-
-
-func _loop_player(path: String, db: float) -> AudioStreamPlayer:
-	if not ResourceLoader.exists(path):
-		return null
-	var p := AudioStreamPlayer.new()
-	p.stream = load(path)
-	p.volume_db = db
-	p.finished.connect(p.play)  # loop
-	add_child(p)
-	return p
+	# The film's sound (Phase D) listens to the film, its avenue and the final call.
+	var sound := PrologueSound.new()
+	sound.name = "Sound"
+	sound.prologue = self
+	sound.avenue = _avenue
+	sound.head_call = _head_call
+	add_child(sound)
 
 
 ## ----- HELPERS -----------------------------------------------------------------------

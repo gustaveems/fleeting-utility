@@ -15,6 +15,11 @@ const VALLEY_AIR := &"valley_air"
 const PARK_AIR := &"park_air"
 const RUMBLE := &"rumble"
 const SIREN := &"siren"
+## Phase D: the carriage on its rails, the rooftop's party (murmur, and the music from its
+## speakers).
+const CARRIAGE := &"carriage"
+const PARTY := &"party"
+const PARTY_MUSIC := &"party_music"
 
 ## One-shots.
 const HEARTBEAT := &"heartbeat"
@@ -25,6 +30,21 @@ const STATUE_STING := &"statue_sting"
 const BETRAYAL_STING := &"betrayal_sting"
 const CHIME := &"chime"
 const BRUSH := &"brush"
+## Phase D: footsteps by surface, the in-head call's line opening and closing, a glass.
+const STEP_TILE := &"step_tile"
+const STEP_GRASS := &"step_grass"
+const STEP_WOOD := &"step_wood"
+const STEP_CONCRETE := &"step_concrete"
+const STEP_CARPET := &"step_carpet"
+const CALL_OPEN := &"call_open"
+const CALL_CLOSE := &"call_close"
+const GLASS := &"glass"
+const DOOR := &"door"
+
+## Music (Phase D; sparse): the dream, the realisation, the end of a cycle.
+const MUSIC_DREAM := &"music_dream"
+const MUSIC_REVEAL := &"music_reveal"
+const MUSIC_END := &"music_end"
 
 @export var cues: Dictionary[StringName, SoundCue] = {}
 

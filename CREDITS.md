@@ -13,6 +13,8 @@ Third-party assets used by Fleeting Utility. They live in `assets/third_party/`
   trunk, tree stump 01, fern 02, dry branches, planter box 01, modular street seating,
   street lamp 01, modern ceiling lamp 01, medical tape, cardboard box 01, wine bottles 01, wooden crate 02. polyhaven.com
 - **reyshapes** (Poly Pizza): *Easel Large Leaning*. poly.pizza/m/DzrGZz1LRo
+- **Kenney**: Impact Sounds, Interface Sounds, RPG Audio, Sci-fi Sounds, UI Audio
+  (footsteps, taps, the door, glass, cloth, UI tones). kenney.nl
 
 ## CC BY 4.0 (attribution required)
 Downloaded from Fab (fab.com) on 2026-10-21. Credit the original authors as listed on
@@ -23,7 +25,8 @@ each Fab page:
 - *Neon Signs*
 - *Cyberpunk Noodle Kiosk – Environment Prop* (MarinaB)
 - *High-Rise Building #06*
-- *Cyberwave Audio Pack*
+- *Cyberwave Audio Pack*, sound design by NortonTre (nortontre.com). Its own licence:
+  use in projects allowed, the files never redistributed (they travel in the Fab zip).
 
 ## Fab Standard License, Personal tier (free for personal/non-commercial use)
 These must be re-licensed (Professional tier) or replaced before any commercial

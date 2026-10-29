@@ -50,6 +50,7 @@ on why you picked it.
 | Universal Animation Library 1 + 2 (Standard) by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_anim/` | `StreetFigure`: the rigged mannequin and its clips |
 | Universal Base Characters (Standard) by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_chars/` | `StreetFigure`: the base bodies (male/female) and hair on the UAL skeleton, dressed by class in three tones by a shader, faceless (no eyes or brows; the head's shading flattened) |
 | LowPoly Cars ("Realistic Car Pack") by Quaternius, CC0 | quaternius.itch.io (2026-10-21) | `assets/third_party/quaternius_cars/` | The taxi that passes, parked cars |
+| Kenney Impact / Interface / RPG / Sci-fi / UI audio, CC0 | kenney.nl (2026-10-29), via `tools/assets/download_assets.py` (group E) | `assets/third_party/kenney_audio/<pack>/` | `RealSounds`: footsteps by surface, taps, door, glass, brush, UI and call tones |
 | 13 Fab items (CC-BY / Fab Personal): graffiti tram, rooftops 1/3, mega tower, neon signs, noodle kiosk, high-rise 06, sci-fi skyline backdrop, flying/cyber/police cars, Cyberwave audio | fab.com via Alain's account (2026-10-21) | `assets/third_party/fab/<name>/` | City landmarks, horizon and `FlyingTraffic`; the avenue's kiosk, neon, police car; the town's tram; the prologue sound bed. See `CREDITS.md` |
 
 ## Palettes (starting values, to tune)

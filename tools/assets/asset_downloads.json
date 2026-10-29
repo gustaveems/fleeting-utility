@@ -1,7 +1,8 @@
 {
  "summary": {
   "A_on_your_list_bytes": 427475517,
-  "B_code_needs_not_on_list_bytes": 99330515
+  "B_code_needs_not_on_list_bytes": 99330515,
+  "E_audio_bytes": 8887276
  },
  "A_on_your_list": [
   {
@@ -1392,5 +1393,72 @@
   "Ultimate Animated Animals",
   "Animated Men"
  ],
- "D_needs_your_fab_login": "see chat summary"
+ "D_needs_your_fab_login": "see chat summary",
+ "E_audio": [
+  {
+   "pack": "Kenney Impact Sounds",
+   "source": "https://kenney.nl/assets/impact-sounds",
+   "target": "assets/third_party/kenney_audio/impact_sounds",
+   "bytes": 800850,
+   "files": [
+    {
+     "file": "kenney_impact-sounds.zip",
+     "bytes": 800850
+    }
+   ],
+   "note": "CC0. Phase D sound (Ticket-28)."
+  },
+  {
+   "pack": "Kenney Interface Sounds",
+   "source": "https://kenney.nl/assets/interface-sounds",
+   "target": "assets/third_party/kenney_audio/interface_sounds",
+   "bytes": 834536,
+   "files": [
+    {
+     "file": "kenney_interface-sounds.zip",
+     "bytes": 834536
+    }
+   ],
+   "note": "CC0. Phase D sound (Ticket-28)."
+  },
+  {
+   "pack": "Kenney Rpg Audio",
+   "source": "https://kenney.nl/assets/rpg-audio",
+   "target": "assets/third_party/kenney_audio/rpg_audio",
+   "bytes": 964837,
+   "files": [
+    {
+     "file": "kenney_rpg-audio.zip",
+     "bytes": 964837
+    }
+   ],
+   "note": "CC0. Phase D sound (Ticket-28)."
+  },
+  {
+   "pack": "Kenney Sci Fi Sounds",
+   "source": "https://kenney.nl/assets/sci-fi-sounds",
+   "target": "assets/third_party/kenney_audio/sci_fi_sounds",
+   "bytes": 5875104,
+   "files": [
+    {
+     "file": "kenney_sci-fi-sounds.zip",
+     "bytes": 5875104
+    }
+   ],
+   "note": "CC0. Phase D sound (Ticket-28)."
+  },
+  {
+   "pack": "Kenney Ui Audio",
+   "source": "https://kenney.nl/assets/ui-audio",
+   "target": "assets/third_party/kenney_audio/ui_audio",
+   "bytes": 411949,
+   "files": [
+    {
+     "file": "kenney_ui-audio.zip",
+     "bytes": 411949
+    }
+   ],
+   "note": "CC0. Phase D sound (Ticket-28)."
+  }
+ ]
 }
