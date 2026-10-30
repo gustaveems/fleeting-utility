@@ -99,6 +99,7 @@ func _build() -> void:
 	glass.material_override = _glass
 	add_child(glass)
 	_title = Label3D.new()
+	SignType.dress(_title)
 	_title.name = "Headline"
 	_title.font_size = 64
 	_title.pixel_size = 0.0019
@@ -109,6 +110,7 @@ func _build() -> void:
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_title)
 	_small = Label3D.new()
+	SignType.dress(_small)
 	_small.name = "FinePrint"
 	_small.font_size = 32
 	_small.pixel_size = 0.0016
@@ -117,6 +119,7 @@ func _build() -> void:
 	_small.position = Vector3(0, -SIZE.y * 0.38, 0.018)
 	add_child(_small)
 	_standing_label = Label3D.new()
+	SignType.dress(_standing_label)
 	_standing_label.name = "StandingLine"
 	_standing_label.font_size = 32
 	_standing_label.pixel_size = 0.0014

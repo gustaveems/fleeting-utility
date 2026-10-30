@@ -59,7 +59,12 @@ func _run() -> void:
 	# anchor E interaction — the first run's "anchor returned" PASS was a false positive
 	# from phase C's leftover 3 s timer firing mid-test.
 	_manager.auto_return_seconds = 30.0
-	await _manager.transition_to_dreamscape()
+	# He came back crashed and withdrawn: the collapse may already be taking him under
+	# (a request made mid-fade is ignored). Let any transition finish, then dream.
+	while _manager.is_busy():
+		await create_timer(0.1).timeout
+	if not _manager.in_dreamscape():
+		await _manager.transition_to_dreamscape()
 	var anchor: MemoryAnchor = null
 	for child in valley.get_children():
 		if child is MemoryAnchor:

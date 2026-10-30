@@ -80,17 +80,30 @@ uniform vec3 top_color : source_color;
 uniform vec3 bottom_color : source_color;
 uniform vec3 skin_color : source_color;
 uniform float hip = 0.95;
-uniform float collar = 1.47;
+uniform float collar = 1.56;
+uniform float wrist = 0.74;
+uniform float ankle = 0.08;
 uniform float rough = 0.8;
-varying float height;
+varying vec3 rest;
 
+// Clothes go by where a point sits on the body at REST (CUSTOM2, written by
+// StreetFigure._with_rest_position), not where the pose puts it: by posed height a
+// swinging hand dipped below the hips into the trousers, and a seated figure came out
+// in patches (playtest 2026-10-30: "the clothes are bugging, duplicated").
 void vertex() {
-	height = VERTEX.y;
+	rest = CUSTOM2.xyz;
 }
 
 void fragment() {
-	bool head = height >= collar;
-	vec3 c = height < hip ? bottom_color : (head ? skin_color * 0.85 : top_color);
+	bool head = rest.y >= collar && abs(rest.x) < 0.12;
+	bool hand = abs(rest.x) > wrist;
+	vec3 c = rest.y < hip ? bottom_color : top_color;
+	if (rest.y < ankle) {
+		c = vec3(0.05, 0.045, 0.04);  // shoes
+	}
+	if (head || hand) {
+		c = skin_color * 0.85;
+	}
 	// Faceless: the head's shading flattened toward the viewer, so eyes, nose and mouth
 	// melt into one matte form under the hair. The bodysuit's muscle relief softened.
 	vec3 toward = normalize(vec3(0.0, 0.25, 1.0));
@@ -126,6 +139,7 @@ static var _rig_checked: bool = false
 static var _tints: Dictionary = {}
 static var _cloth_shader: Shader
 static var _bodies: Dictionary = {}
+static var _rest_meshes: Dictionary = {}
 
 @export var dress: Dress = Dress.MIDDLE
 @export var pose: Pose = Pose.STAND
@@ -246,6 +260,13 @@ func set_pose(p: Pose) -> void:
 	moving = p == Pose.WALK
 
 
+## Seated (SLUMP): talk with the hands while speaking, back to idle after.
+func set_talking(on: bool) -> void:
+	if _anim == null or pose != Pose.SLUMP:
+		return
+	_play("Sitting_Talking" if on else "Sitting_Idle")
+
+
 ## Both arms thrust: the shove that starts it.
 func shove() -> void:
 	if _anim != null:
@@ -283,6 +304,24 @@ func stagger(from: Vector3, distance: float = 0.9) -> void:
 ## True when the rigged mannequin pack is installed.
 static func has_rig() -> bool:
 	return _rig_available()
+
+
+## The rig (UAL skeleton + clips), or null without the pack.
+static func rig() -> PackedScene:
+	return _rig_scene if _rig_available() else null
+
+
+## A Universal Base Character scene ("Superhero_Male_FullBody"…), or null without it.
+static func base_body(asset: String) -> PackedScene:
+	return _base(asset)
+
+
+static func find_skeleton(n: Node) -> Skeleton3D:
+	return _find_skeleton(n)
+
+
+static func find_player(n: Node) -> AnimationPlayer:
+	return _find_player(n)
 
 
 static func _rig_available() -> bool:
@@ -325,9 +364,30 @@ func _build_rig() -> void:
 	if veiled:
 		_add_veil()
 	if dress == Dress.HERO:
-		# His shoulder bag at the right hip.
-		var canvas := _mat(Color(0.24, 0.2, 0.15), 0.95)
+		_hang_bag()
+
+
+## His shoulder bag at the right hip, on the pelvis bone so it walks with him (a box on
+## the model stayed put while he swung past it: it read as a second, ghost figure).
+func _hang_bag() -> void:
+	var canvas := _mat(Color(0.24, 0.2, 0.15), 0.95)
+	var skeleton := _find_skeleton(_model)
+	var pelvis := skeleton.find_bone("pelvis") if skeleton != null else -1
+	if pelvis < 0:
 		_box(_model, Vector3(-0.2, 0.92, 0.0), Vector3(0.1, 0.28, 0.34), canvas)
+		return
+	var hold := BoneAttachment3D.new()
+	hold.bone_name = "pelvis"
+	skeleton.add_child(hold)
+	# The skeleton's place in the model, then the pelvis's rest in the skeleton.
+	var skel_xf := Transform3D.IDENTITY
+	var n: Node = skeleton
+	while n != _model and n is Node3D:
+		skel_xf = (n as Node3D).transform * skel_xf
+		n = n.get_parent()
+	var pelvis_xf := skel_xf * skeleton.get_bone_global_rest(pelvis)
+	var at := pelvis_xf.affine_inverse() * Vector3(-0.2, 0.92, 0.0)
+	_box(hold, at, Vector3(0.1, 0.28, 0.34), canvas)
 
 
 ## The base character's body and hair on the rig's skeleton (same 65 joints), the
@@ -368,6 +428,7 @@ func _dress_body() -> void:
 	cloth.set_shader_parameter("skin_color", SKIN[rng.randi() % SKIN.size()])
 	cloth.set_shader_parameter("rough", maxf(float(CLOTH_ROUGH.get(dress, 0.85)), 0.8))
 	for mi in meshes:
+		mi.mesh = _with_rest_position(mi.mesh)
 		_move_to(mi, skeleton, cloth)
 	if hair_source != null:
 		var hair := StandardMaterial3D.new()
@@ -377,6 +438,41 @@ func _dress_body() -> void:
 			_move_to(mi, skeleton, hair)
 		hair_source.free()
 	source.free()
+
+
+## A copy of `mesh` with each vertex's rest position in CUSTOM2 (what the cloth shader
+## dresses by). Cached: every figure wearing the same body shares one copy.
+static func _with_rest_position(mesh: Mesh) -> Mesh:
+	if _rest_meshes.has(mesh):
+		return _rest_meshes[mesh]
+	var out := ArrayMesh.new()
+	for i in mesh.get_blend_shape_count():
+		out.add_blend_shape(mesh.get_blend_shape_name(i))
+	if mesh is ArrayMesh:
+		out.blend_shape_mode = (mesh as ArrayMesh).blend_shape_mode
+	for s in mesh.get_surface_count():
+		var arrays := mesh.surface_get_arrays(s)
+		var custom := PackedFloat32Array()
+		for v: Vector3 in arrays[Mesh.ARRAY_VERTEX]:
+			custom.append_array([v.x, v.y, v.z, 0.0])
+		arrays[Mesh.ARRAY_CUSTOM2] = custom
+		# Keep the formats of the custom channels the body already uses (the female body
+		# carries two), add ours in channel 2.
+		var format: int = mesh.surface_get_format(s)
+		var flags: int = format & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+		for shift in [Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT, Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT]:
+			flags |= format & (Mesh.ARRAY_FORMAT_CUSTOM_MASK << shift)
+		flags |= Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
+		out.add_surface_from_arrays(
+			mesh.surface_get_primitive_type(s),
+			arrays,
+			mesh.surface_get_blend_shape_arrays(s),
+			{},
+			flags
+		)
+		out.surface_set_material(s, mesh.surface_get_material(s))
+	_rest_meshes[mesh] = out
+	return out
 
 
 ## Re-parent a skinned mesh under `skeleton` (its skin binds by bone name).

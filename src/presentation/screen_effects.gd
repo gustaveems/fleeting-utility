@@ -134,7 +134,7 @@ void fragment() {
 
 @export var chroma_scale: float = 0.018
 @export var blur_scale: float = 0.012
-@export var tremor_amplitude: float = 0.004
+@export var tremor_amplitude: float = 0.0015
 @export var grain_scale: float = 0.03
 
 ## Vignette shape (soft boundary).
@@ -143,7 +143,7 @@ void fragment() {
 @export var vignette_max: float = 0.85
 
 ## Step-shake impulse: peak offset in pixels and decay time.
-@export var shake_impulse_amplitude: float = 6.0
+@export var shake_impulse_amplitude: float = 2.0
 @export var shake_decay_seconds: float = 0.45
 
 ## Seconds-scale smoothing for crash and focus ramps.

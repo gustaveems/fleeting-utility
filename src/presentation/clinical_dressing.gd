@@ -79,6 +79,7 @@ func _build() -> void:
 	# The brand's standee: the care was always part of the lease.
 	_box(Vector3(-1.2, 0.45, -0.9), Vector3(0.5, 0.9, 0.04), _mat(Color(0.95, 0.97, 1.0), 0.3))
 	var sign := Label3D.new()
+	SignType.dress(sign)
 	sign.text = "CORPORATE CARE\nYour life is covered."
 	sign.font_size = 48
 	sign.pixel_size = 0.004

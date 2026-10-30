@@ -49,6 +49,11 @@ func can_interact() -> bool:
 	return _park_open() or _metro_open() or _event_open()
 
 
+## The room has decayed past the threshold: the door now leads to the park walk.
+func opens_to_park() -> bool:
+	return _park_open()
+
+
 ## Below the threshold the door is the metro; at it, the park (or the metro).
 func current_prompt() -> String:
 	if not can_interact():

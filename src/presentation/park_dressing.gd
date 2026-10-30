@@ -95,6 +95,7 @@ static func _licensed_tree(root: Node3D, at: Vector3, tag_no: int) -> void:
 	plate.roughness = 0.25
 	_box(root, at + Vector3(0, 0.45, 1.0), Vector3(0.5, 0.22, 0.03), plate)
 	var tag := Label3D.new()
+	SignType.dress(tag)
 	tag.text = "LICENSED FLORA\n#%05d" % tag_no
 	tag.font_size = 32
 	tag.pixel_size = 0.004
@@ -134,6 +135,7 @@ static func _air_vents(root: Node3D) -> void:
 	if pipes != null:
 		pipes.scale = Vector3.ONE * 0.8
 	var sign := Label3D.new()
+	SignType.dress(sign)
 	sign.text = "AIR QUALITY: LEASED\nBreathe responsibly."
 	sign.font_size = 64
 	sign.pixel_size = 0.01

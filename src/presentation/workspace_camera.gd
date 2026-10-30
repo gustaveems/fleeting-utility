@@ -65,7 +65,9 @@ extends Camera3D
 ## forward axis is (-0.612, -0.5, -0.612), so the resting position is the target plus
 ## this offset. Follow logic lerps toward (player + lift + offset) — lerping toward the
 ## player WITHOUT the offset would drive the camera inside the body capsule.
-@export var camera_offset: Vector3 = Vector3(8.6, 7.0, 8.6)
+## Playtest 2026-10-30: at (8.6, 7, 8.6) (~14 m) he was a speck in the room (the room is
+## a half-scale diorama; he stands 0.85 m). ~6.4 m frames him and the corner around him.
+@export var camera_offset: Vector3 = Vector3(3.9, 3.3, 3.9)
 
 ## Ticket-06: post-climax withdrawal shake. A small constant random offset applied to
 ## the follow target, so the camera jitters slightly even when the player is still.

@@ -18,6 +18,8 @@ func create(ctx: BootstrapContext) -> void:
 	ctx.pause_menu.name = "PauseMenu"
 	ctx.lease_signing = LeaseSigning.new()
 	ctx.lease_signing.name = "LeaseSigning"
+	ctx.next_step = NextStepHint.new()
+	ctx.next_step.name = "NextStepHint"
 
 
 func wire(ctx: BootstrapContext) -> void:
@@ -29,6 +31,20 @@ func wire(ctx: BootstrapContext) -> void:
 	ctx.lease_signing.player = ctx.player
 	ctx.lease_signing.interaction = ctx.interaction
 	ctx.park.fader = ctx.fader
+	var hint := ctx.next_step
+	hint.state_data = ctx.state_data
+	hint.bench = ctx.bench_station
+	hint.easel = ctx.easel
+	hint.door = ctx.door
+	hint.day_cycle = ctx.day_cycle
+	hint.dreamscape_manager = ctx.dreamscape_manager
+	hint.park = ctx.park
+	hint.metro_ride = ctx.metro_ride
+	hint.standing = ctx.standing
+	hint.dialogue = ctx.dialogue
+	hint.night_zero = ctx.night_zero
+	hint.lease_signing = ctx.lease_signing
+	hint.self_soothing = ctx.self_soothing
 
 	# Ticket-14: the day on the HUD, the verdicts and the lease's notice.
 	ctx.day_cycle.day_changed.connect(ctx.core_hud.set_day)
@@ -69,6 +85,7 @@ func attach(ctx: BootstrapContext) -> void:
 	ctx.root.add_child(ctx.end_card)
 	ctx.root.add_child(ctx.pause_menu)
 	ctx.root.add_child(ctx.lease_signing)
+	ctx.root.add_child(ctx.next_step)
 
 
 ## Statue narratives exist only after the valley module's post_attach (module order:

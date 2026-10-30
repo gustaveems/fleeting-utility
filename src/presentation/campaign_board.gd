@@ -37,6 +37,7 @@ func _ready() -> void:
 	_work.name = "Campaign"
 	add_child(_work)
 	var brand := Label3D.new()
+	SignType.dress(brand)
 	brand.name = "Brand"
 	brand.text = CampaignScript.BRAND
 	brand.font_size = 48
@@ -46,6 +47,7 @@ func _ready() -> void:
 	brand.position = Vector3(0, -PaintedWork.SIZE.y * 0.5 - 0.09, 0.0)
 	add_child(brand)
 	var tag := Label3D.new()
+	SignType.dress(tag)
 	tag.name = "Tagline"
 	tag.text = CampaignScript.TAGLINE
 	tag.font_size = 32

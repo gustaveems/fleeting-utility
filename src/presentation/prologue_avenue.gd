@@ -321,6 +321,7 @@ func _build_street() -> void:
 	while z > AVENUE_END_Z + 2.0:
 		for side in [-1.0, 1.0]:
 			var text := Label3D.new()
+			SignType.dress(text)
 			text.text = "DO NOT CROSS THE LINE"
 			text.font_size = 64
 			text.pixel_size = 0.008
@@ -357,6 +358,7 @@ func _build_station() -> void:
 	tube.position = PLATFORM + Vector3(0, 3.6, 0)
 	add_child(tube)
 	var sign := Label3D.new()
+	SignType.dress(sign)
 	sign.text = "BLOCK 31"
 	sign.font_size = 96
 	sign.pixel_size = 0.012
@@ -379,6 +381,7 @@ func _build_left_side() -> void:
 	glass.emission_energy_multiplier = 1.8
 	_box(Vector3(RICH_X + 0.05, 2.8, -94), Vector3(0.2, 4.6, 12), glass)
 	var sign := Label3D.new()
+	SignType.dress(sign)
 	sign.text = "HERITAGE COLLECTION"
 	sign.font_size = 96
 	sign.pixel_size = 0.02
@@ -447,10 +450,11 @@ func _build_right_side() -> void:
 	]
 	for spec in neons:
 		var neon := Label3D.new()
+		SignType.dress(neon)
 		neon.text = spec[3]
 		neon.font_size = 96
-		neon.pixel_size = 0.018
-		neon.modulate = spec[2]
+		neon.pixel_size = 0.011
+		SignType.neon(neon, spec[2])
 		neon.rotation_degrees = Vector3(0, -90, 0)
 		neon.position = Vector3(POOR_X - 0.2, float(spec[1]), float(spec[0]))
 		add_child(neon)
@@ -627,6 +631,7 @@ func _build_fight() -> void:
 	lamp.position = FIGHT_AT + Vector3(0.5, 3.6, 1.2)
 	add_child(lamp)
 	var sign := Label3D.new()
+	SignType.dress(sign)
 	sign.text = "LIQUOR · 24H"
 	sign.font_size = 96
 	sign.pixel_size = 0.014

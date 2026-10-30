@@ -226,7 +226,9 @@ func _update_camera(shot: Dictionary, u: float) -> void:
 			_aim(_along(shot["cam"], eased), _look_point(shot, eased), Vector3.UP)
 		PrologueScript.Mode.EXT_FOLLOW:
 			var car := _carriages[int(shot.get("car", 0))].global_transform
-			_aim(car * _along(shot["cam"], eased), _look_point(shot, eased), Vector3.UP)
+			var offset := _along(shot["cam"], eased)
+			var eye := car.origin + offset if shot.get("steady", false) else car * offset
+			_aim(eye, _look_point(shot, eased), Vector3.UP)
 		PrologueScript.Mode.INTERIOR:
 			_update_interior(shot, eased)
 		PrologueScript.Mode.WALK_FOLLOW:
@@ -392,13 +394,10 @@ func _frame_at(d: float) -> Transform3D:
 ## Outside: the Transrapid look, sleek white, blue and orange stripes, a rounded nose.
 ## The future as advertised. Inside his carriage: the future as lived (_build_interior).
 func _build_train() -> void:
-	var body := _mat(Color(0.92, 0.93, 0.94), 0.35)
+	var body := TrainLook.body(Color(0.92, 0.93, 0.94), CARRIAGE_LENGTH, 3.4)
 	var blue := _mat(Color(0.12, 0.28, 0.62), 0.4)
 	var orange := _mat(Color(0.92, 0.48, 0.16), 0.4)
-	var glass := _mat(Color(0.95, 0.88, 0.62), 0.3)
-	glass.emission_enabled = true
-	glass.emission = Color(0.95, 0.85, 0.55)
-	glass.emission_energy_multiplier = 0.8
+	var glass := TrainLook.glass(CARRIAGE_LENGTH - 2.0)
 	for i in CARRIAGES:
 		var car := Node3D.new()
 		car.name = "Carriage_%d" % i
@@ -527,6 +526,7 @@ func _build_interior(car: Node3D) -> void:
 			_mat(Color(0.85, 0.85, 0.8), 0.9)
 		)
 	var warning := Label3D.new()
+	SignType.dress(warning)
 	warning.text = "DO NOT\nCROSS\nTHE LINE"
 	warning.font_size = 64
 	warning.pixel_size = 0.006
@@ -723,16 +723,31 @@ func _build_town() -> void:
 	_box(stone_at + Vector3(0, 2.2, 0.42), Vector3(0.6, 0.3, 0.05), plate)
 
 
+## The bore through the ridge, mouth to mouth (the ridge and the portals: PrologueCity).
+## Each mouth is dark from outside (a one-sided quad facing out), so the train goes into
+## the mountain, not into a wall; from inside the quads are culled.
 func _build_tunnel() -> void:
 	var rock := _mat(Color(0.08, 0.08, 0.09), 1.0)
-	var a := _frame_at(PrologueScript.TUNNEL_START).origin
-	var b := _frame_at(PrologueScript.TUNNEL_END).origin
-	var mid := (a + b) * 0.5
-	var length := a.distance_to(b)
+	var cx := PrologueCityPlan.ridge_centre()
+	var mouth := PrologueCityPlan.tunnel_mouth()
+	var length := mouth * 2.0
+	var mid := Vector3(cx, _frame_at(PrologueScript.TUNNEL_START).origin.y, 0)
 	_box(mid + Vector3(0, 6.0, 0), Vector3(length, 1.0, 12), rock)
 	_box(mid + Vector3(0, -3.0, 0), Vector3(length, 1.0, 12), rock)
 	_box(mid + Vector3(0, 1.5, 6.0), Vector3(length, 10, 1.0), rock)
 	_box(mid + Vector3(0, 1.5, -6.0), Vector3(length, 10, 1.0), rock)
+	var dark := StandardMaterial3D.new()
+	dark.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	dark.albedo_color = Color(0.01, 0.01, 0.012)
+	for side in [-1.0, 1.0]:
+		var quad := MeshInstance3D.new()
+		var q := QuadMesh.new()
+		q.size = Vector2(11.0, 9.0)
+		quad.mesh = q
+		quad.material_override = dark
+		quad.position = mid + Vector3(side * (mouth + 0.6), 1.5, 0)
+		quad.rotation.y = side * PI * 0.5  # QuadMesh faces +Z; turn it to face out
+		add_child(quad)
 
 
 ## The city, district by district (Phase B: PrologueCityPlan, built by PrologueCity). It
@@ -782,6 +797,7 @@ func _build_billboards() -> void:
 		panel.rotation_degrees = Vector3(0, 180, 0)  # face along +Z → toward the track
 		board.add_child(panel)
 		var label := Label3D.new()
+		SignType.dress(label)
 		label.text = str(spec[3])
 		label.font_size = 160
 		label.pixel_size = 0.01 * scale

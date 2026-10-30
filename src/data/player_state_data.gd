@@ -34,19 +34,21 @@ signal state_changed(new_state_data: PlayerStateData)
 
 ## Rate at which sensory_overload accumulates per second when unmedicated. Tunable so
 ## the Crash can feel like a slow burn or a sudden collapse.
-@export var overload_accumulation_rate: float = 8.0
+@export var overload_accumulation_rate: float = 4.0
 
 ## Maximum accumulation rate when chemical_level hits exactly 0.0. The protagonist is
-## fully withdrawn: overload floods in — roughly 1.25 s to cross a 50.0 crash threshold
-## at 40.0/s. High-Focus is a cliff, not a slope, once the drug is gone.
-@export var chemical_zero_accumulation_rate: float = 40.0
+## fully withdrawn: overload floods in — a few seconds to cross a 50.0 crash threshold
+## at 15.0/s. High-Focus is a cliff, not a slope, once the drug is gone. (40/s, with a
+## dose lasting ~35 s, kept a new player crashed most of the time: playtest 2026-10-30.)
+@export var chemical_zero_accumulation_rate: float = 15.0
 
 ## Rate at which sensory_overload decays per second when medicated. Should be slower
 ## than accumulation, so the drug buys time but doesn't instantly fix things.
 @export var overload_decay_rate: float = 3.0
 
-## Rate at which chemical_level depletes per second. The drug doesn't last forever.
-@export var chemical_depletion_rate: float = 0.02
+## Rate at which chemical_level depletes per second. The drug doesn't last forever: a
+## full dose stays above the recovery threshold ~90 s and runs out at ~2 min.
+@export var chemical_depletion_rate: float = 0.008
 
 ## Current grid position (cell coordinates). Updated by GridMover on step completion.
 var current_grid_position: Vector2i = Vector2i.ZERO

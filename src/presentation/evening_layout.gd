@@ -21,6 +21,10 @@ const HALF_LENGTH := 60.0
 const RESTAURANT_DOOR := Vector3(10, 0, 56)
 const WALK_START := Vector3(7, 0, 54)
 const STATION := Vector3(0, 0, -55)
+## The metro's stairwell: half its width, how far it runs back and how deep it goes.
+const STAIR_HALF := 1.6
+const STAIR_LENGTH := 6.0
+const STAIR_DEPTH := 3.6
 ## Walk beats: name → real position.
 const BEATS := {
 	"shoot": Vector3(-7, 0, 26),
@@ -40,6 +44,15 @@ const FAB := "res://assets/third_party/fab/"
 ## Signs on the near (camera-side) shopfronts face the camera, not the street: seen from
 ## behind, the iso view would read them mirrored.
 const NEAR_SIGN_YAW := 90.0
+
+## Who sits where (the diners' order): the friend, the three corpo friends, him.
+const DINER_NAMES: Array[String] = [
+	NightZeroScript.FRIEND,
+	NightZeroScript.VESNA,
+	NightZeroScript.OKON,
+	NightZeroScript.LIOR,
+	NightZeroScript.HIM,
+]
 
 ## The seated diners, for the director (friend first).
 var diners: Array[StreetFigure] = []
@@ -83,11 +96,24 @@ func walk_extents() -> Vector2:
 
 
 func _build_boulevard() -> void:
-	_box(
-		Vector3(0, -0.05, 0),
-		Vector3(HALF_WIDTH * 2 + 40, 0.1, HALF_LENGTH * 2 + 20),
-		_mat(Color(0.18, 0.19, 0.21), 0.3)
+	# The street, round the metro's stairwell (a hole the stairs go down into).
+	var road := _mat(Color(0.18, 0.19, 0.21), 0.3)
+	var w := HALF_WIDTH * 2 + 40
+	var l := HALF_LENGTH * 2 + 20
+	var hole := Rect2(
+		STATION.x - STAIR_HALF, STATION.z - STAIR_LENGTH, STAIR_HALF * 2.0, STAIR_LENGTH
 	)
+	var north := l * 0.5 - hole.end.y
+	var south := hole.position.y + l * 0.5
+	_box(Vector3(0, -0.05, hole.end.y + north * 0.5), Vector3(w, 0.1, north), road)
+	_box(Vector3(0, -0.05, hole.position.y - south * 0.5), Vector3(w, 0.1, south), road)
+	var side_w := (w - hole.size.x) * 0.5
+	for sx in [-1.0, 1.0]:
+		_box(
+			Vector3(sx * (hole.size.x * 0.5 + side_w * 0.5), -0.05, hole.get_center().y),
+			Vector3(side_w, 0.1, hole.size.y),
+			road
+		)
 	for side in [-1.0, 1.0]:
 		_box(
 			Vector3(side * 11, 0.08, 0),
@@ -147,8 +173,7 @@ func _build_boulevard() -> void:
 		NEAR_SIGN_YAW,
 		Color(0.95, 0.85, 0.6)
 	)
-	_box(STATION + Vector3(0, 0.6, -1.5), Vector3(6, 1.2, 5), _mat(Color(0.25, 0.27, 0.3), 0.6))
-	_label("METRO", STATION + Vector3(0, 3.2, 1), 0.0, Color(0.2, 0.84, 0.9))
+	_build_metro_entrance()
 	# People: couples and suits strolling, all lit.
 	var dresses := [StreetFigure.Dress.SUIT, StreetFigure.Dress.FRIEND, StreetFigure.Dress.SUIT]
 	for k in 14:
@@ -160,6 +185,79 @@ func _build_boulevard() -> void:
 		)
 		f.rotation_degrees.y = rng.randf_range(0, 360)
 		_world.add_child(f)
+
+
+## The way down to the night train (playtest 2026-10-30: it was a grey block): stairs
+## into a lit stairwell under a glass canopy, parapets and handrails, the METRO totem.
+func _build_metro_entrance() -> void:
+	var steel := _mat(Color(0.2, 0.22, 0.25), 0.35)
+	var stone := _mat(Color(0.55, 0.55, 0.53), 0.7)
+	var tile := _mat(Color(0.78, 0.82, 0.8), 0.25)
+	var steps := 12
+	var rise := STAIR_DEPTH / steps
+	var run := STAIR_LENGTH / steps
+	for k in steps:
+		var top := -rise * k
+		_box(
+			STATION + Vector3(0, top - rise * 0.5, -run * (k + 0.5)),
+			Vector3(STAIR_HALF * 2.0, rise, run),
+			stone
+		)
+	# The well: tiled side walls, the back wall at the foot, a landing.
+	for sx in [-1.0, 1.0]:
+		_box(
+			STATION + Vector3(sx * (STAIR_HALF + 0.1), -STAIR_DEPTH * 0.5, -STAIR_LENGTH * 0.5),
+			Vector3(0.2, STAIR_DEPTH, STAIR_LENGTH),
+			tile
+		)
+	_box(
+		STATION + Vector3(0, -STAIR_DEPTH * 0.5, -STAIR_LENGTH - 0.1),
+		Vector3(STAIR_HALF * 2.0 + 0.4, STAIR_DEPTH, 0.2),
+		tile
+	)
+	var glow := OmniLight3D.new()
+	glow.light_color = Color(0.75, 0.95, 1.0)
+	glow.light_energy = 2.5
+	glow.omni_range = 7.0
+	glow.position = STATION + Vector3(0, -STAIR_DEPTH + 1.0, -STAIR_LENGTH + 1.0)
+	_world.add_child(glow)
+	# Parapets either side and across the back, handrails on posts.
+	for sx in [-1.0, 1.0]:
+		var x: float = sx * (STAIR_HALF + 0.15)
+		_box(
+			STATION + Vector3(x, 0.45, -STAIR_LENGTH * 0.5), Vector3(0.3, 0.9, STAIR_LENGTH), stone
+		)
+		_box(
+			STATION + Vector3(x, 1.0, -STAIR_LENGTH * 0.5), Vector3(0.06, 0.06, STAIR_LENGTH), steel
+		)
+	_box(
+		STATION + Vector3(0, 0.45, -STAIR_LENGTH - 0.15),
+		Vector3(STAIR_HALF * 2.0 + 0.6, 0.9, 0.3),
+		stone
+	)
+	# The canopy: four posts, a glass roof sloping down towards the street.
+	var glass := _mat(Color(0.6, 0.85, 0.9, 0.35), 0.05)
+	for sx in [-1.0, 1.0]:
+		for z in [-0.3, -STAIR_LENGTH + 0.3]:
+			_box(
+				STATION + Vector3(sx * (STAIR_HALF + 0.15), 1.7, z), Vector3(0.12, 3.4, 0.12), steel
+			)
+	_box(
+		STATION + Vector3(0, 3.45, -STAIR_LENGTH * 0.5),
+		Vector3(STAIR_HALF * 2.0 + 0.8, 0.08, STAIR_LENGTH + 0.6),
+		glass
+	)
+	_box(STATION + Vector3(0, 3.35, -0.2), Vector3(STAIR_HALF * 2.0 + 0.8, 0.25, 0.15), steel)
+	# The totem by the mouth: a lit panel with the sign on both faces.
+	var lit := _mat(Color(0.12, 0.6, 0.7), 0.3)
+	lit.emission_enabled = true
+	lit.emission = Color(0.2, 0.84, 0.9)
+	lit.emission_energy_multiplier = 1.6
+	var totem := STATION + Vector3(STAIR_HALF + 1.2, 0, 0.6)
+	_box(totem + Vector3(0, 1.4, 0), Vector3(0.6, 2.8, 0.25), steel)
+	_box(totem + Vector3(0, 2.45, 0), Vector3(0.7, 0.7, 0.3), lit)
+	_label("M", totem + Vector3(0, 2.45, 0.17), 0.0, Color(0.02, 0.05, 0.08), 0.28)
+	_label("METRO · LINE 4", STATION + Vector3(0, 3.35, -0.1), 0.0, Color(0.2, 0.84, 0.9), 0.1)
 
 
 ## The beats along the walk: the campaign shoot, the window, a couple; the station.
@@ -227,19 +325,87 @@ func _beat(b: String) -> void:
 func _build_restaurant() -> void:
 	var at := DINNER_AT
 	_box(at + Vector3(0, -0.05, 0), Vector3(14, 0.1, 12), _mat(Color(0.3, 0.22, 0.16), 0.4))
-	_box(at + Vector3(0, 2.5, -6), Vector3(14, 5, 0.2), _mat(Color(0.2, 0.18, 0.16), 0.6))
-	var table := MeshInstance3D.new()
+	# A corner of the room: the panelled back wall (the paintings hang there) and the
+	# window wall on the left, the city lit beyond it; the camera looks in from the open
+	# corner. A rug under the table.
+	var panel := _mat(Color(0.22, 0.17, 0.13), 0.55)
+	_box(at + Vector3(0, 2.5, -6), Vector3(14, 5, 0.2), panel)
+	_box(at + Vector3(0, 0.5, -5.85), Vector3(14, 1.0, 0.1), _mat(Color(0.14, 0.1, 0.08), 0.4))
+	_box(at + Vector3(-7, 0.5, 0), Vector3(0.2, 1.0, 12), panel)
+	# The other two walls (the shots across the table look that way): the bar, the door.
+	_box(at + Vector3(0, 2.5, 6), Vector3(14, 5, 0.2), panel)
+	_box(at + Vector3(7, 2.5, 0), Vector3(0.2, 5, 12), panel)
+	var brass := _mat(Color(0.75, 0.58, 0.3), 0.3)
+	brass.metallic = 0.8
+	_box(at + Vector3(2, 0.55, 5.4), Vector3(6, 1.1, 0.8), _mat(Color(0.12, 0.08, 0.06), 0.4))
+	_box(at + Vector3(2, 1.12, 5.4), Vector3(6.1, 0.05, 0.9), brass)
+	for y in [1.7, 2.3, 2.9]:
+		_box(at + Vector3(2, y, 5.85), Vector3(5.6, 0.04, 0.25), brass)
+	var bottles := _mat(Color(0.25, 0.45, 0.3), 0.15)
+	for k in 30:
+		var shelf: float = [1.7, 2.3, 2.9][k % 3]
+		_box(
+			at + Vector3(-0.6 + floorf(k / 3.0) * 0.55 + (k % 3) * 0.12, shelf + 0.15, 5.82),
+			Vector3(0.07, 0.28, 0.07),
+			bottles
+		)
+	_box(at + Vector3(6.88, 1.2, -2.5), Vector3(0.1, 2.4, 1.3), _mat(Color(0.1, 0.07, 0.05), 0.4))
+	_box(at + Vector3(-7, 4.6, 0), Vector3(0.2, 0.8, 12), panel)
+	var night := _mat(Color(0.03, 0.05, 0.1), 0.05)
+	night.emission_enabled = true
+	night.emission = Color(0.08, 0.12, 0.24)
+	_box(at + Vector3(-7.05, 2.6, 0), Vector3(0.05, 3.2, 12), night)
+	var lit := _mat(Color(1.0, 0.85, 0.6), 0.3)
+	lit.emission_enabled = true
+	lit.emission = Color(1.0, 0.82, 0.55)
+	lit.emission_energy_multiplier = 1.5
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 31
+	for k in 40:  # windows of the towers across the street
+		_box(
+			at + Vector3(-7.08, rng.randf_range(1.2, 4.0), rng.randf_range(-5.8, 5.8)),
+			Vector3(0.02, 0.12, 0.08),
+			lit
+		)
+	for z in [-6.0, -3.0, 0.0, 3.0, 6.0]:  # mullions
+		_box(at + Vector3(-6.95, 2.6, z), Vector3(0.12, 3.2, 0.12), panel)
+	var rug := _mat(Color(0.36, 0.08, 0.08), 0.95)
+	_box(at + Vector3(0, 0.03, 0), Vector3(6.2, 0.02, 6.2), rug)
+	# The table: a white cloth falling to the floor, five places set, candles.
+	var cloth := _mat(Color(0.94, 0.92, 0.88), 0.7)
+	var top := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 1.1
-	cyl.bottom_radius = 1.1
-	cyl.height = 0.08
-	table.mesh = cyl
-	table.material_override = _mat(Color(0.92, 0.9, 0.86), 0.3)
-	table.position = at + Vector3(0, 0.75, 0)
-	_world.add_child(table)
+	cyl.bottom_radius = 1.18
+	cyl.height = 0.74
+	top.mesh = cyl
+	top.material_override = cloth
+	top.position = at + Vector3(0, 0.4, 0)
+	_world.add_child(top)
+	var plate := _mat(Color(0.98, 0.98, 0.97), 0.2)
+	var glass := _mat(Color(0.85, 0.9, 0.95, 0.35), 0.05)
+	for k in 5:
+		var a := TAU * k / 5.0
+		var place := at + Vector3(sin(a) * 0.78, 0.78, cos(a) * 0.78)
+		_cylinder(place, 0.17, 0.015, plate)
+		_cylinder(place + Vector3(cos(a) * 0.22, 0.09, -sin(a) * 0.22), 0.035, 0.18, glass)
+	var wax := _mat(Color(0.95, 0.93, 0.85), 0.6)
+	var flame := _mat(Color(1.0, 0.75, 0.35), 0.5)
+	flame.emission_enabled = true
+	flame.emission = Color(1.0, 0.7, 0.3)
+	flame.emission_energy_multiplier = 4.0
+	for x in [-0.25, 0.25]:
+		_cylinder(at + Vector3(x, 0.89, 0.15), 0.025, 0.22, wax)
+		_cylinder(at + Vector3(x, 1.02, 0.15), 0.012, 0.04, flame)
+	var candle := OmniLight3D.new()
+	candle.light_color = Color(1.0, 0.72, 0.4)
+	candle.light_energy = 1.2
+	candle.omni_range = 3.0
+	candle.position = at + Vector3(0, 1.1, 0.15)
+	_world.add_child(candle)
 	var warm := OmniLight3D.new()
 	warm.light_color = Color(1.0, 0.82, 0.6)
-	warm.light_energy = 3.0
+	warm.light_energy = 2.2
 	warm.omni_range = 7.0
 	warm.position = at + Vector3(0, 2.6, 0)
 	_world.add_child(warm)
@@ -254,9 +420,7 @@ func _build_restaurant() -> void:
 	for k in 5:
 		var a := TAU * k / 5.0
 		var seat := at + Vector3(sin(a) * 1.7, 0.45, cos(a) * 1.7)
-		_box(
-			seat + Vector3(0, -0.22, 0), Vector3(0.5, 0.45, 0.5), _mat(Color(0.25, 0.2, 0.16), 0.6)
-		)
+		_chair(seat, a)
 		var d := StreetFigure.new()
 		# The corpo friends wear veils: their faces are a product.
 		d.veiled = k in [1, 2, 3]
@@ -339,7 +503,51 @@ func _build_train() -> void:
 		_world.add_child(f)
 
 
+## The diner who speaks as `speaker`, or null (his thoughts, anyone else).
+func diner_for(speaker: String) -> StreetFigure:
+	var i := DINER_NAMES.find(speaker)
+	return diners[i] if i >= 0 and i < diners.size() else null
+
+
 ## ----- HELPERS -------------------------------------------------------------------------
+
+
+## A dining chair at `seat` (the sitter's hip point), its back away from the table
+## (`angle`: the seat's bearing from the table's centre).
+func _chair(seat: Vector3, angle: float) -> void:
+	var wood := _mat(Color(0.18, 0.11, 0.07), 0.45)
+	var velvet := _mat(Color(0.32, 0.1, 0.12), 0.9)
+	var chair := Node3D.new()
+	chair.position = seat + Vector3(0, -0.45, 0)
+	chair.rotation.y = angle
+	_world.add_child(chair)
+	var parts: Array = [
+		[Vector3(0, 0.44, 0), Vector3(0.5, 0.08, 0.5), velvet],
+		[Vector3(0, 0.85, 0.23), Vector3(0.48, 0.75, 0.06), velvet],
+	]
+	for x in [-0.21, 0.21]:
+		for z in [-0.21, 0.21]:
+			parts.append([Vector3(x, 0.2, z), Vector3(0.05, 0.4, 0.05), wood])
+	for p: Array in parts:
+		var mi := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = p[1]
+		mi.mesh = b
+		mi.material_override = p[2]
+		mi.position = p[0]
+		chair.add_child(mi)
+
+
+func _cylinder(at: Vector3, radius: float, h: float, mat: Material) -> void:
+	var mi := MeshInstance3D.new()
+	var c := CylinderMesh.new()
+	c.top_radius = radius
+	c.bottom_radius = radius
+	c.height = h
+	mi.mesh = c
+	mi.material_override = mat
+	mi.position = at
+	_world.add_child(mi)
 
 
 func _box(at: Vector3, size: Vector3, mat: Material) -> void:
@@ -352,11 +560,12 @@ func _box(at: Vector3, size: Vector3, mat: Material) -> void:
 	_world.add_child(mi)
 
 
-func _label(text: String, at: Vector3, yaw: float, c: Color) -> void:
+func _label(text: String, at: Vector3, yaw: float, c: Color, size: float = 1.0) -> void:
 	var l := Label3D.new()
+	SignType.dress(l)
 	l.text = text
 	l.font_size = 96
-	l.pixel_size = 0.02
+	l.pixel_size = 0.02 * size
 	l.modulate = c
 	l.position = at
 	l.rotation_degrees.y = yaw

@@ -10,7 +10,8 @@ extends RefCounted
 ##   EXT_FIXED    a static camera at `cam`, looking at `look`
 ##   EXT_PATH     a camera travelling through the `cam` points, looking at `look`
 ##   EXT_FOLLOW   riding with the train: carriage-local offsets `cam` (one point, or a
-##                path to travel), carriage `car` (default the lead), looking at `look`
+##                path to travel), carriage `car` (default the lead), looking at `look`;
+##                `steady` keeps the offset in world axes (no swinging round curves)
 ##   INTERIOR     handheld inside his carriage: local `cam` and `look` paths, shaking
 ##   WALK_FOLLOW  third person, behind his shoulder, turning with him
 ##   TOP_TRACK    high over the metro side looking down on the street, sliding with him
@@ -99,11 +100,11 @@ static func shots() -> Array[Dictionary]:
 			"lines": [[0.5, "PA: Regional line 4. Doors closing."]],
 		},
 		{
-			# Glide down beside the train and slide back along it over the dying town.
+			# Beside the train, sliding back along it over the dying town.
 			"name": "town_glide",
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 8.0,
-			"blend": 3.0,
+			"cut": true,  # a glide from the platform camera swept ~90 m in 3 s
 			"d": [150.0, 300.0],
 			"cam": [Vector3(9, 1.5, -14), Vector3(10, 3.0, 34)],
 			"look": "train",
@@ -184,7 +185,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "through_statue",
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 5.0,
-			"blend": 2.5,
+			"cut": true,  # gliding in from the reveal whipped round at 120 °/s
 			"d": [880.0, 980.0],
 			"cam": [Vector3(2, 7, 30), Vector3(1.5, 3.5, 4)],
 			"look": "colossus",
@@ -193,12 +194,15 @@ static func shots() -> Array[Dictionary]:
 			"lines": [],
 		},
 		{
+			# Steady: the offset is in world axes, so the camera doesn't swing round with
+			# the track's last curves.
 			"name": "descent",
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 6.4,
-			"blend": 1.5,
+			"cut": true,
+			"steady": true,
 			"d": [980.0, END_OF_LINE],
-			"cam": Vector3(10, 30, 34),
+			"cam": Vector3(-16, 30, 26),
 			"look": "train",
 			"fov": 58.0,
 			"lines": [[2.0, "PA: Block 31. Mind the gap. Mind your lease."]],
@@ -219,7 +223,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "avenue_walk",
 			"mode": Mode.WALK_FOLLOW,
 			"dur": (top_from - curb) / WALK_SPEED,
-			"blend": 0.0,
+			"cut": true,
 			"d": [END_OF_LINE, END_OF_LINE],
 			"w": [curb / total, top_from / total],
 			"fov": 58.0,
@@ -273,7 +277,7 @@ static func shots() -> Array[Dictionary]:
 			"name": "the_call",
 			"mode": Mode.EXT_PATH,
 			"dur": 16.0,
-			"blend": 0.0,
+			"blend": 2.5,  # tilting down from the title to him
 			"d": [END_OF_LINE, END_OF_LINE],
 			"w": [1.0, 1.0],
 			"cam": [Vector3(452.6, 0.6, -107), Vector3(452.4, 1.4, -111.5)],

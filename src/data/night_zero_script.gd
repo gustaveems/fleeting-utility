@@ -80,6 +80,8 @@ const CAR: Array = [
 
 ## N6: the dinner.
 const DINNER: Array = [
+	{"say": [FRIEND, "Everyone, this is my oldest friend. Just moved into the city.", 3.0]},
+	{"say": [FRIEND, "Vesna. Okon. Lior. Be nice.", 2.4]},
 	{"say": [VESNA, "Oh! You brought someone. He's so... authentic.", 3.0]},
 	{"think": ["Everyone here is dressed like the billboard.", 2.6]},
 	{"say": [OKON, "So. What do you do?", 2.0]},

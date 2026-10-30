@@ -50,6 +50,11 @@ func current_prompt() -> String:
 	return blocked_prompt()
 
 
+## A cooked pill is waiting on the worktop.
+func has_pill() -> bool:
+	return bench != null and spatial_grid != null and _pill_cell() != Vector2i(-1, -1)
+
+
 func blocked_prompt() -> String:
 	if bench != null and bench.is_crafting():
 		return "Cooking…"

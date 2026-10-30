@@ -60,16 +60,28 @@ void fragment() {
 		base *= 1.12;
 	}
 	vec3 glow = vec3(0.0);
+	float rough = 0.88;
+	float metal = 0.0;
 	bool wall = abs(world_normal.y) < 0.5;
+	vec2 along = normalize(vec2(-world_normal.z, world_normal.x));
+	float u = dot(world_pos.xz, along);
 	if (wall && look > 0.5 && look < 2.5) {
+		// A curtain wall (playtest 2026-10-30: "the towers are not texturized"): storey
+		// bands and mullions in the panel colour, glass that holds the sky (dark low,
+		// lighter up), a few lit rooms, blinds, rain stains run down the panels.
 		bool tower = look < 1.5;
-		vec2 along = normalize(vec2(-world_normal.z, world_normal.x));
-		float u = dot(world_pos.xz, along);
 		vec2 cell_size = tower ? vec2(2.4, 3.6) : vec2(3.2, 3.0);
 		vec2 g = vec2(u, y) / cell_size;
 		vec2 cell = floor(g);
 		vec2 f = fract(g);
-		bool pane = f.x > 0.25 && f.x < 0.75 && f.y > 0.3 && f.y < 0.72 && y > 4.0;
+		float stain = vnoise(vec2(u * 0.7, y * 0.04)) * vnoise(vec2(u * 3.1, y * 0.12));
+		base *= mix(0.9, 1.1, hash(floor(world_pos.xz / 40.0)));  // building to building
+		base *= 1.0 - stain * 0.35;
+		float glass_x = tower ? 0.08 : 0.25;
+		float sill = tower ? 0.22 : 0.3;
+		bool pane = f.x > glass_x && f.x < 1.0 - glass_x && f.y > sill && f.y < 0.86 && y > 4.0;
+		float slab = 1.0 - smoothstep(0.0, 0.03, abs(f.y - sill + 0.02));
+		base *= 1.0 + slab * 0.25;
 		if (pane) {
 			float h = hash(cell + floor(world_pos.xz / 40.0));
 			float lit_share = tower ? 0.12 : 0.1;
@@ -77,11 +89,39 @@ void fragment() {
 				vec3 warm = vec3(1.0, 0.78, 0.5);
 				vec3 cool = vec3(0.62, 0.86, 1.0);
 				glow = mix(warm, cool, step(0.6, fract(h * 13.7))) * (tower ? 1.15 : 1.05);
+				float blind = step(0.7, fract(h * 29.3)) * step(0.55, f.y);
+				glow *= 1.0 - blind * 0.6;
 				base *= 0.4;
 			} else {
-				base *= 0.72;  // dark glass
+				// Dark glass, the sky in it: bluer and brighter with height, a mullion
+				// splitting each pane, blinds drawn in some.
+				vec3 sky = mix(vec3(0.18, 0.22, 0.26), vec3(0.42, 0.5, 0.56), smoothstep(10.0, 140.0, y));
+				base = sky * mix(0.75, 1.1, h);
+				float mullion = 1.0 - smoothstep(0.0, 0.02, abs(f.x - 0.5));
+				base = mix(base, COLOR.rgb * 0.8, mullion * (tower ? 1.0 : 0.0));
+				base = mix(base, COLOR.rgb * 1.1, step(0.82, fract(h * 7.1)) * 0.6);
+				rough = 0.12;
+				metal = 0.55;
 			}
 		}
+	}
+	if (wall && look > 2.5 && look < 3.5) {
+		// The town: sun-bleached render over brick, patched; small shuttered windows.
+		float n = vnoise(vec2(u, y) * 0.35) * 0.6 + vnoise(vec2(u, y) * 2.2) * 0.4;
+		base *= mix(0.78, 1.15, n);
+		float brick = step(0.62, vnoise(vec2(u, y) * 0.5 + 9.0));
+		vec2 b = vec2(u * 4.0 + floor(y * 13.0) * 0.5, y * 13.0);
+		float course = max(step(fract(b.y), 0.12), step(fract(b.x), 0.06));
+		base = mix(base, vec3(0.45, 0.24, 0.16) * mix(1.0, 0.7, course), brick * 0.85);
+		vec2 g = vec2(u, y - 1.0) / vec2(3.0, 3.2);
+		vec2 f = fract(g);
+		if (y > 1.0 && f.x > 0.33 && f.x < 0.67 && f.y > 0.3 && f.y < 0.8) {
+			float shut = hash(floor(g) + floor(world_pos.xz / 20.0));
+			base = shut < 0.5
+				? vec3(0.32, 0.27, 0.22) * (0.8 + 0.2 * step(0.5, fract(f.y * 9.0)))
+				: vec3(0.06, 0.05, 0.05);
+		}
+		base *= mix(0.7, 1.0, smoothstep(0.0, 2.5, y));  // splashback dust
 	}
 	if (look > 3.5 && look < 4.5) {
 		// Rock: two octaves of mottling, faint strata.
@@ -96,11 +136,11 @@ void fragment() {
 		base *= mix(0.9 + 0.16 * hash(floor(t)), 0.62, joint);
 	} else if (look > 5.5 && wall) {
 		// Corrugated metal: vertical ribs every 0.6 m.
-		vec2 along2 = normalize(vec2(-world_normal.z, world_normal.x));
-		base *= 0.84 + 0.16 * sin(dot(world_pos.xz, along2) * 10.5);
+		base *= 0.84 + 0.16 * sin(u * 10.5);
 	}
 	ALBEDO = base;
-	ROUGHNESS = 0.88;
+	ROUGHNESS = rough;
+	METALLIC = metal;
 	EMISSION = glow;
 }
 """
@@ -319,6 +359,7 @@ func _peeling_board(at: Vector3, text: String) -> void:
 		_box(at + Vector3(x, 4.0, 0), Vector3(0.3, 8.0, 0.3), Color(0.2, 0.2, 0.2))
 	_box(at + Vector3(0, 9.5, 0), Vector3(14.0, 4.0, 0.3), Color(0.5, 0.45, 0.38))
 	var l := Label3D.new()
+	SignType.dress(l)
 	l.text = text
 	l.font_size = 96
 	l.pixel_size = 0.03
@@ -344,15 +385,17 @@ func _ridge() -> void:
 	_prism(
 		Vector3(cx, h * 0.5, 0), Vector3(w, h, length), Basis(), Color(0.3, 0.24, 0.18), Look.ROCK
 	)
-	# The portals where the line meets the rock: concrete, stained.
+	# The portals where the line meets the rock: a concrete frame round each mouth.
+	var floor_y := PrologueCityPlan.TUNNEL_FLOOR
 	var ceiling := PrologueCityPlan.TUNNEL_CEILING
 	var half := PrologueCityPlan.TUNNEL_HALF
-	var reach := w * 0.5 * (1.0 - (ceiling + 1.0) / h)
+	var mouth := PrologueCityPlan.tunnel_mouth()
 	var concrete := Color(0.45, 0.43, 0.4)
+	var tall := ceiling - floor_y + 2.0
 	for side in [-1.0, 1.0]:
-		var px: float = cx + side * reach
+		var px: float = cx + side * mouth
 		for pz in [-half, half]:
-			_box(Vector3(px, ceiling * 0.5, pz), Vector3(2.0, ceiling + 1.0, 1.6), concrete)
+			_box(Vector3(px, floor_y + tall * 0.5 - 1.0, pz), Vector3(2.0, tall, 1.6), concrete)
 		_box(Vector3(px, ceiling + 1.4, 0), Vector3(2.0, 2.4, half * 2.0 + 1.6), concrete)
 
 
@@ -780,6 +823,7 @@ func _label(
 	east := false
 ) -> void:
 	var l := Label3D.new()
+	SignType.dress(l)
 	l.text = text
 	l.font_size = 96
 	l.pixel_size = pixel

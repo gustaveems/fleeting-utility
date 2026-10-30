@@ -37,6 +37,7 @@ var _follow: WorkspaceCamera
 var _head_call: HeadCall
 var _choices: ChoicePanel
 var _objective: Label
+var _film_tween: Tween
 
 
 func _ready() -> void:
@@ -174,11 +175,51 @@ func _car() -> void:
 
 func _dinner() -> void:
 	_start("dinner")
-	var c := EveningLayout.DINNER_AT
-	_film.global_position = layout.world(c + Vector3(3.4, 2.6, 3.4))
-	_film.look_at(layout.world(c + Vector3(0, 0.8, 0)), Vector3.UP)
+	_dinner_wide()
 	_film.make_current()
+	_head_call.line_shown.connect(_on_dinner_line)
 	await runner.run(NightZeroScript.DINNER)
+	_head_call.line_shown.disconnect(_on_dinner_line)
+	for d in layout.diners:
+		d.set_talking(false)
+
+
+## The table from the open corner.
+func _dinner_wide() -> void:
+	var c := EveningLayout.DINNER_AT
+	_glide_film(c + Vector3(3.4, 2.6, 3.4), c + Vector3(0, 0.8, 0))
+
+
+## Whoever speaks talks with their hands, and the camera finds them across the table
+## (playtest 2026-10-30: one fixed wide shot of five still figures read as awkward, and
+## you couldn't tell who was talking). His thoughts go back to the wide shot.
+func _on_dinner_line(_index: int) -> void:
+	var line := _head_call.current_line()
+	var speaker := str(line[0]) if not line.is_empty() else ""
+	var talker := layout.diner_for(speaker)
+	for d in layout.diners:
+		d.set_talking(d == talker)
+	if talker == null or speaker == NightZeroScript.HIM:
+		_dinner_wide()
+		return
+	var c := EveningLayout.DINNER_AT
+	var seat := layout.to_local(talker.global_position) / EveningLayout.WORLD_SCALE
+	var across := Vector3(c.x - seat.x, 0, c.z - seat.z).normalized().rotated(Vector3.UP, 0.4)
+	# From over the table's far half (behind a diner, a head filled the frame).
+	_glide_film(c + across * 1.0 + Vector3(0, 1.75, 0), seat + Vector3(0, 0.75, 0))
+
+
+## Move the film camera to `eye`, looking at `at` (real metres), over half a second.
+func _glide_film(eye: Vector3, at: Vector3) -> void:
+	var to := Transform3D.IDENTITY.translated(layout.world(eye))
+	to = to.looking_at(layout.world(at), Vector3.UP)
+	if _film_tween != null:
+		_film_tween.kill()
+	if not _film.is_current():
+		_film.global_transform = to
+		return
+	_film_tween = create_tween()
+	_film_tween.tween_property(_film, "global_transform", to, 0.6).set_trans(Tween.TRANS_SINE)
 
 
 func _gift() -> void:

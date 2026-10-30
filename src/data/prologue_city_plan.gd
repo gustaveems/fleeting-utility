@@ -34,9 +34,12 @@ const TOWN_SIGNS := ["CLOSED", "FOR LEASE", "", "DEPOT JOBS", "", "CLOSED", "NO 
 
 ## ----- B. THE RIDGE (the tunnel cuts through it) ------------------------------------------
 const RIDGE := [-330.0, -255.0]
-const RIDGE_HEIGHT := 26.0
-## Half-width of the tunnel's corridor and its ceiling (the tunnel's own walls sit inside).
+## Steep, so the line goes into a rock face, not into a box lying on a slope.
+const RIDGE_HEIGHT := 60.0
+## Half-width of the tunnel's corridor, its floor and its ceiling (the tunnel's own walls
+## sit inside).
 const TUNNEL_HALF := 8.0
+const TUNNEL_FLOOR := 9.0
 const TUNNEL_CEILING := 18.5
 
 ## ----- C. THE CITY'S EDGE ---------------------------------------------------------------
@@ -83,3 +86,14 @@ const SKYLINE_HEIGHT := [60.0, 240.0]
 
 ## How far the plan runs north and south of the line.
 const Z_RANGE := [-290.0, 290.0]
+
+
+## How far from the ridge's crest line the bore meets the open air (where the slope comes
+## down to the tunnel floor): the two mouths.
+static func tunnel_mouth() -> float:
+	var half_width := (float(RIDGE[1]) - float(RIDGE[0])) * 0.5
+	return half_width * (1.0 - TUNNEL_FLOOR / RIDGE_HEIGHT)
+
+
+static func ridge_centre() -> float:
+	return (float(RIDGE[0]) + float(RIDGE[1])) * 0.5

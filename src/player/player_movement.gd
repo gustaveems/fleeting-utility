@@ -57,14 +57,14 @@ const _STOP_SPEED := 0.08
 @export var move_speed: float = 4.0
 
 ## Top speed in Crash state.
-@export var crash_move_speed: float = 1.4
+@export var crash_move_speed: float = 2.6
 
 ## Exponential approach rate to the desired velocity, 1/s. High-Focus is snappy.
 @export var acceleration: float = 17.0
 
 ## Crash acceleration. Low value = the body answers input late, which is the felt
 ## sluggishness — this, not top speed alone, is what makes moving while crashed awful.
-@export var crash_acceleration: float = 4.5
+@export var crash_acceleration: float = 8.0
 
 ## Safety clamp half-extents (metres, XZ). Wall colliders do the real containment;
 ## this only catches tunneling at high speed / shallow angles.

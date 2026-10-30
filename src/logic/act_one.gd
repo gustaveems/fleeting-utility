@@ -262,6 +262,7 @@ func _place_crate() -> void:
 		_crate.scale = Vector3.ONE * PROP_SCALE
 	# Not his: stencilled, banded, locked.
 	var stencil := Label3D.new()
+	SignType.dress(stencil)
 	stencil.text = "DO NOT OPEN"
 	stencil.font_size = 48
 	stencil.pixel_size = 0.0035

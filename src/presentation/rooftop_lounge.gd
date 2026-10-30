@@ -74,6 +74,7 @@ func _build() -> void:
 	board.emission = Color(0.1, 0.08, 0.05)
 	_box(Vector3(0.6, 1.05, -HALF_WIDTH - 0.05), Vector3(3.2, 0.42, 0.04), board)
 	_banner = Label3D.new()
+	SignType.dress(_banner)
 	_banner.name = "Banner"
 	_banner.font_size = 64
 	_banner.pixel_size = 0.0035
