@@ -21,6 +21,8 @@ const HALF_LENGTH := 60.0
 const RESTAURANT_DOOR := Vector3(10, 0, 56)
 const WALK_START := Vector3(7, 0, 54)
 const STATION := Vector3(0, 0, -55)
+const NIGHT_TRAIN_CARS := 3
+const NIGHT_TRAIN_WEAR := 2.2
 ## The metro's stairwell: half its width, how far it runs back and how deep it goes.
 const STAIR_HALF := 1.6
 const STAIR_LENGTH := 6.0
@@ -74,12 +76,12 @@ func _ready() -> void:
 	_build_restaurant()
 	_build_car_route()
 	_build_train()
+	_dress_train()  # the maglev is code: no pack needed
 	if _has_kit():
 		_kit.build(_world)
 		_dress_street()
 		_dress_shoot()
 		_dress_restaurant()
-		_dress_train()
 
 
 ## A real-metre layout point in the game's (scaled) world space.
@@ -772,10 +774,16 @@ func _dress_restaurant() -> void:
 	CityKit.prop(CityKit.polyhaven("wine_bottles_01"), _world, at + Vector3(0, 0.79, 0), 0.0, 0.0)
 
 
-## The night train waits at the platform: the old graffiti tram.
+## The night train waits at the platform: the film's maglev, the night service (worn,
+## tagged). One train family across the game (playtest 2026-11-03).
 func _dress_train() -> void:
 	var platform := TRAIN_AT + Vector3(9, 0, 0)
 	_box(platform + Vector3(4, 0.5, 0), Vector3(5, 1.0, 26), _mat(Color(0.32, 0.32, 0.33), 0.9))
-	CityKit.prop(
-		FAB + "graffiti_train/SciFiTram.glb", _world, platform + Vector3(0, 0.4, 0), 90.0, 0.0
-	)
+	for k in NIGHT_TRAIN_CARS:
+		var car := Node3D.new()
+		car.name = "NightTrain_%d" % k
+		# The nose towards the platform camera (+Z), the rest stretching away.
+		car.position = platform + Vector3(0, 0.4, -2.0 - k * (TrainLook.LENGTH + 1.2))
+		car.rotation.y = PI
+		_world.add_child(car)
+		TrainLook.carriage(car, k == 0, NIGHT_TRAIN_WEAR)

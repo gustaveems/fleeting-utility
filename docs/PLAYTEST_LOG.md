@@ -66,8 +66,13 @@ Not reached: the park.
     shop windows want an emissive glass material.
 
 ### Look
-- [ ] **The night train switches model.** The film's maglev is ours, but the night
+- [x] **The night train switches model.** The film's maglev is ours, but the night
   train after dinner is the Fab graffiti tram. Use one train family.
+  - **Fixed:** `TrainLook.carriage(car, nose, wear)` builds one carriage, used by both
+    the film and the evening. The night train is the same maglev worn (wear 2.2:
+    greyer, grimier, spray tags on the lower panels; none on the nose). The windscreen
+    is painted on the nose in its shader. The Fab tram stays only as the wreck in the
+    film's dead town.
 - [ ] **Not textured yet:**
   - the metro station;
   - the inside of the metro carriage;

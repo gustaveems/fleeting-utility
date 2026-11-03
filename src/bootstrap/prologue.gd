@@ -19,7 +19,7 @@ signal finished
 const GAME_SCENE_PATH := "res://scenes/workspace.tscn"
 const SKIP_HOLD := 1.0
 const CARRIAGES := 4
-const CARRIAGE_LENGTH := 18.0
+const CARRIAGE_LENGTH := TrainLook.LENGTH
 const CARRIAGE_GAP := 1.2
 ## He sits in the second carriage, by the right-hand window (carriage-local).
 const SEAT_CARRIAGE := 1
@@ -30,8 +30,8 @@ const DEFAULT_BLEND := 2.0
 const SHAKE_MOVE := 0.035
 const SHAKE_TURN := 0.018
 ## The carriage's window band, centred at head height (seated and standing).
-const WINDOW_Y := 1.35
-const WINDOW_H := 0.9
+const WINDOW_Y := TrainLook.WINDOW_Y
+const WINDOW_H := TrainLook.WINDOW_H
 ## Ground area kept free of generated towers for the avenue walk.
 const AVENUE_CLEAR := Rect2(Vector2(366, -155), Vector2(136, 120))
 ## Third-person follow: behind and over his right shoulder.
@@ -399,46 +399,16 @@ func _frame_at(d: float) -> Transform3D:
 ## Outside: the Transrapid look, sleek white, blue and orange stripes, a rounded nose.
 ## The future as advertised. Inside his carriage: the future as lived (_build_interior).
 func _build_train() -> void:
-	var body := TrainLook.body(Color(0.92, 0.93, 0.94), CARRIAGE_LENGTH, 3.4)
-	var blue := _mat(Color(0.12, 0.28, 0.62), 0.4)
-	var orange := _mat(Color(0.92, 0.48, 0.16), 0.4)
-	var glass := TrainLook.glass(CARRIAGE_LENGTH - 2.0)
 	for i in CARRIAGES:
 		var car := Node3D.new()
 		car.name = "Carriage_%d" % i
 		add_child(car)
-		_box_in(car, Vector3(0, 1.7, 0), Vector3(3.2, 3.4, CARRIAGE_LENGTH), body)
-		for side in [-1.0, 1.0]:
-			var pane := _box_in(
-				car,
-				Vector3(side * 1.62, WINDOW_Y, 0),
-				Vector3(0.05, WINDOW_H, CARRIAGE_LENGTH - 2.0),
-				glass
-			)
-			if i == SEAT_CARRIAGE:
-				_seat_glass.append(pane)
-			_box_in(car, Vector3(side * 1.61, 0.7, 0), Vector3(0.04, 0.16, CARRIAGE_LENGTH), blue)
-			_box_in(car, Vector3(side * 1.61, 0.5, 0), Vector3(0.04, 0.08, CARRIAGE_LENGTH), orange)
-		if i == 0:
-			_build_nose(car, body)
+		var panes := TrainLook.carriage(car, i == 0)
 		if i == SEAT_CARRIAGE:
+			_seat_glass.append_array(panes)
 			_build_interior(car)
 		_carriages.append(car)
 	_place_train()
-
-
-func _build_nose(car: Node3D, body: Material) -> void:
-	var nose := MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 1.6
-	sphere.height = 3.4
-	nose.mesh = sphere
-	nose.material_override = body
-	nose.scale = Vector3(1.0, 1.0, 2.0)
-	nose.position = Vector3(0, 1.7, -CARRIAGE_LENGTH * 0.5)
-	car.add_child(nose)
-	var screen := _mat(Color(0.05, 0.07, 0.1), 0.15)
-	_box_in(car, Vector3(0, 2.35, -CARRIAGE_LENGTH * 0.5 - 2.2), Vector3(2.0, 0.7, 0.9), screen)
 
 
 ## The grimy subway interior (ref sonat-samir-cp-sub2.jpg): poles, ads over the windows,
