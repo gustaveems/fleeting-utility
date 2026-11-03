@@ -38,6 +38,10 @@ signal return_from_walk
 
 ## Shown on arrival, so the player knows where they are.
 const ARRIVAL_TEXT := "The corporate park. Leased air, licensed trees."
+## Where he arrives: the near end of the plantation's path (it runs along the camera's
+## diagonal, through the return door at the origin). He used to keep the apartment's
+## coordinates, and came home with the park's: outside the walls.
+const START := Vector3(13.0, 0.0, 13.0)
 
 ## --- REFERENCES ----------------------------------------------------------------------
 
@@ -47,14 +51,16 @@ const ARRIVAL_TEXT := "The corporate park. Leased air, licensed trees."
 @export var player: PlayerMovement
 @export var state_machine: PlayerStateMachine
 @export var interaction_controller: InteractionController
+## Framed low and close in the park (the forest reads tall); null leaves the iso view.
+@export var camera: WorkspaceCamera
 
 ## Blinks to black over each world swap (null = hard cut).
 @export var fader: ScreenFader
 
 ## --- TUNING --------------------------------------------------------------------------
 
-## Time in the park before the auto-return fires.
-@export var park_duration: float = 15.0
+## Time in the park before the auto-return fires (a walk, not a glimpse).
+@export var park_duration: float = 45.0
 
 ## Free-roam speed and extents for the park (open space).
 @export var park_move_speed: float = 5.5
@@ -75,6 +81,7 @@ var _auto_timer: Timer
 
 var _apartment_move_speed: float = 4.0
 var _apartment_extents: Vector2 = Vector2(4.2, 3.2)
+var _apartment_pos: Vector3
 
 
 func _ready() -> void:
@@ -109,10 +116,15 @@ func transition_to_park() -> void:
 	_apartment_extents = player.room_half_extents
 	player.move_speed = park_move_speed
 	player.room_half_extents = park_room_extents
+	_apartment_pos = player.global_position
 
 	if fader != null:
 		fader.blink()
 	_swap_worlds(true)
+	player.global_position = Vector3(START.x, _apartment_pos.y, START.z)
+	player.velocity = Vector3.ZERO
+	if camera != null:
+		camera.set_park_framing(true)
 	_in_park = true
 	_auto_timer.start(park_duration)
 	_lock_player(false)
@@ -135,6 +147,10 @@ func transition_to_apartment() -> void:
 
 	player.move_speed = _apartment_move_speed
 	player.room_half_extents = _apartment_extents
+	player.global_position = _apartment_pos
+	player.velocity = Vector3.ZERO
+	if camera != null:
+		camera.set_park_framing(false)
 
 	_lock_player(false)
 	_transitioning = false
@@ -169,7 +185,7 @@ func _build_park() -> void:
 	_park_env.ambient_light_energy = 0.6
 	_park_env.fog_enabled = true
 	_park_env.fog_light_color = Color(0.50, 0.55, 0.62)
-	_park_env.fog_density = 0.001
+	_park_env.fog_density = 0.012  # leased haze: rows of trees fading into it
 	_park_env.fog_sky_affect = 0.0
 
 	# Sun.
@@ -209,6 +225,7 @@ func _build_park() -> void:
 	_return_door = Interactable.new()
 	_return_door.name = "ReturnDoor"
 	_return_door.position = Vector3(0.0, 0.9, 0.0)
+	_return_door.rotation_degrees.y = 45.0  # square to the path
 	_return_door.player = player
 	_return_door.interaction_controller = interaction_controller
 	_return_door.prompt_text = "[E] Return to Apartment"

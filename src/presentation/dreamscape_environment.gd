@@ -51,19 +51,23 @@ const BARK_DEAD := TREES + "Birch_Bark_Dead.png"
 const GROUND_TEX := "res://assets/third_party/quaternius_downtown/models/T_Dirt_BaseColor.png"
 const SCATTER: Array = [
 	# [poly haven id, count, scale range, blood-marked?]
-	["rock_moss_set_01", 10, Vector2(1.0, 2.2), false],
-	["rock_moss_set_02", 10, Vector2(1.0, 2.2), false],
+	["rock_moss_set_01", 16, Vector2(1.0, 2.2), false],
+	["rock_moss_set_02", 16, Vector2(1.0, 2.2), false],
 	["boulder_01", 6, Vector2(0.8, 1.6), true],
 	["stone_01", 8, Vector2(1.2, 2.5), true],
-	["tree_stump_01", 6, Vector2(0.9, 1.3), false],
-	["dead_tree_trunk", 3, Vector2(0.9, 1.2), false],
-	["fern_02", 26, Vector2(0.9, 1.6), false],
-	["dry_branches_medium_01", 14, Vector2(0.8, 1.4), false],
+	["tree_stump_01", 14, Vector2(0.9, 1.3), false],
+	["dead_tree_trunk", 8, Vector2(0.9, 1.2), false],
+	["fern_02", 110, Vector2(0.9, 1.6), false],
+	["dry_branches_medium_01", 50, Vector2(0.8, 1.4), false],
 ]
 ## Keep the spawn clear (the dream opens at the origin) and the statues' feet open.
-const CLEAR_SPAWN := 13.0
+const CLEAR_SPAWN := 7.0
 const CLEAR_STATUE := 7.5
 const SIGHTLINE_CLEAR := 5.0
+## The wood fills the valley floor to the fog (playtest 2026-11-03, third: 70 birches
+## read as a park): a birch every ~3.4 m, groves and glades, ~600 trees, instanced.
+const FOREST_REACH := 58.0
+const FOREST_STEP := 3.4
 
 ## The valley's Environment resource. Built in _init (not _ready) so the bootstrap can
 ## hand it to DreamscapeManager before either node enters the tree.
@@ -262,7 +266,7 @@ func _build_memory_anchors() -> void:
 ## ----- FOREST ---------------------------------------------------------------------------
 
 
-## The autumn birch wood and its floor: birches (a few dead) with solid trunks, and the
+## The autumn birch wood and its floor: dense birches (a few dead) with solid trunks, and the
 ## scatter (mossy rocks, blood-marked stones, stumps, a fallen trunk, ferns, branches).
 ## Seeded, so every dream is the same valley.
 func _build_forest() -> void:
@@ -271,37 +275,49 @@ func _build_forest() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1979
 	var yellow: Texture2D = load(YELLOW_LEAVES) if ResourceLoader.exists(YELLOW_LEAVES) else null
-	var placed := 0
-	var tries := 0
-	while placed < 70 and tries < 900:
-		tries += 1
-		var at := Vector3(rng.randf_range(-55, 55), 0, rng.randf_range(-55, 55))
-		if not _open_ground(at):
-			continue
-		var dead := rng.randf() < 0.18
-		var path := (
-			TREES + ("DeadBirch_%d.fbx" if dead else "Birch_%d.fbx") % rng.randi_range(1, 10)
-		)
-		var tree := CityKit.prop(path, self, at, rng.randf_range(0, 360), 0.0)
-		if tree == null:
-			continue
-		tree.scale = Vector3.ONE * rng.randf_range(0.9, 1.4)
-		if yellow != null:
-			_autumn(tree, yellow)
-		_trunk_collider(at)
-		placed += 1
+	var dress := _autumn.bind(yellow) if yellow != null else Callable()
+	# Groves and glades: a jittered grid, thinned where the noise is low.
+	var groves := FastNoiseLite.new()
+	groves.seed = 1979
+	groves.frequency = 0.045
+	var by_model := {}
+	var trunks: Array[Vector3] = []
+	var steps := int(FOREST_REACH * 2.0 / FOREST_STEP)
+	for i in steps + 1:
+		for j in steps + 1:
+			var at := Vector3(
+				-FOREST_REACH + i * FOREST_STEP + rng.randf_range(-1.3, 1.3),
+				0,
+				-FOREST_REACH + j * FOREST_STEP + rng.randf_range(-1.3, 1.3)
+			)
+			var dead := rng.randf() < 0.15
+			var kind := rng.randi_range(1, 10)
+			var turn := rng.randf() * TAU
+			var size := rng.randf_range(0.85, 1.45)
+			if groves.get_noise_2d(at.x, at.z) < -0.2 or not _open_ground(at):
+				continue
+			var path := TREES + ("DeadBirch_%d.fbx" if dead else "Birch_%d.fbx") % kind
+			if not by_model.has(path):
+				by_model[path] = [] as Array[Transform3D]
+			var t := Transform3D(Basis(Vector3.UP, turn).scaled(Vector3.ONE * size), at)
+			(by_model[path] as Array[Transform3D]).append(t)
+			trunks.append(at)
+	for path: String in by_model:
+		Forest.plant(self, path, by_model[path], dress)
+	Forest.trunks(self, trunks, 0.25, 2.0)
 	for spec in SCATTER:
 		var id: String = spec[0]
 		var count: int = spec[1]
 		var size_range: Vector2 = spec[2]
 		var n := 0
 		var guard := 0
-		while n < count and guard < 400:
+		while n < count and guard < count * 20:
 			guard += 1
-			var at := Vector3(rng.randf_range(-50, 50), 0, rng.randf_range(-50, 50))
+			# The floor he walks (±38) gets the undergrowth; the fog hides the rest.
+			var at := Vector3(rng.randf_range(-42, 42), 0, rng.randf_range(-42, 42))
 			if not _open_ground(at, 4.0):
 				continue
-			var p := CityKit.prop(CityKit.polyhaven(id), self, at, rng.randf_range(0, 360), 0.0)
+			var p := CityKit.prop(CityKit.polyhaven(id), self, at, rng.randf_range(0, 360), 60.0)
 			if p == null:
 				break
 			p.scale = Vector3.ONE * rng.randf_range(size_range.x, size_range.y)
@@ -351,19 +367,6 @@ func _autumn(n: Node, yellow: Texture2D) -> void:
 				mi.set_surface_override_material(s, bark)
 	for c in n.get_children():
 		_autumn(c, yellow)
-
-
-## A solid trunk: you walk around birches, not through them.
-func _trunk_collider(at: Vector3) -> void:
-	var body := StaticBody3D.new()
-	body.position = at + Vector3(0, 1.0, 0)
-	var shape := CollisionShape3D.new()
-	var cyl := CylinderShape3D.new()
-	cyl.radius = 0.25
-	cyl.height = 2.0
-	shape.shape = cyl
-	body.add_child(shape)
-	add_child(body)
 
 
 ## Old blood on a stone: a dark red smear across its face.

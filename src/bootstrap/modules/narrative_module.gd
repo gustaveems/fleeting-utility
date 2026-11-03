@@ -66,6 +66,7 @@ func wire(ctx: BootstrapContext) -> void:
 	park.player = ctx.player
 	park.state_machine = ctx.state_machine
 	park.interaction_controller = ctx.interaction
+	park.camera = ctx.camera
 
 	# Ticket-08 Task 3: the betrayal after the walk.
 	var ransacked := ctx.ransacked

@@ -4,6 +4,24 @@ Alain's playthroughs, newest first. Each entry is the raw list of what went wron
 needs work, sorted by severity. A line is ticked when a commit fixes it, and the fix is
 noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.md`.
 
+## 2026-11-03: third playthrough, up to the park (day 6)
+
+- [x] **The walk spawned him in empty space**, and home again outside the bedroom.
+  - **Fixed:** the walk kept his coordinates both ways. He now arrives at the head of
+    the park's path (`CorporateParkManager.START`) and comes home where he left
+    (`tools/probe_park_walk.gd`). The walk lasts 45 s, not 15.
+- [x] **The forest needs much, much more forestation and volume.** A lower camera and a
+  narrower lens would sell the size.
+  - **Done:** `Forest` plants trees as instanced MultiMeshes (one per model and 30 m
+    cell, trunks as one body).
+    - **The valley:** ~810 birches instead of 70: groves and glades to the fog, the
+      paths to the statues kept open, far more ferns, branches, stumps and rocks.
+    - **The park:** a plantation of one cloned tree in rows to the walls (~300) along a
+      straight polished path on the camera's diagonal; plates on the trees beside it,
+      benches and lamps in step, a haze.
+    - **The camera:** the dream is lower (pitch −6°, 45° lens) and the park lower and
+      longer (−10°, 38°, `WorkspaceCamera.set_park_framing`). Both hold ~90 fps.
+
 ## 2026-11-03: second playthrough (after Ticket-29), up to day 5
 
 Not reached: the park.

@@ -79,10 +79,22 @@ extends Camera3D
 ## up: shallower pitch, wider lens, a little further back. The statues stand whole on
 ## the horizon. Applied at the world swap, under the white fade.
 
+## Playtest 2026-11-03 (third): the forest read small. A lower eye and a longer lens
+## put the trunks over him and the canopy out of frame: the size comes from what the
+## frame can't hold. `*_rise` is the camera's elevation above him (degrees) and `*_pitch`
+## its view tilt; the gap between them sets him a few degrees under the frame's centre.
 @export var room_pitch_degrees: float = -30.0
-@export var dream_pitch_degrees: float = -12.0
-@export var dream_fov: float = 55.0
-@export var dream_offset_scale: float = 1.4
+@export var dream_pitch_degrees: float = -6.0
+@export var dream_fov: float = 45.0
+@export var dream_distance: float = 8.0
+@export var dream_rise_degrees: float = 12.0
+
+## --- PARK FRAMING --------------------------------------------------------------------
+## The corporate park's plantation, the same way: low, close, long lens.
+@export var park_pitch_degrees: float = -10.0
+@export var park_fov: float = 38.0
+@export var park_distance: float = 7.0
+@export var park_rise_degrees: float = 15.0
 
 ## --- CRASH STATE REACTION ------------------------------------------------------------
 
@@ -198,18 +210,46 @@ func _get_sensory_overload() -> float:
 ## Instant: callers switch it while the screen is white.
 func set_dream_framing(enabled: bool) -> void:
 	is_dream_framing = enabled
-	var pitch := dream_pitch_degrees if enabled else room_pitch_degrees
-	rotation_degrees = Vector3(pitch, 45.0, 0.0)
-	camera_offset = _room_offset * (dream_offset_scale if enabled else 1.0)
-	if not is_orthographic:
-		_base_fov = dream_fov if enabled else perspective_fov
-		fov = _base_fov
-	if target_node != null:
-		global_position = (
-			target_node.global_position + Vector3(0.0, framing_lift, 0.0) + camera_offset
-		)
+	if enabled:
+		_frame(dream_pitch_degrees, dream_fov, dream_distance, dream_rise_degrees)
+	else:
+		_frame_room()
+
+
+## The park's low, close view (true) or the room's (false). Instant, under the blink.
+func set_park_framing(enabled: bool) -> void:
+	if enabled:
+		_frame(park_pitch_degrees, park_fov, park_distance, park_rise_degrees)
+	else:
+		_frame_room()
 
 
 ## Assign the follow target at runtime (bootstrap uses this instead of the inspector).
 func set_target(node: Node3D) -> void:
 	target_node = node
+
+
+func _frame_room() -> void:
+	rotation_degrees = Vector3(room_pitch_degrees, 45.0, 0.0)
+	camera_offset = _room_offset
+	_apply_fov(perspective_fov)
+
+
+## Look down `pitch` along the iso diagonal from `distance` away, `rise` degrees above
+## him.
+func _frame(pitch: float, lens: float, distance: float, rise: float) -> void:
+	rotation_degrees = Vector3(pitch, 45.0, 0.0)
+	var r := deg_to_rad(rise)
+	var flat := distance * cos(r) / sqrt(2.0)
+	camera_offset = Vector3(flat, distance * sin(r), flat)
+	_apply_fov(lens)
+
+
+func _apply_fov(lens: float) -> void:
+	if not is_orthographic:
+		_base_fov = lens
+		fov = _base_fov
+	if target_node != null:
+		global_position = (
+			target_node.global_position + Vector3(0.0, framing_lift, 0.0) + camera_offset
+		)
