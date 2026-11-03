@@ -174,12 +174,14 @@ func _build_boulevard() -> void:
 		Vector3(0.3, 3.0, 2.4),
 		_mat(Color(0.12, 0.1, 0.08), 0.4)
 	)
-	_label(
+	var serac := _label(
 		"SÉRAC · members",
 		RESTAURANT_DOOR + Vector3(2.3, 3.6, 0),
 		NEAR_SIGN_YAW,
-		Color(0.95, 0.85, 0.6)
+		Color(0.95, 0.85, 0.6),
+		0.35
 	)
+	SignType.neon(serac, Color(0.95, 0.8, 0.5))
 	_build_metro_entrance()
 	# People on the pavements, between the lamps and the planters (never on them), solid
 	# like everything else on the walk. Nobody but the friend wears the friend's clothes
@@ -640,7 +642,7 @@ func _box(at: Vector3, size: Vector3, mat: Material) -> void:
 	_world.add_child(mi)
 
 
-func _label(text: String, at: Vector3, yaw: float, c: Color, size: float = 1.0) -> void:
+func _label(text: String, at: Vector3, yaw: float, c: Color, size: float = 1.0) -> Label3D:
 	var l := Label3D.new()
 	SignType.dress(l)
 	l.text = text
@@ -650,6 +652,7 @@ func _label(text: String, at: Vector3, yaw: float, c: Color, size: float = 1.0) 
 	l.position = at
 	l.rotation_degrees.y = yaw
 	_world.add_child(l)
+	return l
 
 
 func _mat(c: Color, roughness: float) -> StandardMaterial3D:
@@ -702,7 +705,10 @@ func _real_block(side: float, z: float, depth: float, h: float, rng: RandomNumbe
 		var neon: Color = [Color(0.95, 0.85, 0.6), Color(0.2, 0.84, 0.9), Color(0.95, 0.4, 0.7)][
 			_brand_no % 3
 		]
-		_label(brand, Vector3(face_x + 2.0, 6.6, z - depth * 0.5), NEAR_SIGN_YAW, neon)
+		var sign := _label(
+			brand, Vector3(face_x + 2.0, 6.6, z - depth * 0.5), NEAR_SIGN_YAW, neon, 0.6
+		)
+		SignType.neon(sign, neon)
 
 
 ## Marble pavements, real lamps, planters, parked luxury, the skyline, flying traffic.

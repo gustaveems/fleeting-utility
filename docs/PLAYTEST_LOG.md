@@ -84,7 +84,15 @@ Not reached: the park.
     and the massing behind its shopfronts, the metro window's and the rooftop's skylines
     (pattern anchored to each sliding block), and the film's avenue backdrop and corner
     blocks wear its curtain wall: storey bands, sky-glass, lit rooms, stains.
-- [ ] **Neon lettering** is still too much and too janky, even after `SignType`.
+- [x] **Neon lettering** is still too much and too janky, even after `SignType`.
+  - **Fixed:** `SignType.neon()` no longer draws a hard 22 px outline round floating
+    letters.
+    - **The letters** burn just past white in their own colour (×1.6), so the scene's
+      glow blooms them softly.
+    - **Each sign** hangs on a dark metal board sized to its text.
+    - **The avenue** has three short signs instead of five long ones, smaller.
+    - **The evening:** the brand signs and the restaurant's (2 m letters across the
+      pavement) are mounted boards; the evening has glow for them (threshold 1).
 - [ ] **The apartment** could do with more work.
 
 ## 2026-10-30: first playthrough with sound, up to day 5

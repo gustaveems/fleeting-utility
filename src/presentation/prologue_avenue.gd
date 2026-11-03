@@ -441,19 +441,18 @@ func _build_right_side() -> void:
 	_box(Vector3(POOR_X - 2.2, 0.75, -81), Vector3(1.2, 1.0, 2.6), _mat(Color(0.3, 0.26, 0.2), 0.9))
 	var awning := _mat(Color(0.2, 0.7, 0.75), 0.7)
 	_box(Vector3(POOR_X - 2.6, 2.5, -81), Vector3(2.2, 0.08, 3.0), awning)
+	# Fewer, smaller, mounted (2026-11-03: "the neon is still too much, too janky").
 	var neons: Array = [
-		[-68.0, 5.0, Color(0.9, 0.2, 0.6), "ROOMS · HOURLY"],
+		[-68.0, 4.6, Color(0.9, 0.2, 0.6), "ROOMS"],
 		[-81.0, 3.2, Color(0.2, 0.84, 0.9), "FOCUS+"],
-		[-90.0, 8.5, Color(0.95, 0.8, 0.2), "PAWN · CASH · LEASES"],
-		[-96.0, 5.0, Color(0.2, 0.84, 0.9), "FOCUS+ CHEAP"],
-		[-75.0, 12.0, Color(0.9, 0.2, 0.6), "CLINIC 24H"],
+		[-90.0, 6.5, Color(0.95, 0.8, 0.2), "PAWN · CASH"],
 	]
 	for spec in neons:
 		var neon := Label3D.new()
 		SignType.dress(neon)
 		neon.text = spec[3]
 		neon.font_size = 96
-		neon.pixel_size = 0.011
+		neon.pixel_size = 0.008
 		SignType.neon(neon, spec[2])
 		neon.rotation_degrees = Vector3(0, -90, 0)
 		neon.position = Vector3(POOR_X - 0.2, float(spec[1]), float(spec[0]))
