@@ -371,7 +371,7 @@ func _build_station() -> void:
 ## Left: the massive blocks behind the viaduct hide everything beyond; the boutique sits
 ## in a low, clean block past the platform.
 func _build_left_side() -> void:
-	var mass := _mat(Color(0.2, 0.25, 0.27), 0.85)
+	var mass := CityLook.building(Color(0.2, 0.25, 0.27), CityLook.Look.TOWER)
 	_box(Vector3(382, 75, -112), Vector3(26, 150, 104), mass)
 	_box(Vector3(406, 32, -134), Vector3(20, 64, 40), mass)
 	_box(Vector3(RICH_X - 3, 8, -96), Vector3(6, 16, 24), _mat(Color(0.74, 0.70, 0.62), 0.5))
@@ -488,7 +488,7 @@ func _build_cross_street() -> void:
 	_box(Vector3(458, 0.015, CROSS_Z), Vector3(56, 0.04, 10), asphalt)
 	var pavement := _mat(Color(0.16, 0.15, 0.14), 1.0)
 	_box(Vector3(458, 0.12, -117.5), Vector3(56, 0.24, 3), pavement)
-	var block := _mat(Color(0.22, 0.27, 0.29), 0.9)
+	var block := CityLook.building(Color(0.22, 0.27, 0.29), CityLook.Look.BLOCK)
 	_box(COMPLEX + Vector3(-21, 34, -4), Vector3(28, 68, 30), block)
 	_box(COMPLEX + Vector3(21, 28, -4), Vector3(28, 56, 30), block)
 

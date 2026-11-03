@@ -468,7 +468,11 @@ func _build_car_route() -> void:
 		for side in [-1.0, 1.0]:
 			var h := rng.randf_range(60, 160)
 			var tint := Color(0.6, 0.66, 0.75).lerp(Color(0.9, 0.85, 0.75), rng.randf())
-			_box(Vector3(a.x + side * 24, h * 0.5, z), Vector3(18, h, 16), _mat(tint, 0.2))
+			_box(
+				Vector3(a.x + side * 24, h * 0.5, z),
+				Vector3(18, h, 16),
+				CityLook.building(tint.darkened(0.45), CityLook.Look.TOWER, WORLD_SCALE)
+			)
 			if _has_kit():
 				# Glass curtain walls facing the avenue, over the massing.
 				var face_x: float = a.x + side * 15
@@ -669,19 +673,22 @@ func _has_kit() -> bool:
 func _real_block(side: float, z: float, depth: float, h: float, rng: RandomNumberGenerator) -> void:
 	var modules := int(depth / CityKit.MODULE)
 	var face_x := side * (HALF_WIDTH + 1)
-	var dark := _mat(Color(0.08, 0.09, 0.11), 0.3)
+	# The massing behind the kit's facades: the city's curtain wall on its sides (it was
+	# flat black wherever the facade didn't cover: playtest 2026-11-03).
+	var tall := CityLook.building(Color(0.16, 0.18, 0.21), CityLook.Look.TOWER, WORLD_SCALE)
+	var low := CityLook.building(Color(0.2, 0.19, 0.18), CityLook.Look.BLOCK, WORLD_SCALE)
 	if side < 0:
 		var floors := int(h / CityKit.FLOOR)
 		_box(
 			Vector3(face_x - 8, floors * CityKit.FLOOR * 0.5, z - depth * 0.5),
 			Vector3(16, floors * CityKit.FLOOR, depth),
-			dark
+			tall
 		)
 		_kit.facade(
 			Vector3(face_x, 0, z), Vector3.RIGHT, modules, floors, CityKit.Style.METAL, rng.randi()
 		)
 	else:
-		_box(Vector3(face_x + 8, 3.0, z - depth * 0.5), Vector3(16, 6.0, depth), dark)
+		_box(Vector3(face_x + 8, 3.0, z - depth * 0.5), Vector3(16, 6.0, depth), low)
 		_kit.facade(
 			Vector3(face_x, 0, z - depth),
 			Vector3.LEFT,

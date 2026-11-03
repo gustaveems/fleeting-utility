@@ -196,7 +196,8 @@ func _build() -> void:
 		f.rotation_degrees.y = 0.0 if sitting else rng.randf_range(0, 360)
 		add_child(f)
 	# The city outside, sliding past the window.
-	var tower := _mat(Color(0.22, 0.27, 0.3), 0.85)
+	# The city's curtain wall, in each block's own space (they slide past the window).
+	var tower := CityLook.building(Color(0.22, 0.27, 0.3), CityLook.Look.TOWER, PERSON_SCALE, true)
 	var lit := _mat(Color(0.9, 0.7, 0.35), 0.6)
 	lit.emission_enabled = true
 	lit.emission = Color(0.9, 0.62, 0.3)

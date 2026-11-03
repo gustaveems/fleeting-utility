@@ -79,7 +79,11 @@ Not reached: the park.
     ceiling's strip lights and the HERITAGE QUARTER name (`TransitLook`);
   - [x] the inside of the metro carriage: panels, moquette seats and a studded floor,
     in the game's ride and the night train;
-  - the city (in game and the evening, beyond the film's towers).
+  - [x] the city: the film's massing shader is now `CityLook`, shared by any building
+    box (`CityLook.building(tint, look, unit, anchored)`). The evening's car-ride towers
+    and the massing behind its shopfronts, the metro window's and the rooftop's skylines
+    (pattern anchored to each sliding block), and the film's avenue backdrop and corner
+    blocks wear its curtain wall: storey bands, sky-glass, lit rooms, stains.
 - [ ] **Neon lettering** is still too much and too janky, even after `SignType`.
 - [ ] **The apartment** could do with more work.
 

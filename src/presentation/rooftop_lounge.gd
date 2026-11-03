@@ -154,7 +154,7 @@ func _string_lights() -> void:
 func _skyline() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 24
-	var tower := _mat(Color(0.1, 0.13, 0.17), 0.3)
+	var tower := CityLook.building(Color(0.1, 0.13, 0.17), CityLook.Look.TOWER, PERSON_SCALE)
 	var kit_ok := ResourceLoader.exists(CityKit.DIR + "Metal_FullWindow.gltf")
 	for k in 9:
 		var b := Node3D.new()
