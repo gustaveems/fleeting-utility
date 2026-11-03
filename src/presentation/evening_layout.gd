@@ -139,20 +139,25 @@ func _build_boulevard() -> void:
 					Vector3(16, h, depth - 1),
 					_mat(tint, 0.25)
 				)
-			# A lit shopfront band at street level.
+			# A lit shopfront band at street level. Behind the kit's facade it sits well
+			# inside the building, lighting the windows from within: on the facade's plane
+			# it z-fought the glass into flashing white patches (playtest 2026-11-03).
 			var glow := _mat(Color(1.0, 0.92, 0.78), 0.2)
 			glow.emission_enabled = true
 			glow.emission = Color(1.0, 0.9, 0.72)
 			glow.emission_energy_multiplier = 1.2
+			var inset := 0.3 if _has_kit() else 0.05
 			_box(
-				Vector3(side * (HALF_WIDTH + 1.05), 2.2, z - depth * 0.5),
+				Vector3(side * (HALF_WIDTH + 1 + inset), 2.2, z - depth * 0.5),
 				Vector3(0.1, 3.2, depth - 2),
 				glow
 			)
 		z -= depth
-	# Even, white street light: nothing in shadow on this side.
+	# Even, white street light: nothing in shadow on this side. With the real lamps
+	# installed (_dress_street), their own lights do it (two lights a lamp made the walk
+	# lag).
 	z = HALF_LENGTH - 5
-	while z > -HALF_LENGTH:
+	while z > -HALF_LENGTH and not _has_kit():
 		for side in [-1.0, 1.0]:
 			var lamp := OmniLight3D.new()
 			lamp.light_color = Color(0.96, 0.97, 1.0)
@@ -674,8 +679,8 @@ func _dress_street() -> void:
 			_solid(Vector3(side * 8.6, 1.5, z), Vector3(0.4, 3.0, 0.4))
 			var light := OmniLight3D.new()
 			light.light_color = Color(1.0, 0.94, 0.82)
-			light.light_energy = 1.4
-			light.omni_range = 12.0
+			light.light_energy = 1.8
+			light.omni_range = 16.0
 			light.position = Vector3(side * 8.2, 3.8, z)
 			_world.add_child(light)
 			CityKit.prop(

@@ -21,6 +21,7 @@ const METRO_SECONDS := 9.0
 const METRO_PLATFORM_SECONDS := 2.5
 ## The diorama's people scale (matches the apartment).
 const PERSON_SCALE := 0.47
+const FOLLOW_FAR := 150.0
 
 ## Read by the game when he gets home (then cleared): the gift he refused is in his bag.
 static var returning: bool = false
@@ -80,6 +81,9 @@ func _build() -> void:
 	_follow = WorkspaceCamera.new()
 	_follow.name = "FollowCamera"
 	add_child(_follow)
+	# The room's 45 m far plane cut the boulevard's towers in and out as he walked (they
+	# flashed: playtest 2026-11-03); out here the street needs the distance.
+	_follow.far = FOLLOW_FAR
 	_follow.set_target(player)
 	_film = Camera3D.new()
 	_film.name = "FilmCamera"
