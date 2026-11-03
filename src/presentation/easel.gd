@@ -237,6 +237,18 @@ func _build() -> void:
 	shape.shape = cylinder
 	shape.position = Vector3(0.0, 1.0, 0.0)
 	add_child(shape)
+	# Its legs are solid (playtest 2026-11-03: he walked through the easel).
+	var legs := StaticBody3D.new()
+	legs.name = "Legs"
+	legs.collision_layer = PhysicsLayers.WORLD
+	legs.collision_mask = 0
+	var foot := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(0.45, 1.3, 0.5)
+	foot.shape = box
+	foot.position = Vector3(0.0, 0.65, 0.0)
+	legs.add_child(foot)
+	add_child(legs)
 
 	# The real easel (Poly Pizza "Easel Large Leaning" by reyshapes, CC0), scaled from its
 	# 7 m model to ~1.3 m; the box legs are the fallback.

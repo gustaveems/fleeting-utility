@@ -380,6 +380,11 @@ func _build_route() -> void:
 
 ## Position and frame (right, up, back) on the track at distance `d`.
 func _frame_at(d: float) -> Transform3D:
+	if d < 0.0:
+		# Behind the start of the line (the last carriages at the town platform): straight
+		# back along the first stretch, not collapsed onto the start point.
+		var start := _frame_at(0.0)
+		return Transform3D(start.basis, start.origin + start.basis.z * -d)
 	var length := _curve.get_baked_length()
 	var p := _curve.sample_baked(clampf(d, 0.0, length), true)
 	var ahead := _curve.sample_baked(clampf(d + 2.0, 0.0, length), true)

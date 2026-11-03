@@ -31,6 +31,8 @@ const MOVE_SPEED := 2.5
 @export var fader: ScreenFader
 @export var lounge: RooftopLounge
 @export var act_one: ActOne
+## A collapse up there ends the night first (see _cut_short).
+@export var dreamscape_manager: DreamscapeManager
 
 ## Saved state (Persistence "standing").
 var standing: float = START
@@ -43,6 +45,7 @@ var _saved_env: Environment
 var _saved_pos: Vector3
 var _saved_speed: float
 var _saved_extents: Vector2
+var _out_index: int = -1
 
 
 func _ready() -> void:
@@ -50,6 +53,8 @@ func _ready() -> void:
 		day_cycle.morning.connect(_on_morning)
 	if runner != null:
 		runner.choice_made.connect(_on_choice)
+	if dreamscape_manager != null:
+		dreamscape_manager.transition_started.connect(_cut_short)
 
 
 ## Tonight's invitation (an index into EVENTS), or -1.
@@ -74,6 +79,7 @@ func go_out() -> void:
 	if index < 0 or player == null or lounge == null:
 		return
 	is_out = true
+	_out_index = index
 	attended.append(index)
 	if fader != null:
 		fader.blink()
@@ -99,9 +105,10 @@ func go_out() -> void:
 		while runner.is_running:
 			await get_tree().process_frame
 		runner.run(StandingScript.perform(StandingScript.NIGHTS[index], is_medicated()))
-		while not runner.is_idle():
+		while is_out and not runner.is_idle():
 			await runner.finished
-	_come_home(index)
+	if is_out:
+		_come_home(index)
 
 
 func set_standing(value: float) -> void:
@@ -125,8 +132,11 @@ func restore(data: Dictionary) -> void:
 	set_standing(float(data.get("standing", START)))
 
 
-func _come_home(index: int) -> void:
-	if fader != null:
+## `quiet`: he collapsed up there; no blink, no line (the dream's fade covers it).
+func _come_home(index: int, quiet: bool = false) -> void:
+	if not is_out:
+		return
+	if fader != null and not quiet:
 		fader.blink()
 	lounge.set_active(false)
 	if apartment_root != null:
@@ -137,9 +147,20 @@ func _come_home(index: int) -> void:
 	player.move_speed = _saved_speed
 	player.room_half_extents = _saved_extents
 	is_out = false
-	if hud != null:
+	if hud != null and not quiet:
 		hud.show_line(StandingScript.AFTER % int(round(standing)))
 	event_ended.emit(index)
+
+
+## He is going under on the rooftop: home first, before the dream saves where he stands
+## (the metro's bug, playtest 2026-11-03).
+func _cut_short() -> void:
+	if not is_out:
+		return
+	if runner != null:
+		runner.clear_queue()
+		runner.cancel()
+	_come_home(_out_index, true)
 
 
 ## Everyone else advanced overnight; tonight's invitation, if any.

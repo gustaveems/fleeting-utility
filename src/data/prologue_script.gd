@@ -112,12 +112,14 @@ static func shots() -> Array[Dictionary]:
 			"lines": [[3.0, "PA: This service does not return."]],
 		},
 		{
+			# Ahead of the nose, looking back as the train comes at us through the bore
+			# (behind it, the camera sat in the second carriage: playtest 2026-11-03).
 			"name": "tunnel",
 			"mode": Mode.EXT_FOLLOW,
 			"dur": 5.5,
-			"blend": 2.0,
+			"cut": true,  # from beside the train to ahead of it: a glide would whip 68 m
 			"d": [300.0, 410.0],
-			"cam": [Vector3(0, 3.6, 30), Vector3(0, 3.0, 18)],
+			"cam": [Vector3(0, 2.6, -34), Vector3(0, 2.2, -20)],
 			"look": "train",
 			"fov": 60.0,
 			"lines": [[3.5, "RADIO: …lease rates in the inner districts rose again overnight…"]],
@@ -187,7 +189,7 @@ static func shots() -> Array[Dictionary]:
 			"dur": 5.0,
 			"cut": true,  # gliding in from the reveal whipped round at 120 °/s
 			"d": [880.0, 980.0],
-			"cam": [Vector3(2, 7, 30), Vector3(1.5, 3.5, 4)],
+			"cam": [Vector3(3.2, 7, 30), Vector3(3.2, 4.6, 8)],  # beside the roof, not in it
 			"look": "colossus",
 			"gaze": "colossus",
 			"fov": 66.0,

@@ -174,14 +174,23 @@ func _build_boulevard() -> void:
 		Color(0.95, 0.85, 0.6)
 	)
 	_build_metro_entrance()
-	# People: couples and suits strolling, all lit.
-	var dresses := [StreetFigure.Dress.SUIT, StreetFigure.Dress.FRIEND, StreetFigure.Dress.SUIT]
+	# People on the pavements, between the lamps and the planters (never on them), solid
+	# like everything else on the walk. Nobody but the friend wears the friend's clothes
+	# (playtest 2026-11-03: every third stranger was his double).
+	var dresses := [StreetFigure.Dress.SUIT, StreetFigure.Dress.MIDDLE, StreetFigure.Dress.SUIT]
 	for k in 14:
 		var f := StreetFigure.new()
+		f.name = "Passerby_%d" % k
 		f.dress = dresses[k % 3]
 		f.pose = StreetFigure.Pose.STAND if k % 3 == 0 else StreetFigure.Pose.WALK
+		f.solid = true
+		var bay := int(k / 2.0)  # two per bay, one each side
+		var lamp_z := HALF_LENGTH - 6 - 14 * int(bay / 2.0)
+		var gap := lamp_z - (3.5 if bay % 2 == 0 else 10.5)
 		f.position = Vector3(
-			(-1.0 if k % 2 == 0 else 1.0) * rng.randf_range(9, 12.5), 0.16, rng.randf_range(-48, 48)
+			(-1.0 if k % 2 == 0 else 1.0) * rng.randf_range(9.8, 11.4),
+			0.16,
+			gap + rng.randf_range(-1.2, 1.2)
 		)
 		f.rotation_degrees.y = rng.randf_range(0, 360)
 		_world.add_child(f)
@@ -224,6 +233,7 @@ func _build_metro_entrance() -> void:
 	# Parapets either side and across the back, handrails on posts.
 	for sx in [-1.0, 1.0]:
 		var x: float = sx * (STAIR_HALF + 0.15)
+		_solid(STATION + Vector3(x, 0.6, -STAIR_LENGTH * 0.5), Vector3(0.3, 1.2, STAIR_LENGTH))
 		_box(
 			STATION + Vector3(x, 0.45, -STAIR_LENGTH * 0.5), Vector3(0.3, 0.9, STAIR_LENGTH), stone
 		)
@@ -264,12 +274,15 @@ func _build_metro_entrance() -> void:
 func _build_beats() -> void:
 	var shoot: Vector3 = BEATS["shoot"]
 	var model := StreetFigure.new()
-	model.dress = StreetFigure.Dress.FRIEND
+	model.dress = StreetFigure.Dress.SUIT  # the campaign's model, not the friend's double
+	model.veiled = true
+	model.solid = true
 	model.pose = StreetFigure.Pose.STAND
 	model.position = shoot + Vector3(-3, 0.16, 0)
 	_world.add_child(model)
 	var photographer := StreetFigure.new()
-	photographer.dress = StreetFigure.Dress.SUIT
+	photographer.dress = StreetFigure.Dress.MIDDLE
+	photographer.solid = true
 	photographer.position = shoot + Vector3(1, 0.16, 0)
 	photographer.rotation_degrees.y = 90
 	_world.add_child(photographer)
@@ -422,6 +435,7 @@ func _build_restaurant() -> void:
 		var seat := at + Vector3(sin(a) * 1.7, 0.45, cos(a) * 1.7)
 		_chair(seat, a)
 		var d := StreetFigure.new()
+		d.name = "Friend" if k == 0 else "Diner_%d" % k
 		# The corpo friends wear veils: their faces are a product.
 		d.veiled = k in [1, 2, 3]
 		d.dress = dresses[k]
@@ -510,6 +524,21 @@ func diner_for(speaker: String) -> StreetFigure:
 
 
 ## ----- HELPERS -------------------------------------------------------------------------
+
+
+## Something he can't walk through (real metres; the evening had no collision at all, so
+## he walked through lamps, cars and people: playtest 2026-11-03).
+func _solid(at: Vector3, size: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.collision_layer = PhysicsLayers.WORLD
+	body.collision_mask = 0
+	body.position = at
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	_world.add_child(body)
 
 
 ## A dining chair at `seat` (the sitter's hip point), its back away from the table
@@ -642,6 +671,7 @@ func _dress_street() -> void:
 				90.0 * side,
 				0.0
 			)
+			_solid(Vector3(side * 8.6, 1.5, z), Vector3(0.4, 3.0, 0.4))
 			var light := OmniLight3D.new()
 			light.light_color = Color(1.0, 0.94, 0.82)
 			light.light_energy = 1.4
@@ -655,6 +685,7 @@ func _dress_street() -> void:
 				0.0,
 				0.0
 			)
+			_solid(Vector3(side * 12.6, 0.6, z - 7), Vector3(1.4, 1.0, 1.4))
 		z -= 14
 	for spec in [
 		["SportsCar", Vector3(7, 0, 40), 180.0],
@@ -662,6 +693,7 @@ func _dress_street() -> void:
 		["SportsCar", Vector3(-7, 0, 8), 0.0]
 	]:
 		CityKit.prop(CityKit.car(spec[0]), _world, spec[1], spec[2], 0.0)
+		_solid(spec[1] + Vector3(0, 0.7, 0), Vector3(2.1, 1.4, 4.6))
 	var high := CityKit.prop(
 		FAB + "highrise_06/high_rise_building.glb", _world, Vector3(-80, 0, -20), 90.0, 0.0
 	)

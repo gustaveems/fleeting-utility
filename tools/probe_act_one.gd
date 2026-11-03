@@ -104,6 +104,9 @@ func _run() -> void:
 	entropy.entropy = 30.0
 	_days.restore(7)
 	data.sensory_overload = 60.0
+	# Some drug in him: withdrawn, he'd collapse on the train, and a collapse ends the ride
+	# without its relief (tools/probe_outing_collapse.gd).
+	data.chemical_level = 0.5
 	check("below the threshold the door is the metro", door.can_interact() and metro.available())
 	door._on_interacted()
 	await process_frame

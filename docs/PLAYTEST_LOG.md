@@ -9,7 +9,12 @@ noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.
 Not reached: the park.
 
 ### Blockers
-- [ ] **The metro while overloaded breaks the dream and traps him.**
+- [x] **The metro while overloaded breaks the dream and traps him.**
+  - **Fixed:** a collapse on an outing (the metro or the rooftop) now ends it first.
+    `MetroRide._cut_short` / `Standing._cut_short` run on
+    `DreamscapeManager.transition_started`, bring him home quietly and restore his
+    bounds, and only then does the dream save them. `tools/probe_outing_collapse.gd`
+    reproduced the strip (3.7 × 0.5 instead of 4.15 × 3.15) and now guards it.
   - **What happened** (day 3): he took the metro while overloading and collapsed. The
     dream showed the metro carriage, with the buildings flying past.
   - **On waking:** stuck in the apartment, body-blocked between the easel and the
@@ -22,11 +27,32 @@ Not reached: the park.
     overloaded and check the wake.
 
 ### Broken
-- [ ] **Characters clip and duplicate.**
+- [x] **Characters clip and duplicate.**
+  - **Fixed** (gated by `tools/probe_figures.gd`):
+    - **Doubles:** the evening's passers-by were dressed as the friend every third one,
+      and the campaign model was too. Strangers now wear suits and coats, and only the
+      friend wears his clothes.
+    - **Walking through things in the evening:** it had no collision at all. Lamps,
+      planters, parked cars, the metro's parapets and every passer-by are solid now,
+      and they stand in the gaps between lamps and planters.
+    - **Walking through things at home:** the bed, the cabinet and the easel had no
+      bodies; they do now.
+    - The probe checks each space: nobody inside another person, nobody inside a wall
+      or a prop, no stranger in the friend's clothes, all furniture solid.
   - Several copies of the same NPC.
   - He phases through things and gets clipped.
   - Some player models collide with each other.
-- [ ] **The film's opening shots:** the camera clips in and out of the train.
+- [x] **The film's opening shots:** the camera clips in and out of the train.
+  - **Fixed:** three causes.
+    - **The tunnel shot:** it followed from behind at roof height, inside the second
+      carriage. It now rides ahead of the nose, looking back, and opens on a cut.
+    - **The colossus pass:** it ended over the lead carriage's roof; it now ends
+      beside it.
+    - **Trailing carriages:** before the train cleared the town platform they collapsed
+      onto one point. `_frame_at` now extends the line straight back.
+  - `tools/probe_prologue_camera.gd` fails if the camera enters a carriage outside the
+    through-the-train shots, and measures speed by film time (the engine's delta
+    jittered).
 - [ ] **After the restaurant scene, the buildings and their window panes flash a lot**
   (flicker, likely z-fighting or LOD popping). It makes the walk slightly laggy.
 

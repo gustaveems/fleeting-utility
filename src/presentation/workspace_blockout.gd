@@ -299,6 +299,10 @@ func _dress_room() -> void:
 	)
 	if cabinet != null:
 		cabinet.scale = Vector3.ONE * PROP_SCALE
+	# The cabinet and the bed are solid (playtest 2026-11-03: he walked through them).
+	_add_wall_collision(
+		"CabinetCollision", Vector3(0.3, 0.6, 0.6), Vector3(-half_x + 0.25, 0.3, 1.2), 0.6
+	)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 14
 	for k in 5:
@@ -362,6 +366,9 @@ func _build_furniture_blocking() -> void:
 		COLOR_WALL.lightened(0.1)
 	)
 	add_child(cot)
+	_add_wall_collision(
+		"CotCollision", Vector3(0.95, 0.5, 0.6), cot_world + Vector3(0, 0.25, 0), 0.5
+	)
 	# The real bed: an old iron frame (Poly Haven, CC0), the box becomes its stained
 	# mattress, thinned to sit inside the frame.
 	var frame := CityKit.prop(

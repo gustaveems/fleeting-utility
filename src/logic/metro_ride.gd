@@ -27,6 +27,9 @@ const START := Vector3(-1.75, 0, 0.1)
 @export var carriage: MetroCarriage
 ## 18a: after the realisation (a completed loop), the stone in the Heritage window.
 @export var game_flow: GameFlow
+## A collapse on the train ends the ride first (playtest 2026-11-03: the dream ran with
+## the carriage still live, and saved its aisle as his room's bounds).
+@export var dreamscape_manager: DreamscapeManager
 
 ## Saved (Persistence "metro").
 var rides_taken: int = 0
@@ -38,6 +41,11 @@ var _saved_env: Environment
 var _saved_pos: Vector3
 var _saved_speed: float
 var _saved_extents: Vector2
+
+
+func _ready() -> void:
+	if dreamscape_manager != null:
+		dreamscape_manager.transition_started.connect(_cut_short)
 
 
 ## One ride a day.
@@ -88,16 +96,20 @@ func start_ride() -> void:
 			await get_tree().process_frame
 		runner.run(ActOneScript.STONE_RIDE if stone else ActOneScript.RIDE_THOUGHTS[stage()])
 		# Ride until all talk is done (a beat may queue behind his thoughts: the campaign).
-		while not runner.is_idle():
+		while is_riding and not runner.is_idle():
 			await runner.finished
+	if not is_riding:
+		return  # cut short: he collapsed on the train
 	await get_tree().create_timer(LINGER, false).timeout
 	end_ride()
 
 
-func end_ride() -> void:
+## Home, his bounds and the room restored. `quiet`: no blink, no line, no relief (he is
+## going under; the dream's fade covers it).
+func end_ride(quiet: bool = false) -> void:
 	if not is_riding:
 		return
-	if fader != null:
+	if fader != null and not quiet:
 		fader.blink()
 	carriage.set_active(false)
 	if apartment_root != null:
@@ -107,14 +119,26 @@ func end_ride() -> void:
 	player.global_position = _saved_pos
 	player.move_speed = _saved_speed
 	player.room_half_extents = _saved_extents
-	if state_machine != null and state_machine.state_data != null:
-		var data := state_machine.state_data
-		data.sensory_overload = maxf(data.sensory_overload - OVERLOAD_RELIEF, 0.0)
-		data.state_changed.emit(data)
-	if hud != null:
-		hud.show_line(ActOneScript.RIDE_HOME)
 	is_riding = false
+	if not quiet:
+		if state_machine != null and state_machine.state_data != null:
+			var data := state_machine.state_data
+			data.sensory_overload = maxf(data.sensory_overload - OVERLOAD_RELIEF, 0.0)
+			data.state_changed.emit(data)
+		if hud != null:
+			hud.show_line(ActOneScript.RIDE_HOME)
 	ride_ended.emit()
+
+
+## He is going under mid-ride: stop the talk and bring him home before the dream saves
+## where he stands.
+func _cut_short() -> void:
+	if not is_riding:
+		return
+	if runner != null:
+		runner.clear_queue()
+		runner.cancel()
+	end_ride(true)
 
 
 func snapshot() -> Dictionary:
