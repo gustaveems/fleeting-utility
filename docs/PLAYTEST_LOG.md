@@ -53,8 +53,17 @@ Not reached: the park.
   - `tools/probe_prologue_camera.gd` fails if the camera enters a carriage outside the
     through-the-train shots, and measures speed by film time (the engine's delta
     jittered).
-- [ ] **After the restaurant scene, the buildings and their window panes flash a lot**
+- [x] **After the restaurant scene, the buildings and their window panes flash a lot**
   (flicker, likely z-fighting or LOD popping). It makes the walk slightly laggy.
+  - **Fixed** (`911581c`):
+    - **The flashing:** the lit shopfront band sat on the facades' plane and z-fought
+      the kit glass into jumping white patches. It's now 30 cm inside the building.
+    - **The popping:** the walk used the room camera's 45 m far plane, which cut the
+      towers in and out. It's now 150 m (`Evening.FOLLOW_FAR`).
+    - **The lag:** every lamp had two lights (the prop's and a second "street light"
+      set, about 40). The kit's lamps now light alone, a little brighter.
+  - **Follow-up:** the kit's shop glass is opaque, so the shopfronts read dark now. Lit
+    shop windows want an emissive glass material.
 
 ### Look
 - [ ] **The night train switches model.** The film's maglev is ours, but the night
