@@ -20,11 +20,16 @@ const COLOR_FLOOR := Color(0.19, 0.17, 0.16)
 const COLOR_WALL := Color(0.28, 0.26, 0.25)
 ## Look-dev palette (docs/references/notes.md, apartment): yellowed plaster over a
 ## grey-green dado; the dado band's height.
-const COLOR_PLASTER := Color(0.78, 0.71, 0.42)
+## Tired cream plaster (it was a loud mustard: playtest 2026-11-03, "the apartment
+## could do with some work").
+const COLOR_PLASTER := Color(0.66, 0.61, 0.5)
 const COLOR_DADO := Color(0.44, 0.48, 0.43)
 const DADO_HEIGHT := 0.42
 ## Real props are full scale; the room is a diorama (walls 1.35 m, him 0.8 m).
 const PROP_SCALE := 0.47
+const RUG_WEAVE := 0.4
+## Sun-faded and trodden: the weave's colours, browned and dimmed.
+const RUG_FADE := Color(0.62, 0.5, 0.4)
 const KIT_TEX := "res://assets/third_party/quaternius_downtown/models/"
 
 const COLOR_BENCH := Color(0.42, 0.33, 0.24)
@@ -61,6 +66,7 @@ func _ready() -> void:
 	_build_walls()
 	_build_furniture_blocking()
 	_dress_room()
+	_furnish()
 
 
 func _build_floor() -> void:
@@ -212,10 +218,11 @@ func _add_wall_collision(
 ## (tinted to the palette). Triplanar, so boxes of any size tile cleanly.
 func _texture_surfaces() -> void:
 	floor_material.albedo_texture = RoomTiles.texture()
-	floor_material.albedo_color = Color(0.9, 0.88, 0.84)
 	floor_material.uv1_triplanar = true
-	# One texture (8 hexes across) per 1.6 m: tiles about 20 cm at the diorama's scale.
-	floor_material.uv1_scale = RoomTiles.uv_scale(1.6)
+	# One texture (8 hexes across) per 0.9 m: tiles about 11 cm at the diorama's scale
+	# (~24 cm real), muted (at 20 cm and full colour the floor drowned the room).
+	floor_material.albedo_color = Color(0.62, 0.6, 0.56)
+	floor_material.uv1_scale = RoomTiles.uv_scale(0.9)
 	if ResourceLoader.exists(KIT_TEX + "T_Concrete_Normal.png"):
 		floor_material.normal_enabled = true
 		floor_material.normal_texture = load(KIT_TEX + "T_Concrete_Normal.png")
@@ -342,6 +349,125 @@ func _dress_room() -> void:
 	veil.material_override = gloom
 	veil.position = Vector3(0, 4.0, -half_z - 2.9)
 	add_child(veil)
+
+
+## A cheap studio someone lives in (playtest 2026-11-03: four props on an empty plaza of
+## tiles). Everything he could walk into has a body (tools/probe_figures.gd); the west
+## wall's floor stays clear for the moving boxes (NightZero.DROP_ZONE), the north-east
+## for the window beat, the paths to the bench, easel, cot and door open.
+##   south-west   the kitchenette: a counter with a sink and a kettle, a small fridge
+##   centre       a threadbare rug; by the cot, a smaller one
+##   west         a table and a chair under the shelves (his few things unpacked)
+##   north        a radiator under the window; a dead plant in the corner
+##   north-east   a floor lamp; skirting along the walls you see whole
+func _furnish() -> void:
+	var half_x := float(grid.width_cells) * grid.cell_size * 0.5
+	var half_z := float(grid.depth_cells) * grid.cell_size * 0.5
+	var wood := _mat(Color(0.3, 0.2, 0.13), 0.6)
+	var laminate := _mat(Color(0.72, 0.7, 0.64), 0.5)
+	var steel := _mat(Color(0.62, 0.64, 0.66), 0.3)
+	steel.metallic = 0.7
+	var enamel := _mat(Color(0.86, 0.85, 0.8), 0.35)
+	# Kitchenette along the south wall's west end.
+	var counter := Vector3(-half_x + 1.1, 0.0, half_z - 0.32)
+	_piece("Counter", Vector3(1.6, 0.45, 0.45), counter + Vector3(0, 0.225, 0), wood)
+	_piece("Worktop", Vector3(1.66, 0.03, 0.5), counter + Vector3(0, 0.46, 0), laminate)
+	_piece("Sink", Vector3(0.4, 0.02, 0.3), counter + Vector3(0.35, 0.475, 0), steel)
+	_piece("Kettle", Vector3(0.09, 0.11, 0.09), counter + Vector3(-0.4, 0.53, 0), enamel)
+	_piece("Fridge", Vector3(0.45, 0.8, 0.42), counter + Vector3(-1.1, 0.4, 0), enamel)
+	_add_wall_collision(
+		"KitchenCollision", Vector3(2.1, 0.8, 0.5), counter + Vector3(-0.25, 0.4, 0), 0.8
+	)
+	# Rugs: the moquette weave, worn (TransitLook's: cheap, everywhere in this city).
+	var rug := _piece("Rug", Vector3(2.4, 0.01, 1.6), Vector3(0.2, 0.006, 0.4), null)
+	# A rug's weave is coarse: 0.4 scales the moquette's 8 cm diamonds up ~5× (at the
+	# diorama's true scale the pattern shimmered).
+	rug.material_override = TransitLook.seat(RUG_WEAVE, RUG_FADE)
+	var mat_by_bed := _piece("BedRug", Vector3(0.9, 0.01, 0.55), Vector3(2.2, 0.006, 2.1), null)
+	mat_by_bed.material_override = TransitLook.seat(RUG_WEAVE, RUG_FADE)
+	# Table and chair by the west wall, south of the boxes' corner.
+	var table := Vector3(-half_x + 0.75, 0.0, 1.95)
+	_piece("Table", Vector3(0.7, 0.03, 0.5), table + Vector3(0, 0.36, 0), wood)
+	for x in [-0.3, 0.3]:
+		for z in [-0.2, 0.2]:
+			_piece("TableLeg", Vector3(0.03, 0.35, 0.03), table + Vector3(x, 0.175, z), wood)
+	_piece("ChairSeat", Vector3(0.3, 0.03, 0.3), table + Vector3(0.5, 0.22, 0), wood)
+	_piece("ChairBack", Vector3(0.03, 0.3, 0.3), table + Vector3(0.64, 0.38, 0), wood)
+	_add_wall_collision(
+		"TableCollision", Vector3(1.0, 0.4, 0.55), table + Vector3(0.15, 0.2, 0), 0.4
+	)
+	# Shelves above the boxes' corner: what he unpacked.
+	var shelf_x := -half_x + 0.14
+	for y in [0.78, 1.02]:
+		_piece("Shelf", Vector3(0.18, 0.02, 1.2), Vector3(shelf_x, y, -0.3), wood)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 31
+	for k in 9:
+		var y: float = [0.78, 1.02][k % 2] + 0.07
+		var tint := Color(0.25, 0.3, 0.45).lerp(Color(0.6, 0.25, 0.2), rng.randf())
+		_piece(
+			"Book",
+			Vector3(0.12, rng.randf_range(0.08, 0.13), 0.035),
+			Vector3(shelf_x, y, -0.8 + k * 0.11),
+			_mat(tint, 0.8)
+		)
+	# The radiator under the window, west of the door.
+	var rad := Vector3(-1.9, 0.0, -half_z + 0.12)
+	var paint := _mat(Color(0.82, 0.8, 0.74), 0.5)
+	for k in 9:
+		_piece("Fin", Vector3(0.04, 0.32, 0.08), rad + Vector3(-0.32 + k * 0.08, 0.2, 0), paint)
+	_add_wall_collision(
+		"RadiatorCollision", Vector3(0.75, 0.4, 0.12), rad + Vector3(0, 0.2, 0), 0.4
+	)
+	# A dead plant in the north-west corner (the window's light never reaches it).
+	var corner := Vector3(-half_x + 0.3, 0.0, -half_z + 0.3)
+	_piece(
+		"Pot",
+		Vector3(0.18, 0.18, 0.18),
+		corner + Vector3(0, 0.09, 0),
+		_mat(Color(0.5, 0.28, 0.18), 0.9)
+	)
+	var branches := CityKit.prop(
+		CityKit.polyhaven("dry_branches_medium_01"), self, corner + Vector3(0, 0.18, 0), 0.0, 0.0
+	)
+	if branches != null:
+		branches.scale = Vector3.ONE * 0.35
+	_add_wall_collision("PotCollision", Vector3(0.22, 0.4, 0.22), corner + Vector3(0, 0.2, 0), 0.4)
+	# A floor lamp in the north-east corner, its shade lit.
+	var lamp_at := Vector3(half_x - 0.3, 0.0, -half_z + 0.3)
+	_piece("LampPole", Vector3(0.03, 1.0, 0.03), lamp_at + Vector3(0, 0.5, 0), steel)
+	var shade := _mat(Color(0.95, 0.85, 0.65), 0.7)
+	shade.emission_enabled = true
+	shade.emission = Color(1.0, 0.8, 0.55)
+	shade.emission_energy_multiplier = 0.8
+	_piece("LampShade", Vector3(0.22, 0.16, 0.22), lamp_at + Vector3(0, 1.05, 0), shade)
+	var glow := OmniLight3D.new()
+	glow.name = "FloorLampLight"
+	glow.light_color = Color(1.0, 0.82, 0.6)
+	glow.light_energy = 0.7
+	glow.omni_range = 2.5
+	glow.position = lamp_at + Vector3(0, 0.95, 0)
+	add_child(glow)
+	_add_wall_collision("LampCollision", Vector3(0.2, 1.1, 0.2), lamp_at + Vector3(0, 0.55, 0), 1.1)
+	# Skirting along the walls you see whole (west, north).
+	var skirt := _mat(Color(0.22, 0.17, 0.12), 0.6)
+	_piece("SkirtWest", Vector3(0.02, 0.06, half_z * 2.0), Vector3(-half_x + 0.075, 0.03, 0), skirt)
+	_piece(
+		"SkirtNorth", Vector3(half_x * 2.0, 0.06, 0.02), Vector3(0, 0.03, -half_z + 0.075), skirt
+	)
+
+
+## A named box of furniture (added; `mat` null leaves it for the caller).
+func _piece(node_name: String, size: Vector3, at: Vector3, mat: Material) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.name = node_name
+	var b := BoxMesh.new()
+	b.size = size
+	mi.mesh = b
+	mi.material_override = mat
+	mi.position = at
+	add_child(mi)
+	return mi
 
 
 ## Two props that define the playable footprint: the crafting bench (Ticket-03 will hang

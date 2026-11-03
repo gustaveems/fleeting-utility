@@ -93,7 +93,21 @@ Not reached: the park.
     - **The avenue** has three short signs instead of five long ones, smaller.
     - **The evening:** the brand signs and the restaurant's (2 m letters across the
       pavement) are mounted boards; the evening has glow for them (threshold 1).
-- [ ] **The apartment** could do with more work.
+- [x] **The apartment** could do with more work.
+  - **Done** (`WorkspaceBlockout._furnish`): it read as four props on a plaza of loud
+    tiles.
+    - **The floor:** muted, and the tiles halved (~24 cm real).
+    - **The walls:** tired cream instead of mustard, with skirting.
+    - **The furniture:**
+      - a kitchenette in the south-west (counter, sink, kettle, fridge);
+      - a table and chair;
+      - shelves with his books above the boxes' corner;
+      - a radiator under the window;
+      - a dead plant;
+      - a floor lamp lit in the north-east;
+      - a faded rug, and one by the bed.
+    - All of it is solid. The west wall's floor stays clear for the moving boxes, and
+      the north-east for the window beat.
 
 ## 2026-10-30: first playthrough with sound, up to day 5
 All fixed in `9b806c5` (Ticket-29):

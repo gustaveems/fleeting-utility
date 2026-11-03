@@ -103,6 +103,7 @@ void fragment() {
 		c = mix(teal, maroon, diamond);
 		c = mix(c, mustard, cross * (1.0 - diamond));
 		c *= mix(0.75, 1.0, dirt);  // worn, stained
+		c *= base;  // white on the trains; a faded tint for a rug
 		rough = 0.95;
 	} else if (kind == 3) {
 		// Subway tiles 15×7.5 cm in a brick bond; grout greys with the dirt; a band of
@@ -154,8 +155,8 @@ static func flooring(unit: float = 1.0) -> ShaderMaterial:
 	return _make(Kind.FLOOR, unit, Color(0.2, 0.21, 0.22))
 
 
-static func seat(unit: float = 1.0) -> ShaderMaterial:
-	return _make(Kind.SEAT, unit, Color.WHITE)
+static func seat(unit: float = 1.0, fade: Color = Color.WHITE) -> ShaderMaterial:
+	return _make(Kind.SEAT, unit, fade)
 
 
 static func tile(unit: float = 1.0, line_color: Color = Color(0.15, 0.55, 0.65)) -> ShaderMaterial:
