@@ -498,15 +498,23 @@ func _build_car_route() -> void:
 
 func _build_train() -> void:
 	var at := TRAIN_AT
-	var wall := _mat(Color(0.3, 0.32, 0.3), 0.9)
-	wall.cull_mode = BaseMaterial3D.CULL_FRONT
+	# The night train's inside: moulded panels (seen from within), a studded floor, a
+	# bench of worn moquette down one side, the dark window band, the tube light.
 	var shell := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = Vector3(3.1, 3.3, 18)
 	shell.mesh = box
-	shell.material_override = wall
+	shell.material_override = TransitLook.panel(1.0, Color(0.5, 0.55, 0.5))
 	shell.position = at + Vector3(0, 1.65, 0)
 	_world.add_child(shell)
+	_box(at + Vector3(0, 0.02, 0), Vector3(3.0, 0.04, 17.8), TransitLook.flooring(1.0))
+	_box(at + Vector3(1.3, 0.22, 0), Vector3(0.45, 0.44, 16.0), TransitLook.seat(1.0))
+	_box(at + Vector3(1.48, 0.7, 0), Vector3(0.08, 0.6, 16.0), TransitLook.seat(1.0))
+	var night := _mat(Color(0.02, 0.03, 0.05), 0.05)
+	night.emission_enabled = true
+	night.emission = Color(0.05, 0.07, 0.12)
+	for side in [-1.0, 1.0]:
+		_box(at + Vector3(side * 1.52, 1.8, 0), Vector3(0.02, 0.8, 16.0), night)
 	var tube := OmniLight3D.new()
 	tube.light_color = Color(0.8, 0.95, 1.0)
 	tube.light_energy = 1.4
@@ -515,13 +523,45 @@ func _build_train() -> void:
 	_world.add_child(tube)
 	for k in 6:
 		var f := StreetFigure.new()
+		var sitting := k % 3 == 0
 		f.dress = StreetFigure.Dress.POOR if k % 2 == 0 else StreetFigure.Dress.MIDDLE
-		f.pose = StreetFigure.Pose.SLUMP if k % 3 == 0 else StreetFigure.Pose.STAND
+		f.pose = StreetFigure.Pose.SLUMP if sitting else StreetFigure.Pose.STAND
+		# The seated on the bench, the standing in the aisle (not in the bench).
 		f.position = (
-			at + Vector3(1.15 if k % 2 == 0 else -0.3, 0.5 if k % 3 == 0 else 0.0, -7 + k * 2.6)
+			at
+			+ Vector3(
+				1.1 if sitting else -0.4 + (k % 2) * 0.5, 0.45 if sitting else 0.0, -7 + k * 2.6
+			)
 		)
-		f.rotation_degrees.y = 90 if k % 2 == 0 else randf_range(0, 360)
+		f.rotation_degrees.y = -90 if sitting else randf_range(0, 360)
 		_world.add_child(f)
+	_build_station()
+
+
+## The night train's station (the rich side): the platform's concrete and its tactile
+## edge, the tiled wall across the tracks (it also hides the carriage set behind it), the
+## wall behind the platform, the ceiling, the strip lights, the station's name.
+func _build_station() -> void:
+	var c := TRAIN_AT
+	var line := Color(0.75, 0.6, 0.25)  # the rich side's line: gold
+	var tiles := TransitLook.tile(1.0, line)
+	_box(c + Vector3(4.5, 3.0, -10), Vector3(0.3, 6.0, 60), tiles)
+	_box(c + Vector3(15.8, 3.0, -10), Vector3(0.3, 6.0, 60), tiles)
+	_box(c + Vector3(10, 6.1, -10), Vector3(11.6, 0.2, 60), _mat(Color(0.12, 0.12, 0.13), 0.8))
+	_box(c + Vector3(9, -0.05, -10), Vector3(9, 0.1, 60), TransitLook.flooring(1.0))
+	var strip := _mat(Color(0.9, 0.95, 1.0), 0.4)
+	strip.emission_enabled = true
+	strip.emission = Color(0.85, 0.92, 1.0)
+	strip.emission_energy_multiplier = 1.8
+	for z in [-24.0, -12.0, 0.0, 12.0]:
+		_box(c + Vector3(13.2, 5.95, z), Vector3(0.12, 0.06, 8.0), strip)
+		var light := OmniLight3D.new()
+		light.light_color = Color(0.85, 0.92, 1.0)
+		light.light_energy = 1.2
+		light.omni_range = 9.0
+		light.position = c + Vector3(12, 5.0, z)
+		_world.add_child(light)
+	_label("HERITAGE QUARTER", c + Vector3(4.67, 3.6, 4.0), 90.0, Color(0.1, 0.08, 0.05), 0.12)
 
 
 ## The diner who speaks as `speaker`, or null (his thoughts, anyone else).
@@ -778,7 +818,7 @@ func _dress_restaurant() -> void:
 ## tagged). One train family across the game (playtest 2026-11-03).
 func _dress_train() -> void:
 	var platform := TRAIN_AT + Vector3(9, 0, 0)
-	_box(platform + Vector3(4, 0.5, 0), Vector3(5, 1.0, 26), _mat(Color(0.32, 0.32, 0.33), 0.9))
+	_box(platform + Vector3(4, 0.5, 0), Vector3(5, 1.0, 26), TransitLook.concrete(1.0, -2.5))
 	for k in NIGHT_TRAIN_CARS:
 		var car := Node3D.new()
 		car.name = "NightTrain_%d" % k

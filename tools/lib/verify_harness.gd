@@ -14,6 +14,10 @@ extends SceneTree
 ##   - This script IS the tree: there is no get_tree(); waits use create_timer().
 ##   - _process is unthrottled headless, so never count frames for timing.
 ##   - The headless display server has no render target: capture() is a no-op there.
+##   - Windowed (captures), the window is QUIET by default: a few pixels in a corner of
+##     the screen, borderless, on top, never taking focus, while the game renders its
+##     full 1280×720 inside (viewport stretch). macOS stops drawing a covered or hidden
+##     window, but not a tiny visible one. `-- loud` shows the normal window.
 ##
 ## Run: godot --headless --path . -s tools/<script>.gd
 
@@ -27,6 +31,9 @@ const TIMEOUT_SECONDS := 120.0
 ## Tests never touch the player's real save: every run gets its own, wiped first.
 const TEST_SAVE_PATH := "user://verify_save.json"
 const TEST_SETTINGS_PATH := "user://verify_settings.cfg"
+## The quiet window: what the game renders at, and the dot on screen.
+const RENDER_SIZE := Vector2i(1280, 720)
+const QUIET_SIZE := Vector2i(4, 4)
 
 var ws: Node
 var passed := 0
@@ -34,6 +41,7 @@ var failed := 0
 
 
 func _initialize() -> void:
+	_quiet_window()
 	Persistence.save_path = TEST_SAVE_PATH
 	wipe_test_save()
 	SettingsStore.path = TEST_SETTINGS_PATH
@@ -46,6 +54,24 @@ func _initialize() -> void:
 	# Real seconds (ignore_time_scale): probes may run the game faster than real time.
 	create_timer(_timeout_seconds(), true, false, true).timeout.connect(_on_watchdog)
 	_drive()
+
+
+## Captures without a window in your way (see the header). Headless: nothing to do.
+func _quiet_window() -> void:
+	if DisplayServer.get_name() == "headless" or "loud" in OS.get_cmdline_user_args():
+		return
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_size = RENDER_SIZE
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
+	for flag in [
+		DisplayServer.WINDOW_FLAG_BORDERLESS,
+		DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP,
+		DisplayServer.WINDOW_FLAG_NO_FOCUS,
+	]:
+		DisplayServer.window_set_flag(flag, true)
+	DisplayServer.window_set_size(QUIET_SIZE)
+	var screen := DisplayServer.screen_get_usable_rect()
+	DisplayServer.window_set_position(screen.end - QUIET_SIZE)
 
 
 func wipe_test_save() -> void:

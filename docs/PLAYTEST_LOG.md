@@ -74,8 +74,11 @@ Not reached: the park.
     is painted on the nose in its shader. The Fab tram stays only as the wreck in the
     film's dead town.
 - [ ] **Not textured yet:**
-  - the metro station;
-  - the inside of the metro carriage;
+  - [x] the metro station: the evening's station is now tiled walls with the line's
+    gold band, slab concrete with the yellow tactile edge, a studded trackbed, the
+    ceiling's strip lights and the HERITAGE QUARTER name (`TransitLook`);
+  - [x] the inside of the metro carriage: panels, moquette seats and a studded floor,
+    in the game's ride and the night train;
   - the city (in game and the evening, beyond the film's towers).
 - [ ] **Neon lettering** is still too much and too janky, even after `SignType`.
 - [ ] **The apartment** could do with more work.

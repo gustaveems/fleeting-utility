@@ -78,8 +78,10 @@ func set_stage(stage: int) -> void:
 
 
 func _build() -> void:
-	var floor_mat := _mat(Color(0.22, 0.23, 0.22), 0.8)
-	var wall := _mat(Color(0.34, 0.36, 0.33), 0.9)
+	# Real metres per unit: the carriage is built at the avatar's diorama scale.
+	var unit := 1.0 / PERSON_SCALE
+	var floor_mat := TransitLook.flooring(unit)
+	var wall := TransitLook.panel(unit)
 	_box(Vector3(0, -0.02, 0), Vector3(HALF_LENGTH * 2, 0.04, HALF_WIDTH * 2), floor_mat)
 	# Far wall: a sill, the window band, a header; near wall cut to sill height.
 	_box(Vector3(0, 0.2, -HALF_WIDTH), Vector3(HALF_LENGTH * 2, 0.4, 0.05), wall)
@@ -99,7 +101,7 @@ func _build() -> void:
 	for side in [-1.0, 1.0]:
 		_wall_body(Vector3(side * (HALF_LENGTH + 0.05), 0.5, 0), Vector3(0.1, 1.0, HALF_WIDTH * 2))
 	# Seats along the far wall, poles, the fluorescent strip and its light.
-	var seat := _mat(Color(0.42, 0.46, 0.44), 0.7)
+	var seat := TransitLook.seat(unit)
 	var steel := _mat(Color(0.7, 0.72, 0.74), 0.25)
 	for k in 6:
 		var x := -HALF_LENGTH + 0.8 + k * 1.3
