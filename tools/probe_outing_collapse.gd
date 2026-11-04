@@ -3,7 +3,7 @@ extends "res://tools/lib/verify_harness.gd"
 ## the carriage still running (the city flying past the valley), and woke boxed into a
 ## strip of his room (the dream had saved the carriage's aisle as "home"). An outing he
 ## collapses on brings him home first, then he goes under; he wakes free in his room.
-## The rooftop night is the same kind of outing.
+## The rooftop night and the park walk are the same kind of outing.
 ##
 ## Run: godot --headless --path . -s tools/probe_outing_collapse.gd
 
@@ -47,6 +47,30 @@ func _run() -> void:
 	check("the room is back", apartment.visible and not carriage.visible)
 	await wait(metro.LINGER + 1.0)
 	check("the ride's leftovers change nothing", apartment.visible and not _manager.in_dreamscape())
+
+	section("collapsing in the park")
+	# Playtest 2026-11-04: he collapsed on the walk; the park ran on under the dream and
+	# its timer brought the room back mid-dream (the room through the valley, the door
+	# answering "Not yet").
+	var park := node("CorporateParkManager") as CorporateParkManager
+	park.walk_taken = false
+	park.park_duration = 3.0
+	park.transition_to_park()
+	await wait(0.5)
+	check("walking", park.is_in_park() and park.get_park_root().visible)
+	await _collapse()
+	check("he goes under", _manager.in_dreamscape())
+	check("the walk is over", not park.is_in_park() and not park.get_park_root().visible)
+	await wait(park.park_duration + 1.0)
+	check("still no room in the dream", _manager.in_dreamscape() and not apartment.visible)
+	await _wake()
+	check(
+		"he wakes free in his room (%s)" % _player.room_half_extents,
+		_player.room_half_extents.is_equal_approx(room)
+	)
+	check("the room is back", apartment.visible and not park.get_park_root().visible)
+	var ransacked := node("RansackedStateManager") as RansackedStateManager
+	check("he wakes to the wreck (the walk's return)", ransacked.is_ransacked)
 
 	section("collapsing on the rooftop")
 	var standing := node("Standing") as Standing

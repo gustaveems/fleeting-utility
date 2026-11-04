@@ -95,7 +95,7 @@ void vertex() {
 }
 
 void fragment() {
-	bool head = rest.y >= collar && abs(rest.x) < 0.12;
+	bool head = rest.y >= collar && abs(rest.x) < 0.1;
 	bool hand = abs(rest.x) > wrist;
 	vec3 c = rest.y < hip ? bottom_color : top_color;
 	if (rest.y < ankle) {
@@ -107,12 +107,16 @@ void fragment() {
 	// Faceless: the head's shading flattened toward the viewer, so eyes, nose and mouth
 	// melt into one matte form under the hair. The bodysuit's muscle relief softened.
 	vec3 toward = normalize(vec3(0.0, 0.25, 1.0));
-	NORMAL = normalize(mix(NORMAL, toward, head ? 0.85 : 0.4));
+	// (0.65 on the clothes: at 0.4 the body's sculpted muscle still read through a tight
+	// top as a bare mannequin, playtest 2026-11-04.)
+	NORMAL = normalize(mix(NORMAL, toward, head ? 0.85 : 0.65));
 	ALBEDO = c;
 	ROUGHNESS = head ? 0.9 : rough;
 	SPECULAR = 0.12;
 }
 """
+const COLLAR_MAN := 1.585
+const COLLAR_WOMAN := 1.56
 const RIG := "res://assets/third_party/quaternius_anim/UAL1_Standard.glb"
 const RIG_EXTRA := "res://assets/third_party/quaternius_anim/UAL2_Standard.glb"
 ## Clips that loop (the rest play once).
@@ -140,6 +144,7 @@ static var _tints: Dictionary = {}
 static var _cloth_shader: Shader
 static var _bodies: Dictionary = {}
 static var _rest_meshes: Dictionary = {}
+static var _contact_shadow: Material
 
 @export var dress: Dress = Dress.MIDDLE
 @export var pose: Pose = Pose.STAND
@@ -179,6 +184,7 @@ func _ready() -> void:
 	_phase = randf() * TAU
 	if solid:
 		_add_body()
+	_add_contact_shadow()
 	if _rig_available():
 		_build_rig()
 		_home = position
@@ -426,6 +432,11 @@ func _dress_body() -> void:
 	cloth.set_shader_parameter("top_color", outfit[0])
 	cloth.set_shader_parameter("bottom_color", outfit[1])
 	cloth.set_shader_parameter("skin_color", SKIN[rng.randi() % SKIN.size()])
+	# Where the top ends: across the neck, never the shoulders. The man's trapezius rises
+	# to 1.56 m (his neck is narrowest at 1.58–1.62), so a 1.56 collar left a ragged bib
+	# of skin on his chest and back, worst on a bowed head (playtest 2026-11-04, the
+	# dinner). Her neck runs 1.48–1.58.
+	cloth.set_shader_parameter("collar", COLLAR_WOMAN if woman else COLLAR_MAN)
 	cloth.set_shader_parameter("rough", maxf(float(CLOTH_ROUGH.get(dress, 0.85)), 0.8))
 	for mi in meshes:
 		mi.mesh = _with_rest_position(mi.mesh)
@@ -512,13 +523,45 @@ func _add_veil() -> void:
 	shell.height = 0.32
 	veil.mesh = shell
 	veil.position = Vector3(0, 0.09, 0.02)
+	# Matte black gauze (playtest 2026-11-04: a glossy shell read as a helmet, the candles
+	# shining in it like eyes).
 	var sheer := StandardMaterial3D.new()
-	sheer.albedo_color = Color(0.03, 0.03, 0.05, 0.82)
+	sheer.albedo_color = Color(0.04, 0.035, 0.04, 0.86)
 	sheer.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	sheer.metallic = 0.6
-	sheer.roughness = 0.18
+	sheer.roughness = 1.0
+	sheer.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	veil.material_override = sheer
 	mount.add_child(veil)
+
+
+## A soft dark pool under the feet. Night streets light him with shadowless lamps (a
+## shadow per lamp lagged the walk), and without it he floated over the black road like
+## a ghost (playtest 2026-11-04).
+func _add_contact_shadow() -> void:
+	if _contact_shadow == null:
+		var fade := Gradient.new()
+		fade.set_color(0, Color(0, 0, 0, 0.8))
+		fade.set_color(1, Color(0, 0, 0, 0))
+		var tex := GradientTexture2D.new()
+		tex.gradient = fade
+		tex.fill = GradientTexture2D.FILL_RADIAL
+		tex.fill_from = Vector2(0.5, 0.5)
+		tex.fill_to = Vector2(1.0, 0.5)
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = tex
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_contact_shadow = m
+	var pool := MeshInstance3D.new()
+	pool.name = "ContactShadow"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(1.0, 1.0)
+	pool.mesh = plane
+	pool.material_override = _contact_shadow
+	pool.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pool.position.y = 0.02
+	add_child(pool)
 
 
 static func _find_skeleton(n: Node) -> Skeleton3D:

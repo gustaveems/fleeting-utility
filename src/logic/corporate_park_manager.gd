@@ -53,6 +53,9 @@ const START := Vector3(13.0, 0.0, 13.0)
 @export var interaction_controller: InteractionController
 ## Framed low and close in the park (the forest reads tall); null leaves the iso view.
 @export var camera: WorkspaceCamera
+## A collapse on the walk ends it (playtest 2026-11-04: the park ran on under the dream
+## and its timer brought the room back mid-dream). He wakes to the wreck.
+@export var dreamscape_manager: DreamscapeManager
 
 ## Blinks to black over each world swap (null = hard cut).
 @export var fader: ScreenFader
@@ -82,6 +85,8 @@ var _auto_timer: Timer
 var _apartment_move_speed: float = 4.0
 var _apartment_extents: Vector2 = Vector2(4.2, 3.2)
 var _apartment_pos: Vector3
+## Cut short by a collapse: the return (the ransack) is owed for when he wakes.
+var _owed_return: bool = false
 
 
 func _ready() -> void:
@@ -94,6 +99,9 @@ func _ready() -> void:
 	add_child(_auto_timer)
 	if apartment_environment == null and world_environment != null:
 		apartment_environment = world_environment.environment
+	if dreamscape_manager != null:
+		dreamscape_manager.transition_started.connect(_cut_short)
+		dreamscape_manager.worlds_swapped.connect(_on_worlds_swapped)
 
 
 ## ----- PUBLIC API --------------------------------------------------------------------
@@ -132,15 +140,17 @@ func transition_to_park() -> void:
 	walk_started.emit()
 
 
-## Return triggered by the auto-return timer or the return door.
-func transition_to_apartment() -> void:
+## Return triggered by the auto-return timer or the return door. `quiet`: no blink and
+## no return beat yet (he is going under; the dream's fade covers it, and he wakes to
+## the wreck).
+func transition_to_apartment(quiet: bool = false) -> void:
 	if _transitioning or not _in_park or player == null:
 		return
 	_transitioning = true
 	_lock_player(true)
 	_auto_timer.stop()
 
-	if fader != null:
+	if fader != null and not quiet:
 		fader.blink()
 	_swap_worlds(false)
 	_in_park = false
@@ -154,7 +164,10 @@ func transition_to_apartment() -> void:
 
 	_lock_player(false)
 	_transitioning = false
-	return_from_walk.emit()
+	if quiet:
+		_owed_return = true
+	else:
+		return_from_walk.emit()
 
 
 ## Hold the walk's end while something is being said in the park (the campaign beat).
@@ -300,6 +313,18 @@ func _swap_worlds(to_park: bool) -> void:
 
 func _on_auto_return_timeout() -> void:
 	transition_to_apartment()
+
+
+func _cut_short() -> void:
+	if _in_park:
+		transition_to_apartment(true)
+
+
+## Home from the dream, under the white: the walk's return lands now.
+func _on_worlds_swapped(to_dreamscape: bool) -> void:
+	if not to_dreamscape and _owed_return:
+		_owed_return = false
+		return_from_walk.emit()
 
 
 func _lock_player(locked: bool) -> void:

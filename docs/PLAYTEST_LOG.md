@@ -4,6 +4,36 @@ Alain's playthroughs, newest first. Each entry is the raw list of what went wron
 needs work, sorted by severity. A line is ticked when a commit fixes it, and the fix is
 noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.md`.
 
+## 2026-11-04: fourth playthrough (screenshots in `Feedback/`)
+
+- [x] **The room showed through the dream**, and the door answered ("Not yet…") in the
+  valley.
+  - **Fixed:** a collapse on the park walk left the park running under the dream, and
+    its timer brought the apartment back mid-dream; he also woke in the park's bounds.
+    The walk now ends itself like the metro and the rooftop
+    (`CorporateParkManager._cut_short`), and the ransack he'd have come home to lands
+    under the white as he wakes (`tools/probe_outing_collapse.gd`).
+- [x] **A building's front in the apartment.**
+  - **Fixed:** the door was the city kit's full-size 3 m street door on 1.35 m walls (a
+    building entrance). It's now scaled to the room and mounted on the wall.
+  - The north wall was a sill under one window 72% wide, open at both ends; it's now a
+    wall with two windows either side of the door (`WorkspaceBlockout.WINDOWS`; the
+    east one still frames the shoes).
+  - The block across the alley sits lower: its upper storeys, not its street door.
+- [x] **The dinner:** the cloth glared white; the diners had glossy helmets with eyes;
+  their clothes were blotched.
+  - **Fixed:** the room is lit low, and the cloth is off-white.
+  - The veils are matte gauze.
+  - The chairs stood inside the seated bodies (the sitting clip puts the back ~0.4 m
+    behind the root); they now sit back (`EveningLayout.SEAT_BACK`).
+  - The man's collar line ran through his trapezius (a ragged bib of skin on a bowed
+    head); it's now set per body (`StreetFigure.COLLAR_MAN` / `COLLAR_WOMAN`).
+- [x] **The walk: a ghost on the road, a grey mannequin.**
+  - **Fixed:** the night street has no shadows (a shadow per lamp lagged), so every
+    figure now stands on a soft contact shadow.
+  - The clothes flatten more of the body's sculpted muscle.
+- [ ] Follow-up: the shopfronts beside the walk are still black (the lit shop windows).
+
 ## 2026-11-03: third playthrough, up to the park (day 6)
 
 - [x] **The walk spawned him in empty space**, and home again outside the bedroom.

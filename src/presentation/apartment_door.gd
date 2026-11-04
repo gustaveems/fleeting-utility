@@ -137,10 +137,24 @@ func _build_frame() -> void:
 	add_child(_collision_shape)
 
 	# The real door (Downtown kit, CC0): a worn wooden frame and a plain door, facing
-	# into the room. The box posts below are the fallback.
+	# into the room, at the diorama's scale (playtest 2026-11-04: the kit's full-size
+	# street door towered over the 1.35 m walls like a building's entrance). The box
+	# posts below are the fallback.
 	var kit := "res://assets/third_party/quaternius_downtown/models/"
-	if CityKit.prop(kit + "DoorFrame_Wooden.gltf", self, Vector3.ZERO, 0.0, 0.0) != null:
-		CityKit.prop(kit + "Door_1.gltf", self, Vector3(0.5, 0.0, 0.0), 0.0, 0.0)
+	# Mounted just proud of the wall (inside its plane, the pier swallowed it).
+	var face := Vector3(0, 0, 0.08)
+	var frame := CityKit.prop(kit + "DoorFrame_Wooden.gltf", self, face, 0.0, 0.0)
+	if frame != null:
+		frame.scale = Vector3.ONE * WorkspaceBlockout.PROP_SCALE
+		var leaf := CityKit.prop(
+			kit + "Door_1.gltf",
+			self,
+			face + Vector3(0.5 * WorkspaceBlockout.PROP_SCALE, 0, 0),
+			0.0,
+			0.0
+		)
+		if leaf != null:
+			leaf.scale = Vector3.ONE * WorkspaceBlockout.PROP_SCALE
 		return
 	# Simple doorframe: two posts and a lintel.
 	var frame_mat := StandardMaterial3D.new()

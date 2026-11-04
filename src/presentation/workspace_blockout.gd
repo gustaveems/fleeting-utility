@@ -34,6 +34,9 @@ const KIT_TEX := "res://assets/third_party/quaternius_downtown/models/"
 
 const COLOR_BENCH := Color(0.42, 0.33, 0.24)
 const COLOR_WINDOW := Color(0.62, 0.68, 0.74)
+## The north wall's windows, (centre x, width): either side of the door; the east one
+## frames the street where the friend's shoes are seen.
+const WINDOWS: Array[Vector2] = [Vector2(-2.25, 2.6), Vector2(2.25, 2.6)]
 
 ## Invisible collision height for the camera-facing sill walls. The capsule tops out
 ## at 0.8 m; 2.5 m is generous margin with no gameplay downside (nothing can hop it).
@@ -115,9 +118,11 @@ func _build_walls() -> void:
 		wall_height
 	)
 
-	# Far wall (-Z): the window. The protagonist's only view of the outside world, and the
-	# literal stage for the Recognition beat (MASTER_BRIEF.md #2) — sill band below,
-	# translucent pane above, so the frame reads as glass rather than a hole.
+	# Far wall (-Z): the windows. The protagonist's only view of the outside world, and
+	# the literal stage for the Recognition beat (MASTER_BRIEF.md #2): a sill band, then
+	# two windows of grimy glass either side of the door, between solid piers under a
+	# header. (Playtest 2026-11-04: one pane across 72% of the wall, open at both ends,
+	# read as a shopfront onto the block outside.)
 	add_child(
 		_box(
 			"WallNorthSill",
@@ -126,15 +131,40 @@ func _build_walls() -> void:
 			COLOR_WALL
 		)
 	)
-	var pane := _box(
-		"WindowPane",
-		Vector3(span_x * 0.72, wall_height - sill_height, wall_thickness * 0.4),
-		Vector3(0.0, sill_height + (wall_height - sill_height) * 0.5, -half_z),
-		COLOR_WINDOW
+	var header := 0.14
+	var glass_h := wall_height - sill_height - header
+	add_child(
+		_box(
+			"WallNorthHeader",
+			Vector3(span_x, header, wall_thickness),
+			Vector3(0.0, wall_height - header * 0.5, -half_z),
+			COLOR_WALL
+		)
 	)
-	pane.material_override = _glass_material()
-	add_child(pane)
-	_build_window_frame(span_x * 0.72, wall_height - sill_height, sill_height, -half_z)
+	var edges: Array[float] = [-span_x * 0.5]
+	for w in WINDOWS:
+		edges.append(w.x - w.y * 0.5)
+		edges.append(w.x + w.y * 0.5)
+		var pane := _box(
+			"WindowPane",
+			Vector3(w.y, glass_h, wall_thickness * 0.4),
+			Vector3(w.x, sill_height + glass_h * 0.5, -half_z),
+			COLOR_WINDOW
+		)
+		pane.material_override = _glass_material()
+		add_child(pane)
+		_build_window_frame(w.y, glass_h, sill_height, -half_z, w.x)
+	edges.append(span_x * 0.5)
+	for k in range(0, edges.size(), 2):
+		var width := edges[k + 1] - edges[k]
+		add_child(
+			_box(
+				"WallNorthPier%d" % (k / 2),
+				Vector3(width, glass_h, wall_thickness),
+				Vector3((edges[k] + edges[k + 1]) * 0.5, sill_height + glass_h * 0.5, -half_z),
+				COLOR_WALL
+			)
+		)
 	# One solid box across the whole north footprint: the transparent pane must not be
 	# the thing that stops the player (decals and movement both want real geometry).
 	_add_wall_collision(
@@ -147,19 +177,21 @@ func _build_walls() -> void:
 
 ## The window: grimy glass in a steel frame, mullions every ~0.8 m and one transom,
 ## a concrete sill. Thin, so the recognition beat outside still reads through it.
-func _build_window_frame(width: float, height: float, bottom: float, z: float) -> void:
+func _build_window_frame(
+	width: float, height: float, bottom: float, z: float, cx: float = 0.0
+) -> void:
 	var steel := _mat(Color(0.12, 0.12, 0.13), 0.5)
 	steel.metallic = 0.6
 	var bar := 0.035
 	var top := bottom + height
 	var mid_y := bottom + height * 0.5
 	for y in [bottom + bar * 0.5, top - bar * 0.5, bottom + height * 0.62]:
-		var rail := _box("WindowRail", Vector3(width, bar, 0.06), Vector3(0, y, z), Color.BLACK)
+		var rail := _box("WindowRail", Vector3(width, bar, 0.06), Vector3(cx, y, z), Color.BLACK)
 		rail.material_override = steel
 		add_child(rail)
 	var panes := maxi(2, roundi(width / 0.8))
 	for k in panes + 1:
-		var x := -width * 0.5 + width * float(k) / panes
+		var x := cx - width * 0.5 + width * float(k) / panes
 		var mullion := _box(
 			"WindowMullion", Vector3(bar, height, 0.06), Vector3(x, mid_y, z), Color.BLACK
 		)
@@ -168,7 +200,7 @@ func _build_window_frame(width: float, height: float, bottom: float, z: float) -
 	var sill := _box(
 		"WindowSill",
 		Vector3(width + 0.1, 0.04, 0.16),
-		Vector3(0, bottom - 0.02, z + 0.05),
+		Vector3(cx, bottom - 0.02, z + 0.05),
 		Color.BLACK
 	)
 	sill.material_override = _wall_mat(Color(0.6, 0.58, 0.54))
@@ -324,10 +356,12 @@ func _dress_room() -> void:
 		if pack != null:
 			pack.scale = Vector3.ONE * 0.8
 			pack.rotation_degrees.x = 90.0
-	# Outside the window: the next block, an arm's length away.
+	# Outside the window: the next block across the alley, its upper storeys (he lives
+	# up high). Playtest 2026-11-04: at -2 m its street door and railings stood level
+	# with his floor and read as part of the room.
 	var outside := Node3D.new()
 	outside.name = "Neighbours"
-	outside.position = Vector3(0, -2.0, -half_z - 3.0)
+	outside.position = Vector3(0, -7.0, -half_z - 3.5)
 	outside.scale = Vector3.ONE * PROP_SCALE
 	add_child(outside)
 	var kit := CityKit.new()

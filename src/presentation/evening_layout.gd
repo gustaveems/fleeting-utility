@@ -18,6 +18,8 @@ signal beat_entered(beat: String)
 const WORLD_SCALE := 0.47
 const HALF_WIDTH := 13.0
 const HALF_LENGTH := 60.0
+## How far behind a seated figure's root its chair stands (see `_chair`).
+const SEAT_BACK := 0.3
 const RESTAURANT_DOOR := Vector3(10, 0, 56)
 const WALK_START := Vector3(7, 0, 54)
 const STATION := Vector3(0, 0, -55)
@@ -393,8 +395,10 @@ func _build_restaurant() -> void:
 		_box(at + Vector3(-6.95, 2.6, z), Vector3(0.12, 3.2, 0.12), panel)
 	var rug := _mat(Color(0.36, 0.08, 0.08), 0.95)
 	_box(at + Vector3(0, 0.03, 0), Vector3(6.2, 0.02, 6.2), rug)
-	# The table: a white cloth falling to the floor, five places set, candles.
-	var cloth := _mat(Color(0.94, 0.92, 0.88), 0.7)
+	# The table: a white cloth falling to the floor, five places set, candles. Lit low
+	# (playtest 2026-11-04: the cloth glared white and the diners' tops blew out to
+	# pale blotches under the old lights and the street's glow).
+	var cloth := _mat(Color(0.74, 0.71, 0.66), 0.85)
 	var top := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 1.1
@@ -421,13 +425,13 @@ func _build_restaurant() -> void:
 		_cylinder(at + Vector3(x, 1.02, 0.15), 0.012, 0.04, flame)
 	var candle := OmniLight3D.new()
 	candle.light_color = Color(1.0, 0.72, 0.4)
-	candle.light_energy = 1.2
+	candle.light_energy = 0.55
 	candle.omni_range = 3.0
 	candle.position = at + Vector3(0, 1.1, 0.15)
 	_world.add_child(candle)
 	var warm := OmniLight3D.new()
 	warm.light_color = Color(1.0, 0.82, 0.6)
-	warm.light_energy = 2.2
+	warm.light_energy = 0.9
 	warm.omni_range = 7.0
 	warm.position = at + Vector3(0, 2.6, 0)
 	_world.add_child(warm)
@@ -600,7 +604,10 @@ func _chair(seat: Vector3, angle: float) -> void:
 	var wood := _mat(Color(0.18, 0.11, 0.07), 0.45)
 	var velvet := _mat(Color(0.32, 0.1, 0.12), 0.9)
 	var chair := Node3D.new()
-	chair.position = seat + Vector3(0, -0.45, 0)
+	# The sitting clip puts his pelvis ~0.33 m behind the figure's root and his back ~0.4:
+	# the chair sits back by that much (playtest 2026-11-04: its back ran through every
+	# diner's chest, red blotches through the dark suits).
+	chair.position = seat + Vector3(sin(angle), 0, cos(angle)) * SEAT_BACK + Vector3(0, -0.45, 0)
 	chair.rotation.y = angle
 	_world.add_child(chair)
 	var parts: Array = [
