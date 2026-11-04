@@ -33,6 +33,10 @@ noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.
     figure now stands on a soft contact shadow.
   - The clothes flatten more of the body's sculpted muscle.
 - [ ] Follow-up: the shopfronts beside the walk are still black (the lit shop windows).
+- [x] **The dinner, again (17.09.41): a black halo round every veiled head.**
+  - **Fixed:** the matte veil sphere was bigger than the skull. The veil is now the
+    head's own surface (the cloth shader's `veiled`), so it fits. Seated figures drop
+    the floor pool too: they sit on seats, and the pool hung in the air at seat height.
 
 ## 2026-11-03: third playthrough, up to the park (day 6)
 

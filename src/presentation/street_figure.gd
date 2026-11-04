@@ -84,6 +84,7 @@ uniform float collar = 1.56;
 uniform float wrist = 0.74;
 uniform float ankle = 0.08;
 uniform float rough = 0.8;
+uniform bool veiled = false;
 varying vec3 rest;
 
 // Clothes go by where a point sits on the body at REST (CUSTOM2, written by
@@ -104,6 +105,9 @@ void fragment() {
 	if (head || hand) {
 		c = skin_color * 0.85;
 	}
+	if (head && veiled) {
+		c = vec3(0.035, 0.03, 0.035);  // black gauze drawn tight over the head
+	}
 	// Faceless: the head's shading flattened toward the viewer, so eyes, nose and mouth
 	// melt into one matte form under the hair. The bodysuit's muscle relief softened.
 	vec3 toward = normalize(vec3(0.0, 0.25, 1.0));
@@ -112,7 +116,7 @@ void fragment() {
 	NORMAL = normalize(mix(NORMAL, toward, head ? 0.85 : 0.65));
 	ALBEDO = c;
 	ROUGHNESS = head ? 0.9 : rough;
-	SPECULAR = 0.12;
+	SPECULAR = head && veiled ? 0.3 : 0.12;
 }
 """
 const COLLAR_MAN := 1.585
@@ -184,7 +188,8 @@ func _ready() -> void:
 	_phase = randf() * TAU
 	if solid:
 		_add_body()
-	_add_contact_shadow()
+	if pose != Pose.SLUMP:  # the seated sit on seats, not the floor: a pool there floats
+		_add_contact_shadow()
 	if _rig_available():
 		_build_rig()
 		_home = position
@@ -367,8 +372,6 @@ func _build_rig() -> void:
 	_anim.animation_finished.connect(_on_clip_finished)
 	_tint(_model, _tint_material())
 	_dress_body()
-	if veiled:
-		_add_veil()
 	if dress == Dress.HERO:
 		_hang_bag()
 
@@ -437,6 +440,9 @@ func _dress_body() -> void:
 	# of skin on his chest and back, worst on a bowed head (playtest 2026-11-04, the
 	# dinner). Her neck runs 1.48–1.58.
 	cloth.set_shader_parameter("collar", COLLAR_WOMAN if woman else COLLAR_MAN)
+	# The veil is the head's own surface, so it fits the skull: a sphere over it read as a
+	# helmet, then (matte) as a black halo round every diner's head (playtest 2026-11-04).
+	cloth.set_shader_parameter("veiled", veiled)
 	cloth.set_shader_parameter("rough", maxf(float(CLOTH_ROUGH.get(dress, 0.85)), 0.8))
 	for mi in meshes:
 		mi.mesh = _with_rest_position(mi.mesh)
@@ -507,31 +513,6 @@ static func _cloth_outfit_shader() -> Shader:
 		_cloth_shader = Shader.new()
 		_cloth_shader.code = CLOTH_SHADER
 	return _cloth_shader
-
-
-## The veil rides the head bone: a sheer dark shell with a cold sheen.
-func _add_veil() -> void:
-	var skeleton := _find_skeleton(_model)
-	if skeleton == null or skeleton.find_bone("Head") < 0:
-		return
-	var mount := BoneAttachment3D.new()
-	mount.bone_name = "Head"
-	skeleton.add_child(mount)
-	var veil := MeshInstance3D.new()
-	var shell := SphereMesh.new()
-	shell.radius = 0.15
-	shell.height = 0.32
-	veil.mesh = shell
-	veil.position = Vector3(0, 0.09, 0.02)
-	# Matte black gauze (playtest 2026-11-04: a glossy shell read as a helmet, the candles
-	# shining in it like eyes).
-	var sheer := StandardMaterial3D.new()
-	sheer.albedo_color = Color(0.04, 0.035, 0.04, 0.86)
-	sheer.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	sheer.roughness = 1.0
-	sheer.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-	veil.material_override = sheer
-	mount.add_child(veil)
 
 
 ## A soft dark pool under the feet. Night streets light him with shadowless lamps (a
