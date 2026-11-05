@@ -19,3 +19,14 @@ assets/third_party/*
 # Except the easel: CC0, 27 KB, and not downloadable by script (Poly Pizza).
 !assets/third_party/polypizza/
 assets/_downloads/
+
+# Playtest screenshots and inspiration photos: local only, never committed. The two
+# plans in docs/references are tracked (CLAUDE.md points at them), so they're kept.
+Feedback/
+docs/references/*.jpg
+docs/references/*.jpeg
+docs/references/*.png
+docs/references/*.avif
+docs/references/*.webp
+!docs/references/city_plan_v1.png
+!docs/references/sketch_walk_layout.png
