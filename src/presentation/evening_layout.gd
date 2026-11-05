@@ -57,6 +57,8 @@ const GIVE_WAY := 1.1
 ## Signs on the near (camera-side) shopfronts face the camera, not the street: seen from
 ## behind, the iso view would read them mirrored.
 const NEAR_SIGN_YAW := 90.0
+## The pavement cameras' yaw: lens toward the street.
+const CAMERA_YAW := 90.0
 
 ## Who sits where (the diners' order): the friend, the three corpo friends, him.
 const DINER_NAMES: Array[String] = [
@@ -72,6 +74,11 @@ var diners: Array[StreetFigure] = []
 var car: Node3D
 ## Who the passersby stop for (the player's body).
 var give_way_to: Node3D
+## The shops and cameras built so far (their names and neon colours follow on from these).
+var shop_no: int = 0
+var camera_no: int = 0
+## The lamps' furniture sets built so far (each one's variants alternate).
+var furniture_no: int = 0
 
 var _world: Node3D
 var _fired: Dictionary = {}
@@ -91,7 +98,7 @@ func _ready() -> void:
 	_build_car_route()
 	_build_train()
 	_dress_train()  # the maglev is code: no pack needed
-	if _has_kit():
+	if has_kit():
 		_kit.build(_world)
 		_dress_street()
 		_dress_shoot()
@@ -103,7 +110,35 @@ func _process(delta: float) -> void:
 		_step_walker(w, delta)
 
 
+## The tarmac: a worn asphalt set (ambientCG), damp enough for the lamps to pool on it.
+func _asphalt() -> StandardMaterial3D:
+	var m := _mat(Color(0.5, 0.5, 0.53), 0.55)
+	var color := CityKit.surface("Asphalt025B", "Color")
+	if ResourceLoader.exists(color):
+		m.albedo_texture = load(color)
+		m.normal_enabled = true
+		m.normal_texture = load(CityKit.surface("Asphalt025B", "NormalGL"))
+		m.roughness_texture = load(CityKit.surface("Asphalt025B", "Roughness"))
+		m.uv1_triplanar = true
+		m.uv1_world_triplanar = true  # one grain across the road's separate boxes
+		m.uv1_scale = Vector3.ONE * 0.9
+	return m
+
+
 ## A real-metre layout point in the game's (scaled) world space.
+## The street's helpers (`StreetFurniture`) build under the scaled world, with bodies.
+func world_root() -> Node3D:
+	return _world
+
+
+func box(at: Vector3, size: Vector3, mat: Material) -> void:
+	_box(at, size, mat)
+
+
+func solid(at: Vector3, size: Vector3) -> void:
+	_solid(at, size)
+
+
 func world(real: Vector3) -> Vector3:
 	return real * WORLD_SCALE
 
@@ -118,7 +153,7 @@ func walk_extents() -> Vector2:
 
 func _build_boulevard() -> void:
 	# The street, round the metro's stairwell (a hole the stairs go down into).
-	var road := _mat(Color(0.18, 0.19, 0.21), 0.3)
+	var road := _asphalt()
 	var w := HALF_WIDTH * 2 + 40
 	var l := HALF_LENGTH * 2 + 20
 	var hole := Rect2(
@@ -152,7 +187,7 @@ func _build_boulevard() -> void:
 			# apartment's cut near walls) so the street reads; the far side is the skyline.
 			var h := rng.randf_range(40, 110) if side < 0 else rng.randf_range(4, 7)
 			var tint := Color(0.55, 0.6, 0.68).lerp(Color(0.85, 0.8, 0.7), rng.randf())
-			if _has_kit():
+			if has_kit():
 				_real_block(side, z, depth, h, rng)
 			else:
 				_box(
@@ -167,18 +202,19 @@ func _build_boulevard() -> void:
 			glow.emission_enabled = true
 			glow.emission = Color(1.0, 0.9, 0.72)
 			glow.emission_energy_multiplier = 1.2
-			var inset := 0.3 if _has_kit() else 0.05
-			_box(
-				Vector3(side * (HALF_WIDTH + 1 + inset), 2.2, z - depth * 0.5),
-				Vector3(0.1, 3.2, depth - 2),
-				glow
-			)
+			var inset := 0.3 if has_kit() else 0.05
+			if side > 0 or not has_kit():  # the far shops carry their own light (`Storefront`)
+				_box(
+					Vector3(side * (HALF_WIDTH + 1 + inset), 2.2, z - depth * 0.5),
+					Vector3(0.1, 3.2, depth - 2),
+					glow
+				)
 		z -= depth
 	# Even, white street light: nothing in shadow on this side. With the real lamps
 	# installed (_dress_street), their own lights do it (two lights a lamp made the walk
 	# lag).
 	z = HALF_LENGTH - 5
-	while z > -HALF_LENGTH and not _has_kit():
+	while z > -HALF_LENGTH and not has_kit():
 		for side in [-1.0, 1.0]:
 			var lamp := OmniLight3D.new()
 			lamp.light_color = Color(0.96, 0.97, 1.0)
@@ -575,7 +611,7 @@ func _build_car_route() -> void:
 				Vector3(18, h, 16),
 				CityLook.building(tint.darkened(0.45), CityLook.Look.TOWER, WORLD_SCALE)
 			)
-			if _has_kit():
+			if has_kit():
 				# Glass curtain walls facing the avenue, over the massing.
 				var face_x: float = a.x + side * 15
 				var out := Vector3.LEFT if side > 0 else Vector3.RIGHT
@@ -770,7 +806,7 @@ func _mat(c: Color, roughness: float) -> StandardMaterial3D:
 ## ----- REAL ART (when the asset packs are installed) ----------------------------------------
 
 
-func _has_kit() -> bool:
+func has_kit() -> bool:
 	return ResourceLoader.exists(CityKit.DIR + "Metal_FullWindow.gltf")
 
 
@@ -785,14 +821,30 @@ func _real_block(side: float, z: float, depth: float, h: float, rng: RandomNumbe
 	var low := CityLook.building(Color(0.2, 0.19, 0.18), CityLook.Look.BLOCK, WORLD_SCALE)
 	if side < 0:
 		var floors := int(h / CityKit.FLOOR)
+		# A shop in the middle of the ground floor, solid between the shops, the tower over
+		# them all (playtest 2026-11-05: the shopfronts were black glass over solid block).
+		var bay := StreetFurniture.bay(modules)
+		var open: Array = []
+		for i in bay.y:
+			open.append(bay.x + i)
+		var upper := (floors - 1) * CityKit.FLOOR
 		_box(
-			Vector3(face_x - 8, floors * CityKit.FLOOR * 0.5, z - depth * 0.5),
-			Vector3(16, floors * CityKit.FLOOR, depth),
+			Vector3(face_x - 8, CityKit.FLOOR + upper * 0.5, z - depth * 0.5),
+			Vector3(16, upper, depth),
 			tall
 		)
+		StreetFurniture.ground_run(self, face_x, z, 0, bay.x, tall)
+		StreetFurniture.ground_run(self, face_x, z, bay.x + bay.y, modules, tall)
 		_kit.facade(
-			Vector3(face_x, 0, z), Vector3.RIGHT, modules, floors, CityKit.Style.METAL, rng.randi()
+			Vector3(face_x, 0, z),
+			Vector3.RIGHT,
+			modules,
+			floors,
+			CityKit.Style.METAL,
+			rng.randi(),
+			open
 		)
+		StreetFurniture.open_shop(self, face_x, z, bay)
 	else:
 		_box(Vector3(face_x + 8, 3.0, z - depth * 0.5), Vector3(16, 6.0, depth), low)
 		_kit.facade(
@@ -849,6 +901,8 @@ func _dress_street() -> void:
 				0.0
 			)
 			_solid(Vector3(side * 12.6, 0.6, z - 7), Vector3(1.4, 1.0, 1.4))
+			StreetFurniture.place(self, side, z, furniture_no)
+			furniture_no += 1
 		z -= 14
 	for spec in [
 		["SportsCar", Vector3(7, 0, 40), 180.0],

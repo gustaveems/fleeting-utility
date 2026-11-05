@@ -110,6 +110,26 @@ static func prop(
 	return n
 
 
+## Poly Haven packs a prop's clean and worn states side by side in one scene (a hydrant at
+## −0.3 m and its aged twin at +0.3, a bin and its rusty one): keep the one asked for
+## (`worn_tag` is the worn nodes' name suffix, `base` the clean main node) and bring it
+## back to the origin.
+static func one_state(n: Node3D, base: String, worn_tag: String, worn: bool) -> void:
+	var main := base + worn_tag if worn else base
+	var at := 0.0
+	for c in n.get_children():
+		if String(c.name) == main:
+			at = (c as Node3D).position.x
+	for c in n.get_children():
+		if not c is Node3D:
+			continue
+		if String(c.name).contains(worn_tag) != worn:
+			n.remove_child(c)
+			c.queue_free()
+		else:
+			(c as Node3D).position.x -= at
+
+
 ## Stop drawing a prop's meshes beyond `metres` (0 = always draw).
 static func _set_range(n: Node, metres: float) -> void:
 	if metres <= 0.0:
@@ -123,6 +143,11 @@ static func _set_range(n: Node, metres: float) -> void:
 ## Poly Haven model path by asset id.
 static func polyhaven(id: String) -> String:
 	return "res://assets/third_party/polyhaven/%s/%s.gltf" % [id, id]
+
+
+## An ambientCG texture set's map (`Color`, `NormalGL`, `Roughness`, `AmbientOcclusion`).
+static func surface(id: String, map: String) -> String:
+	return "res://assets/third_party/ambientcg/%s/%s_1K-JPG_%s.jpg" % [id, id, map]
 
 
 ## Quaternius car path by model name.

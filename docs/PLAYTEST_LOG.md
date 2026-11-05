@@ -45,7 +45,14 @@ noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.
   - **Fixed:** the night street has no shadows (a shadow per lamp lagged), so every
     figure now stands on a soft contact shadow.
   - The clothes flatten more of the body's sculpted muscle.
-- [ ] Follow-up: the shopfronts beside the walk are still black (the lit shop windows).
+- [x] Follow-up: the shopfronts beside the walk were black (2026-11-05).
+  - **Fixed:** the far side's ground floor now opens a lit shop behind the glass
+    (`Storefront`: lighting, furniture and fashion windows, a brand in neon), the
+    pavements carry a hydrant, a bin, a security camera and a manhole by every lamp
+    (`EveningLayout._furnish`, `_open_shop`), and the road is real asphalt. The assets
+    are Poly Haven and ambientCG (CC0), group F of `tools/assets/`
+    (`docs/references/asset_shortlist.md` lists what else is worth taking).
+    `tools/probe_street.gd` gates it.
 - [x] **The dinner, again (17.09.41): a black halo round every veiled head.**
   - **Fixed:** the matte veil sphere was bigger than the skull. The veil is now the
     head's own surface (the cloth shader's `veiled`), so it fits. Seated figures drop

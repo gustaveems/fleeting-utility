@@ -1,11 +1,11 @@
 {
- "generated": "2026-10-24",
+ "generated": "2026-11-05",
  "source_root": "assets/_downloads (originals, never modified)",
  "target_root": "assets/third_party",
  "totals": {
-  "files_seen": 2126,
-  "to_place": 889,
-  "skipped": 1237
+  "files_seen": 2209,
+  "to_place": 958,
+  "skipped": 1251
  },
  "packs": {
   "kenney_retro_urban": {
@@ -14,11 +14,12 @@
    "model": 124
   },
   "polyhaven": {
-   "buffer": 32,
-   "model": 32,
+   "buffer": 43,
+   "model": 43,
    "orm": 45,
    "albedo": 47,
-   "normal": 42
+   "normal": 42,
+   "texture": 40
   },
   "quaternius_anim": {
    "license_or_readme": 5,
@@ -55,6 +56,9 @@
   },
   "kenney_audio": {
    "audio": 405
+  },
+  "ambientcg": {
+   "texture": 7
   }
  },
  "skipped_by_reason": {
@@ -9537,6 +9541,702 @@
    "src": "kenney_ui-audio/License.txt",
    "dst": "assets/third_party/kenney_audio/ui/License.txt",
    "type": "license"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_AmbientOcclusion.jpg",
+   "dst": "assets/third_party/ambientcg/Asphalt025B/Asphalt025B_1K-JPG_AmbientOcclusion.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "ao",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Asphalt025B/Asphalt025B_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Asphalt025B/Asphalt025B_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Asphalt025B/Asphalt025B_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Tiles141/Tiles141_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Tiles141/Tiles141_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Tiles141/Tiles141_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/ArmChair_01/ArmChair_01.bin",
+   "dst": "assets/third_party/polyhaven/ArmChair_01/ArmChair_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/ArmChair_01/ArmChair_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/ArmChair_01/ArmChair_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/ArmChair_01/textures/Armchair_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/ArmChair_01/textures/Armchair_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/ArmChair_01/textures/Armchair_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/ArmChair_01/textures/Armchair_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/ArmChair_01/textures/Armchair_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/ArmChair_01/textures/Armchair_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_01/Chandelier_01.bin",
+   "dst": "assets/third_party/polyhaven/Chandelier_01/Chandelier_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_01/Chandelier_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/Chandelier_01/Chandelier_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_01/textures/Chandelier_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_01/textures/Chandelier_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_01/textures/Chandelier_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_01/textures/Chandelier_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_01/textures/Chandelier_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_01/textures/Chandelier_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/Chandelier_03.bin",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/Chandelier_03.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/Chandelier_03_1k.gltf",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/Chandelier_03.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/textures/Chandelier_03_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/textures/Chandelier_03_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/textures/Chandelier_03_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/textures/Chandelier_03_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/textures/Chandelier_03_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/textures/Chandelier_03_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Chandelier_03/textures/Chandelier_03_opacity_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Chandelier_03/textures/Chandelier_03_opacity_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_vase_04/brass_vase_04.bin",
+   "dst": "assets/third_party/polyhaven/brass_vase_04/brass_vase_04.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_vase_04/brass_vase_04_1k.gltf",
+   "dst": "assets/third_party/polyhaven/brass_vase_04/brass_vase_04.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_vase_04/textures/brass_vase_04_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_vase_04/textures/brass_vase_04_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_vase_04/textures/brass_vase_04_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_vase_04/textures/brass_vase_04_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_vase_04/textures/brass_vase_04_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_vase_04/textures/brass_vase_04_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/fire_hydrant.bin",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/fire_hydrant.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/fire_hydrant_1k.gltf",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/fire_hydrant.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_aged_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_aged_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_aged_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_aged_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_aged_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_aged_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/fire_hydrant/textures/fire_hydrant_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/fire_hydrant/textures/fire_hydrant_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/metal_trash_can.bin",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/metal_trash_can.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/metal_trash_can_1k.gltf",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/metal_trash_can.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_rust_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_rust_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_rust_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_rust_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/metal_trash_can/textures/metal_trash_can_rust_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/metal_trash_can/textures/metal_trash_can_rust_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/mid_century_lounge_chair/mid_century_lounge_chair.bin",
+   "dst": "assets/third_party/polyhaven/mid_century_lounge_chair/mid_century_lounge_chair.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/mid_century_lounge_chair/mid_century_lounge_chair_1k.gltf",
+   "dst": "assets/third_party/polyhaven/mid_century_lounge_chair/mid_century_lounge_chair.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/mid_century_lounge_chair/textures/mid_century_lounge_chair_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_camera_01/security_camera_01.bin",
+   "dst": "assets/third_party/polyhaven/security_camera_01/security_camera_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_camera_01/security_camera_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/security_camera_01/security_camera_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_camera_01/textures/security_camera_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_camera_01/textures/security_camera_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_camera_01/textures/security_camera_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_camera_01/textures/security_camera_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_camera_01/textures/security_camera_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_camera_01/textures/security_camera_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_light/security_light.bin",
+   "dst": "assets/third_party/polyhaven/security_light/security_light.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_light/security_light_1k.gltf",
+   "dst": "assets/third_party/polyhaven/security_light/security_light.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_light/textures/security_light_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_light/textures/security_light_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_light/textures/security_light_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_light/textures/security_light_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/security_light/textures/security_light_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/security_light/textures/security_light_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_lamp_02/street_lamp_02.bin",
+   "dst": "assets/third_party/polyhaven/street_lamp_02/street_lamp_02.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_lamp_02/street_lamp_02_1k.gltf",
+   "dst": "assets/third_party/polyhaven/street_lamp_02/street_lamp_02.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_lamp_02/textures/street_lamp_02_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_lamp_02/textures/street_lamp_02_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_lamp_02/textures/street_lamp_02_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_lamp_02/textures/street_lamp_02_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_lamp_02/textures/street_lamp_02_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_lamp_02/textures/street_lamp_02_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/water_manhole_cover/textures/water_manhole_cover_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/water_manhole_cover/textures/water_manhole_cover_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/water_manhole_cover/textures/water_manhole_cover_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/water_manhole_cover/textures/water_manhole_cover_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/water_manhole_cover/textures/water_manhole_cover_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/water_manhole_cover/textures/water_manhole_cover_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/water_manhole_cover/water_manhole_cover.bin",
+   "dst": "assets/third_party/polyhaven/water_manhole_cover/water_manhole_cover.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/water_manhole_cover/water_manhole_cover_1k.gltf",
+   "dst": "assets/third_party/polyhaven/water_manhole_cover/water_manhole_cover.gltf",
+   "type": "model"
   }
  ],
  "skipped": [
@@ -15724,6 +16424,76 @@
    "src": "Sci-Fi Essentials Kit[Standard]/Textures/T_Trim_03_ORM.png",
    "pack": "quaternius_scifi",
    "reason": "identical copy of a texture already placed from the model folder"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B.png",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG.blend",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG.mtlx",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG.tres",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG.usdc",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_Displacement.jpg",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Asphalt025B_1K-JPG/Asphalt025B_1K-JPG_NormalDX.jpg",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141.png",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG.blend",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG.mtlx",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG.tres",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG.usdc",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG_Displacement.jpg",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
+  },
+  {
+   "src": "ambientcg/Tiles141_1K-JPG/Tiles141_1K-JPG_NormalDX.jpg",
+   "pack": "ambientcg",
+   "reason": "DirectX normal / displacement / preview we don't use"
   }
  ]
 }
