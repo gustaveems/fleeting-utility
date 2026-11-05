@@ -30,12 +30,12 @@ MAX_SIZE = 2048  # proposed process/size_limit
 
 # Map role from file name, first match wins. Tokens are matched against the stem split on _ - space.
 NAME_ROLES = [
-    ("normal", r"(^|_)(nor_gl|normal|nrm|norm)($|_)"),
-    ("normal_dx", r"(^|_)(nor_dx)($|_)"),
+    ("normal", r"(^|_)(nor_gl|normal|nrm|norm|normalgl)($|_)"),
+    ("normal_dx", r"(^|_)(nor_dx|normaldx)($|_)"),
     ("orm", r"(^|_)(arm|orm)($|_)"),
     ("roughness", r"(^|_)(rough|roughness)($|_)"),
     ("metallic", r"(^|_)(metal|metallic|metalness)($|_)"),
-    ("ao", r"(^|_)(ao|occlusion)($|_)"),
+    ("ao", r"(^|_)(ao|occlusion|ambientocclusion)($|_)"),
     ("opacity", r"(^|_)(opacity|alpha|mask)($|_)"),
     ("emissive", r"(^|_)(emissive|emission|emit)($|_)"),
     ("height", r"(^|_)(disp|height|displacement|bump)($|_)"),
@@ -93,6 +93,13 @@ def rule(rel: PurePosixPath):
         if str(sub) == f"{asset}_1k.gltf":
             sub = PurePosixPath(f"{asset}.gltf")  # the code loads polyhaven/<id>/<id>.gltf
         return "polyhaven", f"polyhaven/{asset}/{sub}", ""
+    if rel.parts[0] == "ambientcg" and len(rel.parts) >= 3:
+        # ambientCG 1K-JPG sets: the colour, the OpenGL normal, roughness and AO; the rest is
+        # a DirectX duplicate, a displacement we don't use, or a preview.
+        asset = rel.parts[1].split("_")[0]
+        if name.lower().endswith(("_color.jpg", "_normalgl.jpg", "_roughness.jpg", "_ambientocclusion.jpg")):
+            return "ambientcg", f"ambientcg/{asset}/{name}", ""
+        return "ambientcg", None, "DirectX normal / displacement / preview we don't use"
     if s.startswith(DOWNTOWN + "/"):
         r = s[len(DOWNTOWN) + 1:]
         if r.startswith("Exports/glTF (Godot)/"):

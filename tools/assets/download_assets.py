@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = Path(__file__).resolve().parent / "asset_downloads.json"
 DL = ROOT / "assets" / "_downloads"
-GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list", "E": "E_audio"}
+GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list", "E": "E_audio", "F": "F_street"}
 UA = "Mozilla/5.0 (fleeting-utility asset setup)"
 CHUNK = 1 << 20
 
@@ -97,6 +97,12 @@ def run_pack(pack):
             name = f.get("source_name", f["file"])
             results.append((name, save(f["url"], base / name, f["bytes"])))
         return results
+    if pack["source"].startswith("ambientCG"):
+        f = pack["files"][0]
+        dest = DL / "ambientcg" / f["file"]
+        results.append((f["file"], save(f["url"], dest, f["bytes"])))
+        results.append((f"{f['file']} (extract)", extract(dest)))
+        return results
     f = pack["files"][0]
     dest = DL / f["file"]
     if not dest.exists():
@@ -111,7 +117,7 @@ def run_pack(pack):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--groups", default="A,B,E")
+    ap.add_argument("--groups", default="A,B,E,F")
     args = ap.parse_args()
     plan = json.loads(PLAN.read_text(encoding="utf-8"))
     DL.mkdir(parents=True, exist_ok=True)
