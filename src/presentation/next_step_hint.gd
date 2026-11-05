@@ -115,7 +115,9 @@ func facts() -> Dictionary:
 		"chemical": state_data.chemical_level if state_data != null else 1.0,
 		"pill_ready": bench != null and bench.has_pill(),
 		"can_cook": bench != null and bench.can_interact(),
-		"metro": metro_ride != null and metro_ride.available(),
+		# The metro is through the door, and after the walk the door is shut.
+		"metro":
+		metro_ride != null and metro_ride.available() and (door == null or door.can_interact()),
 		"invited": standing != null and standing.invitation() >= 0,
 		"unbearable": door != null and door.opens_to_park(),
 		"painted_today": _painted_day == _day(),

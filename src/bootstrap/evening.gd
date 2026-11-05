@@ -74,6 +74,7 @@ func _build() -> void:
 	player.name = "Player"
 	player.room_half_extents = layout.walk_extents()
 	add_child(player)
+	layout.give_way_to = player
 	player.global_position = layout.world(EveningLayout.WALK_START)
 	if StreetFigure.has_rig():
 		var avatar := StreetFigure.new()

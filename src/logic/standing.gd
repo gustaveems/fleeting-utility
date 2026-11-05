@@ -8,7 +8,8 @@ extends Node
 ## medicated; off the drug they turn into stumbles (StandingScript.perform). Whatever he
 ## gains, they have already moved on.
 ##
-## After the betrayal (a renewed lease) the invitations stop; the standing keeps sinking.
+## After the park walk (he has seen the friend in the shoes, and the door is shut) the
+## invitations stop, and for good once the lease is renewed; the standing keeps sinking.
 
 signal changed(percentile: float)
 signal event_started(index: int)
@@ -31,6 +32,7 @@ const MOVE_SPEED := 2.5
 @export var fader: ScreenFader
 @export var lounge: RooftopLounge
 @export var act_one: ActOne
+@export var park: CorporateParkManager
 ## A collapse up there ends the night first (see _cut_short).
 @export var dreamscape_manager: DreamscapeManager
 
@@ -60,6 +62,8 @@ func _ready() -> void:
 ## Tonight's invitation (an index into EVENTS), or -1.
 func invitation() -> int:
 	if is_out or day_cycle == null or (act_one != null and act_one.friend_gone):
+		return -1
+	if park != null and park.walk_taken:
 		return -1
 	for i in StandingScript.EVENTS.size():
 		if int(StandingScript.EVENTS[i][0]) == day_cycle.day and not attended.has(i):

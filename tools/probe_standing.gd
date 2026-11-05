@@ -93,6 +93,18 @@ func _run() -> void:
 		is_equal_approx(_s.standing, before + 2.0 * StandingScript.DELTA["stumble"])
 	)
 
+	section("after the walk the door is shut: nothing may send him to it")
+	var park := ws.find_child("CorporateParkManager", true, false) as CorporateParkManager
+	var hint := ws.find_child("NextStepHint", true, false) as NextStepHint
+	_days.restore(8)
+	check("Lior's party, tonight", _s.invitation() >= 0)
+	park.walk_taken = true
+	check("the door is shut", not door.can_interact())
+	check("the crowd stops calling (he has seen the friend)", _s.invitation() == -1)
+	check("no hint to the party", not hint.facts()["invited"])
+	check("no hint to the metro", not hint.facts()["metro"])
+	park.walk_taken = false
+
 	section("a save; the betrayal")
 	var snap := _s.snapshot()
 	_s.restore({})

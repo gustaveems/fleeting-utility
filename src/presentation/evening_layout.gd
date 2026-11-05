@@ -45,6 +45,15 @@ const BRANDS: Array[String] = [
 	"AUREL", "MAISON VÉRIDE", "HERITAGE", "FOCUS+ ELITE", "OSTRA", "LUMEN & SON"
 ]
 const FAB := "res://assets/third_party/fab/"
+## The pavement's two lanes: |x| clear of the lamps (8.6) and the planters (12.6). The
+## strangers who stand keep to the strip between them.
+const LANE_INNER := 9.4
+const LANE_OUTER := 11.5
+## Loops walked by the passersby: [side, north z, south z, how many]. The far pavement has
+## two, either side of the shoot.
+const CIRCUITS: Array = [[1.0, 53.5, -48.0, 5], [-1.0, 53.5, 32.5, 2], [-1.0, 18.0, -48.0, 2]]
+## A passerby stops when someone is this close ahead (real metres).
+const GIVE_WAY := 1.1
 ## Signs on the near (camera-side) shopfronts face the camera, not the street: seen from
 ## behind, the iso view would read them mirrored.
 const NEAR_SIGN_YAW := 90.0
@@ -61,9 +70,12 @@ const DINER_NAMES: Array[String] = [
 ## The seated diners, for the director (friend first).
 var diners: Array[StreetFigure] = []
 var car: Node3D
+## Who the passersby stop for (the player's body).
+var give_way_to: Node3D
 
 var _world: Node3D
 var _fired: Dictionary = {}
+var _walkers: Array[Dictionary] = []
 var _kit := CityKit.new()
 var _brand_no: int = 0
 
@@ -84,6 +96,11 @@ func _ready() -> void:
 		_dress_street()
 		_dress_shoot()
 		_dress_restaurant()
+
+
+func _process(delta: float) -> void:
+	for w in _walkers:
+		_step_walker(w, delta)
 
 
 ## A real-metre layout point in the game's (scaled) world space.
@@ -189,22 +206,101 @@ func _build_boulevard() -> void:
 	# like everything else on the walk. Nobody but the friend wears the friend's clothes
 	# (playtest 2026-11-03: every third stranger was his double).
 	var dresses := [StreetFigure.Dress.SUIT, StreetFigure.Dress.MIDDLE, StreetFigure.Dress.SUIT]
+	var passersby: Array[StreetFigure] = []
 	for k in 14:
 		var f := StreetFigure.new()
 		f.name = "Passerby_%d" % k
 		f.dress = dresses[k % 3]
-		f.pose = StreetFigure.Pose.STAND if k % 3 == 0 else StreetFigure.Pose.WALK
 		f.solid = true
+		if k % 3 != 0:
+			f.pose = StreetFigure.Pose.WALK
+			passersby.append(f)
+			continue
+		f.pose = StreetFigure.Pose.STAND
 		var bay := int(k / 2.0)  # two per bay, one each side
 		var lamp_z := HALF_LENGTH - 6 - 14 * int(bay / 2.0)
 		var gap := lamp_z - (3.5 if bay % 2 == 0 else 10.5)
 		f.position = Vector3(
-			(-1.0 if k % 2 == 0 else 1.0) * rng.randf_range(9.8, 11.4),
+			(-1.0 if k % 2 == 0 else 1.0) * rng.randf_range(10.1, 10.8),
 			0.16,
 			gap + rng.randf_range(-1.2, 1.2)
 		)
 		f.rotation_degrees.y = rng.randf_range(0, 360)
 		_world.add_child(f)
+	_send_walking(passersby)
+
+
+## Spread the passersby round their loops (playtest 2026-11-05: posed walking and never
+## moved, they ran on the spot). One pace and one direction a loop, so nobody catches up.
+func _send_walking(passersby: Array[StreetFigure]) -> void:
+	var next := 0
+	for c: Array in CIRCUITS:
+		var loop := circuit(c)
+		var length := 0.0
+		for i in loop.size():
+			length += loop[i].distance_to(loop[(i + 1) % loop.size()])
+		for k in int(c[3]):
+			var f := passersby[next]
+			next += 1
+			var left := length * k / int(c[3])
+			var i := 0
+			while left >= loop[i].distance_to(loop[(i + 1) % loop.size()]):
+				left -= loop[i].distance_to(loop[(i + 1) % loop.size()])
+				i += 1
+			var to: Vector2 = loop[(i + 1) % loop.size()]
+			var at: Vector2 = loop[i].move_toward(to, left)
+			f.position = Vector3(at.x, 0.16, at.y)
+			f.rotation.y = atan2(at.x - to.x, at.y - to.y)
+			_world.add_child(f)
+			_walkers.append({"figure": f, "loop": loop, "i": (i + 1) % loop.size()})
+
+
+## One circuit's corners, walked in order: down the inner lane, back up the outer.
+static func circuit(c: Array) -> Array[Vector2]:
+	var side: float = c[0]
+	var north: float = c[1]
+	var south: float = c[2]
+	return [
+		Vector2(side * LANE_INNER, north),
+		Vector2(side * LANE_INNER, south),
+		Vector2(side * LANE_OUTER, south),
+		Vector2(side * LANE_OUTER, north),
+	]
+
+
+func _step_walker(w: Dictionary, delta: float) -> void:
+	var f: StreetFigure = w["figure"]
+	var loop: Array[Vector2] = w["loop"]
+	var flat := Vector2(f.position.x, f.position.z)
+	var to: Vector2 = loop[int(w["i"])] - flat
+	f.moving = not _someone_ahead(f, flat, to)
+	if not f.moving:
+		return
+	var step := StreetFigure.WALK_PACE * delta
+	if to.length() <= step:
+		flat = loop[int(w["i"])]
+		w["i"] = (int(w["i"]) + 1) % loop.size()
+	else:
+		flat += to.normalized() * step
+		var facing := atan2(-to.x, -to.y)
+		f.rotation.y = lerp_angle(f.rotation.y, facing, 1.0 - exp(-8.0 * delta))
+	f.position = Vector3(flat.x, f.position.y, flat.y)
+
+
+func _someone_ahead(f: StreetFigure, flat: Vector2, heading: Vector2) -> bool:
+	var others: Array[Vector2] = []
+	if give_way_to != null:
+		var him := _world.to_local(give_way_to.global_position)
+		others.append(Vector2(him.x, him.z))
+	for w: Dictionary in _walkers:
+		var other: StreetFigure = w["figure"]
+		if other != f:
+			others.append(Vector2(other.position.x, other.position.z))
+	for at in others:
+		var gap := at - flat
+		if gap.length() < GIVE_WAY and gap.dot(heading) > 0.0:
+			return true
+	return false
 
 
 ## The way down to the night train (playtest 2026-10-30: it was a grey block): stairs

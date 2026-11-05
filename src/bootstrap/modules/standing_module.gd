@@ -23,6 +23,7 @@ func wire(ctx: BootstrapContext) -> void:
 	s.fader = ctx.fader
 	s.lounge = ctx.lounge
 	s.act_one = ctx.act_one
+	s.park = ctx.park
 	s.dreamscape_manager = ctx.dreamscape_manager
 	ctx.door.standing = s
 	ctx.ad_screen.standing = s

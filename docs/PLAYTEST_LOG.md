@@ -4,6 +4,19 @@ Alain's playthroughs, newest first. Each entry is the raw list of what went wron
 needs work, sorted by severity. A line is ticked when a commit fixes it, and the fix is
 noted next to it. The first fix pass (2026-10-30) is in `docs/tickets/TICKET-29.md`.
 
+## 2026-11-05: fifth playthrough (screenshots in `Feedback/`)
+
+- [x] **The evening's strangers running on the spot** (the second time this came up).
+  - **Fixed:** nine passersby were posed WALK and nothing moved them. They now walk
+    loops round the pavements (`EveningLayout.CIRCUITS`), one pace and one direction a
+    loop, and stop for him. `tools/probe_figures.gd` now fails anyone in any space who
+    walks on the spot, and sweeps the loops clear.
+- [x] **"You're invited out tonight. The door." and the door wouldn't open** (day 8,
+  Lior's lease party, after the park walk).
+  - **Fixed:** the door is shut after the walk (the hesitation), but the invitations
+    only stopped at the lease renewal. They now stop with the walk: no party, no
+    morning line, no hint. The crash hint no longer offers the metro through that door.
+
 ## 2026-11-04: fourth playthrough (screenshots in `Feedback/`)
 
 - [x] **The room showed through the dream**, and the door answered ("Not yet…") in the
