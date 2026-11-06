@@ -1,9 +1,31 @@
 class_name StreetFurniture
 extends RefCounted
+
+## street_lamp_02 is 1.7 m as modelled; the pavement's lamps (street_lamp_01) are about 3 m.
+const LAMP_02_SCALE := 1.8
 ## PRESENTATION — the pavement's street furniture on the evening walk (playtest 2026-11-05:
 ## the far shops are lit; the street needed things in it): a hydrant, a bin and a manhole
 ## by each lamp, the clean and worn variants alternating; the far shops' bays and the cameras
 ## on their pillars. Built into the layout's world.
+
+
+## The pavement lamp at `z` on `side`: the two models alternate down the street, the
+## second raised to the first's height.
+static func lamp(layout: EveningLayout, side: float, z: float) -> void:
+	var row := int((EveningLayout.HALF_LENGTH - 6 - z) / 14.0)
+	var model := "street_lamp_02" if row % 2 == 1 else "street_lamp_01"
+	var lamp := CityKit.prop(
+		CityKit.polyhaven(model),
+		layout.world_root(),
+		Vector3(side * 8.6, 0.16, z),
+		90.0 * side,
+		0.0
+	)
+	if lamp == null:
+		return
+	lamp.name = "Lamp_%s_%d_%s" % [model.right(2), row, "E" if side > 0 else "W"]
+	if model == "street_lamp_02":
+		lamp.scale = Vector3.ONE * LAMP_02_SCALE
 
 
 ## A hydrant, a bin and a manhole round the lamp at `z` on pavement `side` (±1). `number`
@@ -92,3 +114,13 @@ static func open_shop(layout: EveningLayout, face_x: float, z: float, bay: Vecto
 	if eye != null:
 		eye.name = "Camera_%d" % layout.camera_no
 		layout.camera_no += 1
+	# A security light over the shop, on the same pillar, throwing down onto the pavement.
+	var light := CityKit.prop(
+		CityKit.polyhaven("security_light"),
+		layout.world_root(),
+		Vector3(face_x + 0.15, CityKit.FLOOR - 0.05, middle),
+		EveningLayout.CAMERA_YAW,
+		90.0
+	)
+	if light != null:
+		light.name = "SecurityLight_%d" % layout.shop_no

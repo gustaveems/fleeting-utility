@@ -59,7 +59,7 @@ const GIVE_WAY := 1.1
 const NEAR_SIGN_YAW := 90.0
 ## The pavement cameras' yaw: lens toward the street.
 const CAMERA_YAW := 90.0
-
+#
 ## Who sits where (the diners' order): the friend, the three corpo friends, him.
 const DINER_NAMES: Array[String] = [
 	NightZeroScript.FRIEND,
@@ -879,13 +879,7 @@ func _dress_street() -> void:
 	var z := HALF_LENGTH - 6
 	while z > -HALF_LENGTH:
 		for side in [-1.0, 1.0]:
-			CityKit.prop(
-				CityKit.polyhaven("street_lamp_01"),
-				_world,
-				Vector3(side * 8.6, 0.16, z),
-				90.0 * side,
-				0.0
-			)
+			StreetFurniture.lamp(self, side, z)
 			_solid(Vector3(side * 8.6, 1.5, z), Vector3(0.4, 3.0, 0.4))
 			var light := OmniLight3D.new()
 			light.light_color = Color(1.0, 0.94, 0.82)

@@ -59,6 +59,19 @@ func _run() -> void:
 				overlaps.append("%s/%s" % [a.name, b.name])
 	check("no two shops share a stretch of street %s" % [overlaps.slice(0, 3)], overlaps.is_empty())
 
+	section("the lamps and the shop lights")
+	var lamp_01 := layout.find_children("Lamp_01_*", "Node3D", true, false)
+	var lamp_02 := layout.find_children("Lamp_02_*", "Node3D", true, false)
+	check(
+		"both lamp models along the pavement (%d / %d)" % [lamp_01.size(), lamp_02.size()],
+		lamp_01.size() >= 4 and lamp_02.size() >= 4
+	)
+	var lights := layout.find_children("SecurityLight_*", "Node3D", true, false)
+	check(
+		"a security light over every shop (%d of %d)" % [lights.size(), shops.size()],
+		lights.size() == shops.size()
+	)
+
 	section("the street furniture")
 	for kind in ["Hydrant", "Bin", "Camera", "Manhole"]:
 		var found := layout.find_children(kind + "_*", "Node3D", true, false)
