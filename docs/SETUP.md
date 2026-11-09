@@ -8,12 +8,14 @@ on either OS.
 ## What's in git, and what isn't
 In git: all code, scenes, data, tests, docs, and the CC0 easel model.
 
+In git: the free packs (Poly Haven, ambientCG, Quaternius, Kenney; CC0), about 170 MB
+after `shrink_textures.gd` (1K textures, no HDR). They arrive with `git pull`.
+
 Kept **out of git**, under `assets/third_party/`:
 
 | What | Size | How to get it on a new machine |
 |---|---|---|
-| Free packs (Poly Haven, Quaternius, Kenney) | ~530 MB | The asset pipeline downloads and places them (below) |
-| Fab models and audio (personal licence: can't go in a public repo or be downloaded by script) | ~320 MB | Carry `fleeting_utility_fab.zip` between your machines (cloud drive/USB) and unzip it at the repo root. Make it on a machine that has them: `python -I tools/assets/check_assets.py --pack-fab ../fleeting_utility_fab.zip` |
+| Fab models and audio (personal licence: can't be redistributed, so never in git) | ~914 MB | Carry `fleeting_utility_fab.zip` between your machines (cloud drive/USB) and unzip it at the repo root. Make it on a machine that has them: `python -I tools/assets/check_assets.py --pack-fab ../fleeting_utility_fab.zip` |
 | Reference images (`docs/references/`, mostly copyrighted) | 2.4 MB | `fleeting_utility_references.zip`, unzip at the repo root (optional) |
 
 Without the assets the game still runs, in greybox. `tools/doctor.sh` lists exactly
@@ -35,7 +37,9 @@ what's missing.
    ```bash
    python -I tools/assets/download_assets.py      # free packs → assets/_downloads/
    python -I tools/assets/place_and_import.py     # → assets/third_party/, import settings
+   godot --headless --path . -s tools/assets/shrink_textures.gd   # CC0 textures → 1K for git
    ```
+   Run the shrink after every placement: placement copies the full-size downloads back.
    Then unzip `fleeting_utility_fab.zip` at the repo root (use `python3` on macOS).
 6. **Import:** `godot --headless --import` (the first run takes several minutes).
 7. **Check:** `tools/doctor.sh` should say `ready.`, then `tools/run_all.sh` (~10 min,

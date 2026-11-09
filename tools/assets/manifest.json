@@ -4,7 +4,7 @@
  "target_root": "assets/third_party",
  "totals": {
   "files_seen": 2209,
-  "to_place": 1094,
+  "to_place": 1501,
   "skipped": 1251
  },
  "packs": {
@@ -6637,42 +6637,6 @@
    "src": "polyhaven/wooden_crate_02/wooden_crate_02_1k.gltf",
    "dst": "assets/third_party/polyhaven/wooden_crate_02/wooden_crate_02.gltf",
    "type": "model"
-  },
-  {
-   "pack": "quaternius_downtown",
-   "src": "Downtown City MegaKit[Standard]/Textures/CM_Dark_Interior_1.HDR",
-   "dst": "assets/third_party/quaternius_downtown/textures/CM_Dark_Interior_1.HDR",
-   "type": "texture",
-   "size": [
-    2048,
-    1024
-   ],
-   "role": "hdr",
-   "role_source": "assumed"
-  },
-  {
-   "pack": "quaternius_downtown",
-   "src": "Downtown City MegaKit[Standard]/Textures/CM_Lit_Interior_1.HDR",
-   "dst": "assets/third_party/quaternius_downtown/textures/CM_Lit_Interior_1.HDR",
-   "type": "texture",
-   "size": [
-    2048,
-    1024
-   ],
-   "role": "hdr",
-   "role_source": "assumed"
-  },
-  {
-   "pack": "quaternius_downtown",
-   "src": "Downtown City MegaKit[Standard]/Textures/CM_Lit_Interior_2.HDR",
-   "dst": "assets/third_party/quaternius_downtown/textures/CM_Lit_Interior_2.HDR",
-   "type": "texture",
-   "size": [
-    2048,
-    1024
-   ],
-   "role": "hdr",
-   "role_source": "assumed"
   },
   {
    "pack": "quaternius_downtown",

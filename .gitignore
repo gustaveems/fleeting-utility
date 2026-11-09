@@ -18,6 +18,17 @@ __pycache__/
 assets/third_party/*
 # Except the easel: CC0, 27 KB, and not downloadable by script (Poly Pizza).
 !assets/third_party/polypizza/
+# The CC0 packs (Poly Haven, ambientCG, Quaternius, Kenney) are committed after
+# tools/assets/shrink_textures.gd has brought them under ~200 MB. Fab stays out: its licence
+# doesn't allow redistribution. .import files are Godot's own and regenerate on each machine.
+!assets/third_party/polyhaven/
+!assets/third_party/ambientcg/
+!assets/third_party/quaternius_chars/
+!assets/third_party/quaternius_anim/
+!assets/third_party/quaternius_cars/
+!assets/third_party/quaternius_downtown/
+!assets/third_party/quaternius_trees/
+!assets/third_party/kenney_audio/
 assets/_downloads/
 
 # Playtest screenshots and inspiration photos: local only, never committed. The two
