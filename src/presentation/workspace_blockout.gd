@@ -35,7 +35,7 @@ const KIT_TEX := "res://assets/third_party/quaternius_downtown/models/"
 ## Two of his own paintings, framed and hung on the west wall in the spaces the easel's
 ## hooks don't use. They are decor: the morning lease never takes them.
 const PAINTINGS: Array[Dictionary] = [
-	{"texture": "res://assets/paintings/painting_tiger_river.jpg", "z": -2.4},
+	{"texture": "res://assets/paintings/painting_tiger_river.jpg", "z": -1.35},
 	{"texture": "res://assets/paintings/painting_wolves_flowers.jpg", "z": 2.9},
 ]
 const PAINTING_WIDTH := 0.62

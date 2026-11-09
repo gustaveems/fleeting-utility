@@ -1358,6 +1358,20 @@
       "note": "The street people's rig and clips (UAL1_Standard.glb). Not on your list."
     },
     {
+      "pack": "Universal Base Characters [Standard]",
+      "source": "https://quaternius.itch.io/universal-base-characters",
+      "target": "assets/third_party/quaternius_chars",
+      "bytes": 0,
+      "files": [
+        {
+          "file": "Universal Base Characters[Standard].zip",
+          "bytes": 0,
+          "kept_original_at": "assets/_downloads/Universal Base Characters[Standard].zip"
+        }
+      ],
+      "note": "The street people's bodies (Superhero_Male/Female_FullBody.gltf) and hair (Hair_*.gltf). Not on your list."
+    },
+    {
       "pack": "Universal Animation Library 2 [Standard]",
       "source": "https://quaternius.itch.io/universal-animation-library-2",
       "target": "assets/third_party/quaternius_anim",
