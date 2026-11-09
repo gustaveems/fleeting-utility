@@ -7,6 +7,7 @@ extends WorldRoot
 ## towers of the rich side beyond. The banner names the night (set_event). Starts
 ## dormant; Standing activates it.
 
+const ROOMS_A_TOWER := 16
 const HALF_LENGTH := 4.0
 const HALF_WIDTH := 2.0
 const RAIL := 0.5
@@ -110,16 +111,35 @@ func _bar() -> void:
 func _lounge() -> void:
 	var cream := _mat(Color(0.86, 0.82, 0.74), 0.8)
 	var dark := _mat(Color(0.12, 0.11, 0.1), 0.4)
-	for spec in [
-		[Vector3(-0.6, 0.1, -1.4), Vector3(1.4, 0.2, 0.45)],
-		[Vector3(-1.6, 0.1, -0.5), Vector3(0.45, 0.2, 1.2)]
-	]:
-		_box(spec[0], spec[1], cream)
-	_box(Vector3(-0.6, 0.12, -0.6), Vector3(0.7, 0.04, 0.5), dark)
+	if not _real_seating():
+		for spec in [
+			[Vector3(-0.6, 0.1, -1.4), Vector3(1.4, 0.2, 0.45)],
+			[Vector3(-1.6, 0.1, -0.5), Vector3(0.45, 0.2, 1.2)]
+		]:
+			_box(spec[0], spec[1], cream)
+		_box(Vector3(-0.6, 0.12, -0.6), Vector3(0.7, 0.04, 0.5), dark)
 	for at in [Vector3(-3.5, 0, -1.6), Vector3(3.5, 0, 1.5), Vector3(-3.5, 0, 1.5)]:
 		var p := CityKit.prop(CityKit.polyhaven("planter_box_01"), self, at, 0.0, 0.0)
 		if p != null:
 			p.scale = Vector3.ONE * PERSON_SCALE
+
+
+## Real sofas and a table on the lounge's footprint. False without the packs (blocks then).
+func _real_seating() -> bool:
+	if not ResourceLoader.exists(CityKit.polyhaven("Sofa_01")):
+		return false
+	for spec: Array in [
+		["Sofa_01", Vector3(-0.6, 0.0, -1.4), 0.0, 0.85],
+		["Sofa_01", Vector3(-1.6, 0.0, -0.5), 90.0, 0.8],
+		["coffee_table_round_01", Vector3(-0.6, 0.0, -0.6), 0.0, 0.4],
+		["Ottoman_01", Vector3(0.55, 0.0, -0.95), 25.0, 0.5],
+	]:
+		var piece := CityKit.prop(CityKit.polyhaven(str(spec[0])), self, spec[1], spec[2], 0.0)
+		if piece != null:
+			piece.scale = Vector3.ONE * float(spec[3])
+	_wall_body(Vector3(-0.6, 0.3, -1.4), Vector3(1.4, 0.6, 0.55))
+	_wall_body(Vector3(-1.6, 0.3, -0.5), Vector3(0.5, 0.6, 1.3))
+	return true
 
 
 ## Three runs of warm bulbs over the deck, and the light they give.
@@ -156,11 +176,13 @@ func _skyline() -> void:
 	rng.seed = 24
 	var tower := CityLook.building(Color(0.1, 0.13, 0.17), CityLook.Look.TOWER, PERSON_SCALE)
 	var kit_ok := ResourceLoader.exists(CityKit.DIR + "Metal_FullWindow.gltf")
+	var faces: Array[Vector3] = []
 	for k in 9:
 		var b := Node3D.new()
 		b.position = Vector3(-16 + k * 4.0, -6.0, -rng.randf_range(7, 15))
 		add_child(b)
 		var h := rng.randf_range(10, 24)
+		faces.append(Vector3(b.position.x, b.position.z + 1.26, h))
 		_box_in(b, Vector3(0, h * 0.5, 0), Vector3(2.8, h, 2.5), tower)
 		if kit_ok:
 			var holder := Node3D.new()
@@ -172,6 +194,56 @@ func _skyline() -> void:
 				Vector3(-3, 0, 0), Vector3.BACK, 3, int(h / 1.41), CityKit.Style.METAL, k * 7
 			)
 			kit.build(holder)
+	_lit_rooms(faces, rng)
+	_gold_colossus()
+
+
+## Rooms still at work in the towers: one MultiMesh of warm panes on their street faces.
+func _lit_rooms(faces: Array[Vector3], rng: RandomNumberGenerator) -> void:
+	var pane := QuadMesh.new()
+	pane.size = Vector2(0.17, 0.24)
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.vertex_color_use_as_albedo = true
+	pane.material = glow
+	var rooms := MultiMesh.new()
+	rooms.transform_format = MultiMesh.TRANSFORM_3D
+	rooms.use_colors = true
+	rooms.mesh = pane
+	rooms.instance_count = faces.size() * ROOMS_A_TOWER
+	var warm := Color(0.9, 0.66, 0.38)
+	for i in rooms.instance_count:
+		var face := faces[i % faces.size()]  # x, the face's z, the tower's height
+		var at := Vector3(
+			face.x + rng.randf_range(-1.25, 1.25),
+			-6.0 + rng.randf_range(1.0, face.z - 0.5),
+			face.y + 0.05
+		)
+		rooms.set_instance_transform(i, Transform3D(Basis(), at))
+		rooms.set_instance_color(i, warm.lerp(Color(0.55, 0.8, 0.95), rng.randf() * 0.4))
+	var instance := MultiMeshInstance3D.new()
+	instance.name = "LitRooms"
+	instance.multimesh = rooms
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(instance)
+
+
+## The brand's gold copy over the rooftops, lit like a promise (docs/STORY.md).
+func _gold_colossus() -> void:
+	var figure := ColossusFigure.new()
+	figure.name = "GoldColossus"
+	figure.style = ColossusFigure.Style.GOLD_COPY
+	# Inside the room camera's 45 m far plane, small enough to read whole in the gap.
+	figure.height = 19.0
+	figure.stance = 8.0
+	figure.position = Vector3(-26.0, -25.5, -14.0)
+	add_child(figure)
+	var wash := OmniLight3D.new()
+	wash.light_color = Color(1.0, 0.76, 0.4)
+	wash.light_energy = 9.0
+	wash.omni_range = 40.0
+	wash.position = figure.position + Vector3(8.0, 16.0, 9.0)
+	add_child(wash)
 
 
 ## The crowd: veiled, in clusters; the friend by the bar.

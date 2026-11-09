@@ -28,6 +28,7 @@ static var returning: bool = false
 static var gift_refused: bool = false
 
 var segment: String = ""
+var rain: RainFall
 var layout: EveningLayout
 var runner: DialogueRunner
 var player: PlayerMovement
@@ -58,8 +59,15 @@ func _build() -> void:
 	env.background_color = Color(0.05, 0.06, 0.1)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.45, 0.5, 0.62)
-	env.ambient_light_energy = 0.5
+	env.ambient_light_energy = 0.34
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	# The wet road holds what's on screen (StreetLook's puddles); a thin night haze.
+	env.ssr_enabled = true
+	env.ssr_max_steps = 48
+	env.ssr_fade_out = 2.0
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.12, 0.16, 0.24)
+	env.fog_density = 0.006
 	# Only what burns past white blooms (the neon signs: SignType.neon).
 	env.glow_enabled = true
 	env.glow_hdr_threshold = 1.0
@@ -75,6 +83,12 @@ func _build() -> void:
 	player.room_half_extents = layout.walk_extents()
 	add_child(player)
 	layout.give_way_to = player
+	rain = RainFall.new()
+	rain.name = "RainFall"
+	rain.follow = player
+	rain.half_width = (EveningLayout.HALF_WIDTH + 0.5) * EveningLayout.WORLD_SCALE
+	add_child(rain)
+	segment_started.connect(func(name: String): rain.set_active(name == "walk"))
 	player.global_position = layout.world(EveningLayout.WALK_START)
 	if StreetFigure.has_rig():
 		var avatar := StreetFigure.new()

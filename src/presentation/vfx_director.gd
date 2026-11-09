@@ -120,7 +120,7 @@ func _build_dust() -> GPUParticles3D:
 	p.position = Vector3(0.0, 1.3, 0.0)
 	p.visibility_aabb = AABB(Vector3(-5.0, -1.5, -4.0), Vector3(10.0, 3.0, 8.0))
 	p.process_material = mat
-	p.draw_pass_1 = _billboard_quad(Vector2(0.025, 0.025), Color(1.0, 0.95, 0.85, 0.5))
+	p.draw_pass_1 = _billboard_quad(Vector2(0.04, 0.04), Color(1.0, 0.95, 0.85, 0.5))
 	return p
 
 
@@ -173,7 +173,24 @@ func _billboard_quad(size: Vector2, tint: Color) -> QuadMesh:
 	m.vertex_color_use_as_albedo = true
 	m.albedo_color = tint
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.albedo_texture = _soft_mote()
 	var quad := QuadMesh.new()
 	quad.size = size
 	quad.material = m
 	return quad
+
+
+## A soft round mote (polish pass, 2026-11-06: bare quads read as square confetti).
+func _soft_mote() -> GradientTexture2D:
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1, 1, 1, 1))
+	ramp.set_color(1, Color(1, 1, 1, 0))
+	ramp.set_offset(0, 0.3)
+	var mote := GradientTexture2D.new()
+	mote.gradient = ramp
+	mote.fill = GradientTexture2D.FILL_RADIAL
+	mote.fill_from = Vector2(0.5, 0.5)
+	mote.fill_to = Vector2(1.0, 0.5)
+	mote.width = 32
+	mote.height = 32
+	return mote

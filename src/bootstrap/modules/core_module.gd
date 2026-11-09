@@ -86,5 +86,6 @@ func _build_apartment_environment() -> Environment:
 	# the room floats in brown soup (confirmed on the first real render).
 	env.fog_sky_affect = 0.0
 	env.volumetric_fog_enabled = true
+	env.volumetric_fog_sky_affect = 0.0  # the void round the cutaway stays black
 	env.volumetric_fog_density = 0.006
 	return env

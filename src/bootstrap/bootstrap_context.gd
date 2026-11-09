@@ -99,3 +99,9 @@ var dream_text: DreamText
 var campaign: CampaignImage
 var standing: Standing
 var lounge: RooftopLounge
+var daily_life: DailyLife
+var notice_panel: NoticePanel
+var envelope: NoticeEnvelope
+var radio: RadioSet
+var phone: LeasePhone
+var day_card: DayCard

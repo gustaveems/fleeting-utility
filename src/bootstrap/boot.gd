@@ -100,17 +100,7 @@ func _build_background() -> void:
 	bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	bg.color = Color(0.03, 0.03, 0.03)
 	var shader := Shader.new()
-	shader.code = """
-shader_type canvas_item;
-// Sickly near-black with a slow, uneven bloom and fine grain: the apartment at 4 a.m.
-void fragment() {
-	vec2 uv = UV - vec2(0.5, 0.55);
-	float glow = 0.06 * exp(-dot(uv, uv) * 4.0) * (0.9 + 0.1 * sin(TIME * 0.7));
-	float grain = fract(sin(dot(UV * 731.0 + TIME, vec2(12.9898, 78.233))) * 43758.5453);
-	vec3 col = vec3(0.03, 0.032, 0.028) + vec3(0.36, 0.38, 0.22) * glow;
-	COLOR = vec4(col + (grain - 0.5) * 0.025, 1.0);
-}
-"""
+	shader.code = TitleBackdrop.SHADER
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 	bg.material = mat

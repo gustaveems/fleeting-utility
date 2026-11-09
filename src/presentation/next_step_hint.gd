@@ -36,6 +36,7 @@ const REFRESH_SECONDS := 0.5
 @export var night_zero: NightZero
 @export var lease_signing: LeaseSigning
 @export var self_soothing: SelfSoothingController
+@export var daily: DailyLife
 
 var _label: Label
 var _painted_day: int = -1
@@ -44,7 +45,7 @@ var _refresh: float = 0.0
 
 ## The line for this moment, or "" for none. Facts (all optional):
 ##   busy, in_dream, in_park, crashed, chemical, pill_ready, can_cook, metro, invited,
-##   unbearable, painted_today
+##   unbearable, notice, painted_today
 static func suggest(facts: Dictionary) -> String:
 	if facts.get("busy", false):
 		return ""
@@ -66,6 +67,8 @@ static func suggest(facts: Dictionary) -> String:
 		return HINT_UNBEARABLE
 	if facts.get("invited", false):
 		return HINT_INVITED
+	if facts.get("notice", false):
+		return DailyLifeScript.NOTICE_HINT
 	if not facts.get("painted_today", false):
 		return HINT_PAINT
 	return HINT_SLEEP
@@ -121,6 +124,7 @@ func facts() -> Dictionary:
 		"invited": standing != null and standing.invitation() >= 0,
 		"unbearable": door != null and door.opens_to_park(),
 		"painted_today": _painted_day == _day(),
+		"notice": daily != null and daily.has_notice(),
 	}
 
 

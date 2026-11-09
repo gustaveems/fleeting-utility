@@ -6,6 +6,7 @@ extends WorldRoot
 ## to sill height, like the apartment's. Commuters stand and sit; the ads change with the
 ## city's barometer (set_stage). Starts dormant; MetroRide activates it.
 
+const TUNNEL_LAMP_SPEED := 16.0
 const HALF_LENGTH := 4.0
 const HALF_WIDTH := 0.75
 const HEIGHT := 1.35
@@ -20,6 +21,7 @@ var campaign_board: CampaignBoard
 
 var _ads: Array[Label3D] = []
 var _skyline: Array[Node3D] = []
+var _tunnel_lamp: OmniLight3D
 var _stopped: bool = false
 var _stone_window: Node3D
 
@@ -43,6 +45,9 @@ func _process(delta: float) -> void:
 	# The city slides past the window (unless the train is stopped at a station).
 	if _stopped:
 		return
+	_tunnel_lamp.position.x -= TUNNEL_LAMP_SPEED * delta
+	if _tunnel_lamp.position.x < -HALF_LENGTH - 6.0:
+		_tunnel_lamp.position.x = HALF_LENGTH + 6.0
 	for b in _skyline:
 		b.position.x += 9.0 * delta
 		if b.position.x > 30.0:
@@ -101,16 +106,16 @@ func _build() -> void:
 	for side in [-1.0, 1.0]:
 		_wall_body(Vector3(side * (HALF_LENGTH + 0.05), 0.5, 0), Vector3(0.1, 1.0, HALF_WIDTH * 2))
 	# Seats along the far wall, poles, the fluorescent strip and its light.
-	var seat := TransitLook.seat(unit)
+	var seat := TransitLook.seat(unit, Color(0.6, 0.58, 0.56))
 	var steel := _mat(Color(0.7, 0.72, 0.74), 0.25)
 	for k in 6:
 		var x := -HALF_LENGTH + 0.8 + k * 1.3
 		_box(Vector3(x, 0.22, -HALF_WIDTH + 0.2), Vector3(0.9, 0.06, 0.3), seat)
 		_box(Vector3(x + 0.65, HEIGHT * 0.5, 0.1), Vector3(0.02, HEIGHT, 0.02), steel)
-	var tube := _mat(Color(0.9, 0.95, 1.0), 0.5)
+	var tube := _mat(Color(0.6, 0.64, 0.68), 0.5)
 	tube.emission_enabled = true
 	tube.emission = Color(0.9, 0.95, 1.0)
-	tube.emission_energy_multiplier = 1.6
+	tube.emission_energy_multiplier = 0.7
 	_box(Vector3(0, HEIGHT - 0.02, 0), Vector3(HALF_LENGTH * 1.8, 0.02, 0.06), tube)
 	var light := OmniLight3D.new()
 	light.light_color = Color(0.85, 0.94, 1.0)
@@ -223,6 +228,13 @@ func _build() -> void:
 				var at := Vector3(rng.randf_range(-0.8, 0.8), rng.randf_range(0, h - 2), 1.26)
 				_box_in(b, at, Vector3(0.3, 0.2, 0.02), lit)
 		_skyline.append(b)
+	_tunnel_lamp = OmniLight3D.new()
+	_tunnel_lamp.name = "TunnelLamp"
+	_tunnel_lamp.light_color = Color(1.0, 0.72, 0.42)
+	_tunnel_lamp.light_energy = 2.2
+	_tunnel_lamp.omni_range = 4.5
+	_tunnel_lamp.position = Vector3(HALF_LENGTH + 6.0, 0.9, -HALF_WIDTH - 0.5)
+	add_child(_tunnel_lamp)
 	# On its own short loop, so it comes round every few seconds of the ride.
 	campaign_board = CampaignBoard.new()
 	campaign_board.name = "CampaignBoard"

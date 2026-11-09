@@ -21,8 +21,20 @@ const FLOOR_Y := 0.18
 ## One light a shop (no shadows): the street's own lamps do the rest.
 const LIGHT_ENERGY := 1.0
 const WINE := "wine_bottles_01"
+const SPILL_LENGTH := 3.6
+const SPILL_SHADER := """
+shader_type spatial;
+render_mode unshaded, blend_add, depth_draw_never;
+uniform vec3 tint : source_color;
+void fragment() {
+	float along = 1.0 - pow(UV.x, 0.7);
+	float across = smoothstep(0.0, 0.14, UV.y) * smoothstep(1.0, 0.86, UV.y);
+	ALBEDO = tint * along * across * 0.22;
+}
+"""
 
 static var _tile_material: StandardMaterial3D
+static var _spill_cached: Shader
 
 
 ## Build one shop; `tag` numbers it. Returns its root (named `Storefront_<tag>`, with the
@@ -55,6 +67,7 @@ static func build(
 	light.omni_range = 7.5
 	light.position = Vector3(-2.2, HEIGHT - 0.5, 0)
 	room.add_child(light)
+	_spill(room, width, neon)
 	var display := Node3D.new()
 	display.name = "Display"
 	room.add_child(display)
@@ -99,6 +112,30 @@ static func _frame(room: Node3D, width: float) -> void:
 		_box(room, Vector3(0.02, HEIGHT * 0.5, edge), Vector3(0.12, HEIGHT, 0.08), steel)
 		edge += CityKit.MODULE
 	_box(room, Vector3(-0.12, HEIGHT * 0.5 - 0.1, 0), Vector3(0.02, HEIGHT - 0.6, width), glass)
+
+
+## The shop's light lying on the wet pavement, fading to the kerb: added, not lit (a real
+## light a shop for this would cost more than the street has).
+static func _spill(room: Node3D, width: float, neon: Color) -> void:
+	var m := ShaderMaterial.new()
+	m.shader = _spill_shader()
+	m.set_shader_parameter("tint", Color(1.0, 0.8, 0.56).lerp(neon, 0.45))
+	var pool := MeshInstance3D.new()
+	pool.name = "LightSpill"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(SPILL_LENGTH, width)
+	pool.mesh = plane
+	pool.material_override = m
+	pool.position = Vector3(SPILL_LENGTH * 0.5 + 0.1, FLOOR_Y + 0.015, 0)
+	pool.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	room.add_child(pool)
+
+
+static func _spill_shader() -> Shader:
+	if _spill_cached == null:
+		_spill_cached = Shader.new()
+		_spill_cached.code = SPILL_SHADER
+	return _spill_cached
 
 
 ## Two chandeliers on cords over brass vases on white plinths. The game camera looks

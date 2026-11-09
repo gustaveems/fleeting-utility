@@ -51,6 +51,7 @@ const GAME_VOICES: Array = [
 	["VESNA", false],
 	["OKON", false],
 	["LIOR", false],
+	["RADIO", false],
 ]
 const FILM_VOICES: Array = [
 	["RADIO", false],

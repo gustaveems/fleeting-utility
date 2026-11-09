@@ -52,6 +52,7 @@ func _run() -> void:
 	var standing := ws.find_child("Standing", true, false) as Standing
 	days.restore(3)
 	_calm(sm)
+	park.walk_taken = false  # the walk above shuts the door; the rooftop needs it open
 	standing.go_out()
 	await wait(1.5)
 	await _space("rooftop", Vector3.ZERO, 10.0)

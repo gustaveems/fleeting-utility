@@ -35,6 +35,8 @@ const ACTION_DEV_RESET_ENTROPY := "dev_reset_entropy"
 ## Ticket-05: interact (statue return in the dreamscape) and a dev shortcut that forces
 ## the dreamscape transition without waiting out the chemical/overload collapse.
 const ACTION_INTERACT := "interact"
+## LeaseLink, the implant's display (docs/STORY.md 8c).
+const ACTION_PHONE := "phone"
 const ACTION_DEV_DREAMSCAPE := "dev_dreamscape"
 
 ## Ticket-12: delete the save so the next launch starts fresh.
@@ -53,6 +55,7 @@ static func _bindings() -> Dictionary:
 		ACTION_DEV_DUMP_ENTROPY: [KEY_T],
 		ACTION_DEV_RESET_ENTROPY: [KEY_R],
 		ACTION_INTERACT: [KEY_E],
+		ACTION_PHONE: [KEY_P],
 		ACTION_DEV_DREAMSCAPE: [KEY_N],
 		ACTION_DEV_WIPE_SAVE: [KEY_F9],
 	}

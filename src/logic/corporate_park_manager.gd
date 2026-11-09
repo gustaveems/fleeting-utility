@@ -191,11 +191,19 @@ func _build_park() -> void:
 
 	# Outdoor environment.
 	_park_env = Environment.new()
-	_park_env.background_mode = Environment.BG_COLOR
+	_park_env.background_mode = Environment.BG_SKY
 	_park_env.background_color = Color(0.42, 0.55, 0.72)  # soft blue sky
+	var sky := ProceduralSkyMaterial.new()
+	sky.sky_top_color = Color(0.36, 0.5, 0.68)
+	sky.sky_horizon_color = Color(0.78, 0.8, 0.8)
+	sky.ground_horizon_color = Color(0.78, 0.8, 0.8)
+	sky.ground_bottom_color = Color(0.78, 0.8, 0.8)
+	sky.sky_energy_multiplier = 0.9
+	_park_env.sky = Sky.new()
+	_park_env.sky.sky_material = sky
 	_park_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	_park_env.ambient_light_color = Color(0.65, 0.68, 0.72)
-	_park_env.ambient_light_energy = 0.6
+	_park_env.ambient_light_energy = 0.78
 	_park_env.fog_enabled = true
 	_park_env.fog_light_color = Color(0.50, 0.55, 0.62)
 	_park_env.fog_density = 0.012  # leased haze: rows of trees fading into it

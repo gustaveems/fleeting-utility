@@ -27,6 +27,7 @@ const COLOR_DADO := Color(0.44, 0.48, 0.43)
 const DADO_HEIGHT := 0.42
 ## Real props are full scale; the room is a diorama (walls 1.35 m, him 0.8 m).
 const PROP_SCALE := 0.47
+const BED_TABLE_AT := Vector3(4.05, 0.0, 2.75)
 const RUG_WEAVE := 0.4
 ## Sun-faded and trodden: the weave's colours, browned and dimmed.
 const RUG_FADE := Color(0.62, 0.5, 0.4)
@@ -253,7 +254,7 @@ func _texture_surfaces() -> void:
 	floor_material.uv1_triplanar = true
 	# One texture (8 hexes across) per 0.9 m: tiles about 11 cm at the diorama's scale
 	# (~24 cm real), muted (at 20 cm and full colour the floor drowned the room).
-	floor_material.albedo_color = Color(0.62, 0.6, 0.56)
+	floor_material.albedo_color = Color(0.5, 0.48, 0.45)
 	floor_material.uv1_scale = RoomTiles.uv_scale(0.9)
 	if ResourceLoader.exists(KIT_TEX + "T_Concrete_Normal.png"):
 		floor_material.normal_enabled = true
@@ -312,7 +313,9 @@ func _dress_room() -> void:
 	# Plaster walls over a grey-green dado (west and north, the walls you see whole).
 	for wall in get_children():
 		if wall is MeshInstance3D and str(wall.name).begins_with("Wall"):
-			(wall as MeshInstance3D).material_override = _wall_mat(COLOR_PLASTER)
+			var plaster := _wall_mat(COLOR_PLASTER)
+			plaster.next_pass = WallPaper.material()
+			(wall as MeshInstance3D).material_override = plaster
 	var dado := _wall_mat(COLOR_DADO)
 	var band := _box(
 		"DadoWest",
@@ -430,6 +433,7 @@ func _furnish() -> void:
 	_add_wall_collision(
 		"TableCollision", Vector3(1.0, 0.4, 0.55), table + Vector3(0.15, 0.2, 0), 0.4
 	)
+	_personal_things(table, half_x)
 	# Shelves above the boxes' corner: what he unpacked.
 	var shelf_x := -half_x + 0.14
 	for y in [0.78, 1.02]:
@@ -489,6 +493,46 @@ func _furnish() -> void:
 	_piece(
 		"SkirtNorth", Vector3(half_x * 2.0, 0.06, 0.02), Vector3(0, 0.03, -half_z + 0.075), skirt
 	)
+
+
+## His things (polish pass, 2026-11-06): the boombox and a desk lamp on the table, a wall
+## lamp over it, a side table by the cot with a can on it. Small enough to stay off the
+## paths; each skips if its pack is missing.
+func _personal_things(table: Vector3, half_x: float) -> void:
+	var boombox := CityKit.prop(
+		CityKit.polyhaven("boombox"), self, table + Vector3(-0.1, 0.375, -0.1), 90.0, 0.0
+	)
+	if boombox != null:
+		boombox.scale = Vector3.ONE * 0.34
+	var desk := CityKit.prop(
+		CityKit.polyhaven("desk_lamp_arm_01"), self, table + Vector3(0.1, 0.375, 0.16), 200.0, 0.0
+	)
+	if desk != null:
+		desk.scale = Vector3.ONE * 0.42
+	var wall := CityKit.prop(
+		CityKit.polyhaven("industrial_wall_lamp"),
+		self,
+		Vector3(-half_x + 0.1, 0.92, 2.1),
+		90.0,
+		0.0
+	)
+	if wall != null:
+		wall.scale = Vector3.ONE * PROP_SCALE
+		var bulb := OmniLight3D.new()
+		bulb.name = "WallLampLight"
+		bulb.light_color = Color(1.0, 0.76, 0.5)
+		bulb.light_energy = 0.55
+		bulb.omni_range = 2.2
+		bulb.position = Vector3(-half_x + 0.3, 0.9, 2.1)
+		add_child(bulb)
+	var by_bed := Vector3(BED_TABLE_AT)
+	var side := CityKit.prop(CityKit.polyhaven("side_table_01"), self, by_bed, 20.0, 0.0)
+	if side != null:
+		side.scale = Vector3.ONE * PROP_SCALE
+		_add_wall_collision("SideTableCollision", Vector3(0.3, 0.3, 0.3), by_bed, 0.3)
+		CityKit.prop(
+			CityKit.polyhaven("can_rusted"), self, by_bed + Vector3(0.03, 0.26, 0.02), 40.0, 0.0
+		)
 
 
 ## A named box of furniture (added; `mat` null leaves it for the caller).

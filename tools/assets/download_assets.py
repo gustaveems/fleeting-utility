@@ -22,7 +22,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = Path(__file__).resolve().parent / "asset_downloads.json"
 DL = ROOT / "assets" / "_downloads"
-GROUPS = {"A": "A_on_your_list", "B": "B_code_needs_not_on_list", "E": "E_audio", "F": "F_street"}
+GROUPS = {
+    "A": "A_on_your_list",
+    "B": "B_code_needs_not_on_list",
+    "E": "E_audio",
+    "F": "F_street",
+    "G": "G_polish",
+}
 UA = "Mozilla/5.0 (fleeting-utility asset setup)"
 CHUNK = 1 << 20
 
@@ -117,7 +123,7 @@ def run_pack(pack):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--groups", default="A,B,E,F")
+    ap.add_argument("--groups", default="A,B,E,F,G")
     args = ap.parse_args()
     plan = json.loads(PLAN.read_text(encoding="utf-8"))
     DL.mkdir(parents=True, exist_ok=True)

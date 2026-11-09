@@ -3,6 +3,22 @@ extends RefCounted
 
 ## street_lamp_02 is 1.7 m as modelled; the pavement's lamps (street_lamp_01) are about 3 m.
 const LAMP_02_SCALE := 1.8
+const COATS: Array[Color] = [
+	Color(0.14, 0.15, 0.2),
+	Color(0.32, 0.12, 0.15),
+	Color(0.13, 0.27, 0.27),
+	Color(0.4, 0.42, 0.45),
+	Color(0.2, 0.17, 0.27),
+	Color(0.58, 0.56, 0.52),
+	Color(0.1, 0.1, 0.11),
+]
+const TROUSERS: Array[Color] = [
+	Color(0.08, 0.08, 0.1), Color(0.16, 0.16, 0.2), Color(0.25, 0.23, 0.22), Color(0.12, 0.17, 0.27)
+]
+const LITTER_CANS := 26
+const LITTER_PACKS := 44
+const RAT_RUN := 3.5
+const RAT_SPEED := 2.6
 ## PRESENTATION — the pavement's street furniture on the evening walk (playtest 2026-11-05:
 ## the far shops are lit; the street needed things in it): a hydrant, a bin and a manhole
 ## by each lamp, the clean and worn variants alternating; the far shops' bays and the cameras
@@ -56,6 +72,17 @@ static func place(layout: EveningLayout, side: float, z: float, number: int) -> 
 		CityKit.one_state(bin, "metal_trash_can", "_rust", number % 2 == 0)
 		bin.name = "Bin_%d" % number
 		layout.solid(Vector3(side * 13.0, 0.65, z - 3.5), Vector3(0.7, 0.98, 0.7))
+		if number % 2 == 0:
+			var bag := CityKit.prop(
+				CityKit.polyhaven("trashbag"),
+				world,
+				Vector3(side * 13.1, 0.18, z - 2.5),
+				float(lamp * 83 % 360),
+				80.0
+			)
+			if bag != null:
+				bag.name = "Bag_%d" % number
+				layout.solid(Vector3(side * 13.1, 0.5, z - 2.5), Vector3(0.7, 0.7, 0.7))
 	var cover := CityKit.prop(
 		CityKit.polyhaven("water_manhole_cover"),
 		world,
@@ -65,6 +92,55 @@ static func place(layout: EveningLayout, side: float, z: float, number: int) -> 
 	)
 	if cover != null:
 		cover.name = "Manhole_%d" % number
+
+
+## What the street's cleaners missed: cans and cigarette packets along the kerbs, and sheets
+## of paper against the shopfronts. One MultiMesh a model (`Forest.plant`).
+static func litter(layout: EveningLayout) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 73
+	for spec: Array in [["can_rusted", LITTER_CANS], ["cigarette_pack", LITTER_PACKS]]:
+		var placed: Array[Transform3D] = []
+		for k in int(spec[1]):
+			var side := -1.0 if rng.randf() < 0.5 else 1.0
+			var at := Vector3(
+				side * rng.randf_range(8.2, 8.7),
+				0.18,
+				rng.randf_range(-EveningLayout.HALF_LENGTH, EveningLayout.HALF_LENGTH)
+			)
+			# On its side, rolled to the kerb.
+			var basis := Basis(Vector3.RIGHT, PI * 0.5 * float(k % 2))
+			basis = Basis(Vector3.UP, rng.randf() * TAU) * basis
+			placed.append(Transform3D(basis, at))
+		Forest.plant(layout.world_root(), CityKit.polyhaven(str(spec[0])), placed)
+
+
+## One stranger's [coat, trousers]: the quarter's evening palette (camel stays the friend's).
+static func coat(rng: RandomNumberGenerator) -> Array:
+	var coat_colour := COATS[rng.randi() % COATS.size()]
+	var legs := TROUSERS[rng.randi() % TROUSERS.size()]
+	return [coat_colour.lightened(rng.randf_range(-0.06, 0.1)), legs]
+
+
+## A rat working along the kerb at `z`: a dash, a stop, a dash back, and gone again behind
+## the planters' shadow. Nobody on the street reacts.
+static func rat(layout: EveningLayout, side: float, z: float, number: int) -> void:
+	var body := CityKit.prop(
+		CityKit.polyhaven("street_rat"),
+		layout.world_root(),
+		Vector3(side * 8.25, 0.18, z),
+		0.0,
+		60.0
+	)
+	if body == null:
+		return
+	body.name = "Rat_%d" % number
+	body.scale = Vector3.ONE * 2.2  # the scan is a mouse's size next to a kerb
+	var run := layout.create_tween().set_loops()
+	for leg: Array in [[RAT_RUN, 0.0], [-RAT_RUN, PI]]:
+		run.tween_property(body, "rotation:y", float(leg[1]), 0.08)
+		run.tween_property(body, "position:z", z + float(leg[0]), absf(leg[0]) / RAT_SPEED)
+		run.tween_interval(2.0 + number * 0.7)
 
 
 ## The shop's bay in a block of `modules` kit modules: (first module, how many).

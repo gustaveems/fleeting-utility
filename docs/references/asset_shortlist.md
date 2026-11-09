@@ -1,7 +1,7 @@
 # Asset shortlist (2026-11-05)
 
-Found by browsing Fab, Poly Haven, ambientCG and Sketchfab as gamsoulas. Nothing is
-downloaded yet. Already in the game (see `notes.md`): Quaternius Downtown, cars, trees,
+Found by browsing Fab, Poly Haven, ambientCG and Sketchfab as gamsoulas. Downloaded so far: groups F and G. The rest is not yet
+downloaded. Already in the game (see `notes.md`): Quaternius Downtown, cars, trees,
 characters, animations; 13 Fab items (neon signs, noodle kiosk, rooftops, towers, cars);
 Poly Haven fence, shutters, boxes, lamp, planter, seating, bed, cabinet, bust, frame.
 
@@ -39,4 +39,4 @@ the licence line on each Fab and Sketchfab page before downloading.
 Sketchfab: no CC0 restaurant, shop or station models turned up, and its search results don't show the licence. The best hits (Neon Nexus game shop, 6 M faces; Resto ni Teo, 151 K faces) are too heavy for this game's frame budget. Fab's free "restaurant" and "furniture" results are mostly stylised cartoon packs that won't match the look.
 
 ## Next
-Pick a group, and I'll download that group's CC0 items (Poly Haven and ambientCG through `tools/assets/`), add them to the pipeline so the other machine gets them, and wire them in. The Fab items need you to click Download while signed in.
+Groups F and G are in `tools/assets/`. The Fab items still need Alain to click Download while signed in. What is left is in `docs/POLISH.md`.

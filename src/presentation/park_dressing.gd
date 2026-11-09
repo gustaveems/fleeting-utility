@@ -66,6 +66,15 @@ static func _lawn(ground: MeshInstance3D) -> void:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(0.3, 0.52, 0.22)
 	m.roughness = 0.9
+	var grass := CityKit.surface("Grass004", "Color")
+	if ResourceLoader.exists(grass):
+		m.albedo_texture = load(grass)
+		m.albedo_color = Color(0.72, 0.86, 0.62)
+		m.normal_enabled = true
+		m.normal_texture = load(CityKit.surface("Grass004", "NormalGL"))
+		m.uv1_triplanar = true
+		m.uv1_world_triplanar = true
+		m.uv1_scale = Vector3.ONE * 0.35
 	ground.material_override = m
 
 

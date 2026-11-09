@@ -110,21 +110,6 @@ func _process(delta: float) -> void:
 		_step_walker(w, delta)
 
 
-## The tarmac: a worn asphalt set (ambientCG), damp enough for the lamps to pool on it.
-func _asphalt() -> StandardMaterial3D:
-	var m := _mat(Color(0.5, 0.5, 0.53), 0.55)
-	var color := CityKit.surface("Asphalt025B", "Color")
-	if ResourceLoader.exists(color):
-		m.albedo_texture = load(color)
-		m.normal_enabled = true
-		m.normal_texture = load(CityKit.surface("Asphalt025B", "NormalGL"))
-		m.roughness_texture = load(CityKit.surface("Asphalt025B", "Roughness"))
-		m.uv1_triplanar = true
-		m.uv1_world_triplanar = true  # one grain across the road's separate boxes
-		m.uv1_scale = Vector3.ONE * 0.9
-	return m
-
-
 ## A real-metre layout point in the game's (scaled) world space.
 ## The street's helpers (`StreetFurniture`) build under the scaled world, with bodies.
 func world_root() -> Node3D:
@@ -153,7 +138,7 @@ func walk_extents() -> Vector2:
 
 func _build_boulevard() -> void:
 	# The street, round the metro's stairwell (a hole the stairs go down into).
-	var road := _asphalt()
+	var road := StreetLook.road(WORLD_SCALE)
 	var w := HALF_WIDTH * 2 + 40
 	var l := HALF_LENGTH * 2 + 20
 	var hole := Rect2(
@@ -172,9 +157,9 @@ func _build_boulevard() -> void:
 		)
 	for side in [-1.0, 1.0]:
 		_box(
-			Vector3(side * 11, 0.08, 0),
-			Vector3(6, 0.16, HALF_LENGTH * 2),
-			_mat(Color(0.75, 0.74, 0.72), 0.3)
+			Vector3(side * 11, 0.09, 0),
+			Vector3(6, 0.18, HALF_LENGTH * 2),
+			StreetLook.pavement(WORLD_SCALE)
 		)
 	# Towers: slender, varied, lit, styled (greybox: colours and setbacks only).
 	var rng := RandomNumberGenerator.new()
@@ -248,6 +233,7 @@ func _build_boulevard() -> void:
 		f.name = "Passerby_%d" % k
 		f.dress = dresses[k % 3]
 		f.solid = true
+		f.clothes = StreetFurniture.coat(rng)
 		if k % 3 != 0:
 			f.pose = StreetFigure.Pose.WALK
 			passersby.append(f)
@@ -429,7 +415,7 @@ func _build_beats() -> void:
 	photographer.position = shoot + Vector3(1, 0.16, 0)
 	photographer.rotation_degrees.y = 90
 	_world.add_child(photographer)
-	var fog := _mat(Color(0.9, 0.9, 0.88, 0.35), 0.9)
+	var fog := _mat(Color(0.6, 0.62, 0.64, 0.14), 0.9)
 	fog.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_box(shoot + Vector3(-3, 0.6, 0), Vector3(4, 1.2, 4), fog)
 	for k in 12:
@@ -484,7 +470,7 @@ func _build_restaurant() -> void:
 	# A corner of the room: the panelled back wall (the paintings hang there) and the
 	# window wall on the left, the city lit beyond it; the camera looks in from the open
 	# corner. A rug under the table.
-	var panel := _mat(Color(0.22, 0.17, 0.13), 0.55)
+	var panel := DinnerDressing.panel()
 	_box(at + Vector3(0, 2.5, -6), Vector3(14, 5, 0.2), panel)
 	_box(at + Vector3(0, 0.5, -5.85), Vector3(14, 1.0, 0.1), _mat(Color(0.14, 0.1, 0.08), 0.4))
 	_box(at + Vector3(-7, 0.5, 0), Vector3(0.2, 1.0, 12), panel)
@@ -497,14 +483,6 @@ func _build_restaurant() -> void:
 	_box(at + Vector3(2, 1.12, 5.4), Vector3(6.1, 0.05, 0.9), brass)
 	for y in [1.7, 2.3, 2.9]:
 		_box(at + Vector3(2, y, 5.85), Vector3(5.6, 0.04, 0.25), brass)
-	var bottles := _mat(Color(0.25, 0.45, 0.3), 0.15)
-	for k in 30:
-		var shelf: float = [1.7, 2.3, 2.9][k % 3]
-		_box(
-			at + Vector3(-0.6 + floorf(k / 3.0) * 0.55 + (k % 3) * 0.12, shelf + 0.15, 5.82),
-			Vector3(0.07, 0.28, 0.07),
-			bottles
-		)
 	_box(at + Vector3(6.88, 1.2, -2.5), Vector3(0.1, 2.4, 1.3), _mat(Color(0.1, 0.07, 0.05), 0.4))
 	_box(at + Vector3(-7, 4.6, 0), Vector3(0.2, 0.8, 12), panel)
 	var night := _mat(Color(0.03, 0.05, 0.1), 0.05)
@@ -525,12 +503,11 @@ func _build_restaurant() -> void:
 		)
 	for z in [-6.0, -3.0, 0.0, 3.0, 6.0]:  # mullions
 		_box(at + Vector3(-6.95, 2.6, z), Vector3(0.12, 3.2, 0.12), panel)
-	var rug := _mat(Color(0.36, 0.08, 0.08), 0.95)
-	_box(at + Vector3(0, 0.03, 0), Vector3(6.2, 0.02, 6.2), rug)
+	_box(at + Vector3(0, 0.03, 0), Vector3(6.2, 0.02, 6.2), DinnerDressing.upholstery())
 	# The table: a white cloth falling to the floor, five places set, candles. Lit low
 	# (playtest 2026-11-04: the cloth glared white and the diners' tops blew out to
 	# pale blotches under the old lights and the street's glow).
-	var cloth := _mat(Color(0.74, 0.71, 0.66), 0.85)
+	var cloth := _mat(Color(0.58, 0.55, 0.5), 0.85)
 	var top := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 1.1
@@ -557,13 +534,13 @@ func _build_restaurant() -> void:
 		_cylinder(at + Vector3(x, 1.02, 0.15), 0.012, 0.04, flame)
 	var candle := OmniLight3D.new()
 	candle.light_color = Color(1.0, 0.72, 0.4)
-	candle.light_energy = 0.55
+	candle.light_energy = 0.34
 	candle.omni_range = 3.0
 	candle.position = at + Vector3(0, 1.1, 0.15)
 	_world.add_child(candle)
 	var warm := OmniLight3D.new()
 	warm.light_color = Color(1.0, 0.82, 0.6)
-	warm.light_energy = 0.9
+	warm.light_energy = 1.25
 	warm.omni_range = 7.0
 	warm.position = at + Vector3(0, 2.6, 0)
 	_world.add_child(warm)
@@ -734,7 +711,7 @@ func _solid(at: Vector3, size: Vector3) -> void:
 ## (`angle`: the seat's bearing from the table's centre).
 func _chair(seat: Vector3, angle: float) -> void:
 	var wood := _mat(Color(0.18, 0.11, 0.07), 0.45)
-	var velvet := _mat(Color(0.32, 0.1, 0.12), 0.9)
+	var velvet := DinnerDressing.upholstery()
 	var chair := Node3D.new()
 	# The sitting clip puts his pelvis ~0.33 m behind the figure's root and his back ~0.4:
 	# the chair sits back by that much (playtest 2026-11-04: its back ran through every
@@ -868,23 +845,17 @@ func _real_block(side: float, z: float, depth: float, h: float, rng: RandomNumbe
 
 ## Marble pavements, real lamps, planters, parked luxury, the skyline, flying traffic.
 func _dress_street() -> void:
-	var marble := _mat(Color(0.86, 0.85, 0.83), 0.22)
-	var tex := CityKit.DIR + "T_MarbleFloor_BaseColor.png"
-	if ResourceLoader.exists(tex):
-		marble.albedo_texture = load(tex)
-		marble.uv1_triplanar = true
-		marble.uv1_scale = Vector3.ONE * 0.3
-	for side in [-1.0, 1.0]:
-		_box(Vector3(side * 11, 0.17, 0), Vector3(6, 0.02, HALF_LENGTH * 2), marble)
 	var z := HALF_LENGTH - 6
 	while z > -HALF_LENGTH:
 		for side in [-1.0, 1.0]:
 			StreetFurniture.lamp(self, side, z)
 			_solid(Vector3(side * 8.6, 1.5, z), Vector3(0.4, 3.0, 0.4))
 			var light := OmniLight3D.new()
-			light.light_color = Color(1.0, 0.94, 0.82)
-			light.light_energy = 1.8
-			light.omni_range = 16.0
+			light.light_color = Color(1.0, 0.86, 0.66)
+			light.light_energy = 2.6
+			light.light_specular = 0.25  # a pool on the wet road, not a white disc
+			light.omni_range = 9.0
+			light.omni_attenuation = 1.6
 			light.position = Vector3(side * 8.2, 3.8, z)
 			_world.add_child(light)
 			CityKit.prop(
@@ -898,6 +869,9 @@ func _dress_street() -> void:
 			StreetFurniture.place(self, side, z, furniture_no)
 			furniture_no += 1
 		z -= 14
+	StreetFurniture.litter(self)
+	StreetFurniture.rat(self, 1.0, 14.0, 0)
+	StreetFurniture.rat(self, -1.0, -6.0, 1)
 	for spec in [
 		["SportsCar", Vector3(7, 0, 40), 180.0],
 		["SUV", Vector3(7, 0, -18), 180.0],
@@ -932,7 +906,7 @@ func _dress_shoot() -> void:
 	var soft := _mat(Color(1, 1, 1), 0.5)
 	soft.emission_enabled = true
 	soft.emission = Color(1, 0.98, 0.94)
-	soft.emission_energy_multiplier = 2.0
+	soft.emission_energy_multiplier = 1.3
 	for x in [-0.5, -5.5]:
 		_box(shoot + Vector3(x, 1.2, 2.2), Vector3(0.05, 2.4, 0.05), steel)
 		_box(shoot + Vector3(x, 2.4, 2.0), Vector3(1.0, 0.8, 0.1), soft)
@@ -944,13 +918,7 @@ func _dress_shoot() -> void:
 ## The members' club: marble, dark panelling, gilt frames, the bust, low lamps, wine.
 func _dress_restaurant() -> void:
 	var at := DINNER_AT
-	var tex := CityKit.DIR + "T_MarbleFloor_BaseColor.png"
-	var floor := _mat(Color(0.9, 0.88, 0.85), 0.15)
-	if ResourceLoader.exists(tex):
-		floor.albedo_texture = load(tex)
-		floor.uv1_triplanar = true
-		floor.uv1_scale = Vector3.ONE * 0.4
-	_box(at + Vector3(0, 0.01, 0), Vector3(14, 0.02, 12), floor)
+	_box(at + Vector3(0, 0.01, 0), Vector3(14, 0.02, 12), DinnerDressing.stone())
 	for x in [-3.5, 0.0, 3.5]:
 		var frame := CityKit.prop(
 			CityKit.polyhaven("fancy_picture_frame_01"),
@@ -965,17 +933,8 @@ func _dress_restaurant() -> void:
 	CityKit.prop(
 		CityKit.polyhaven("marble_bust_01"), _world, at + Vector3(-5, 1.2, -4.5), 30.0, 0.0
 	)
-	for k in 3:
-		var lamp := CityKit.prop(
-			CityKit.polyhaven("modern_ceiling_lamp_01"),
-			_world,
-			at + Vector3(-0.6 + k * 0.6, 2.2, 0),
-			0.0,
-			0.0
-		)
-		if lamp != null:
-			lamp.scale = Vector3.ONE * 0.8
 	CityKit.prop(CityKit.polyhaven("wine_bottles_01"), _world, at + Vector3(0, 0.79, 0), 0.0, 0.0)
+	DinnerDressing.dress(_world, at, [1.7, 2.3, 2.9])
 
 
 ## The night train waits at the platform: the film's maglev, the night service (worn,

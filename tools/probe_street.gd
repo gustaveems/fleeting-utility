@@ -76,4 +76,31 @@ func _run() -> void:
 	for kind in ["Hydrant", "Bin", "Camera", "Manhole"]:
 		var found := layout.find_children(kind + "_*", "Node3D", true, false)
 		check("%s: %d placed" % [kind, found.size()], found.size() >= 2)
+	check(
+		"bags out by the bins", not layout.find_children("Bag_*", "Node3D", true, false).is_empty()
+	)
+
+	section("the wet street")
+	var world_env := evening.find_child("*", true, false)
+	for n: Node in evening.get_children():
+		if n is WorldEnvironment:
+			world_env = n
+	check(
+		"the road holds reflections (screen-space on)",
+		(world_env as WorldEnvironment).environment.ssr_enabled
+	)
+	var spills := layout.find_children("LightSpill", "MeshInstance3D", true, false)
+	check("every shop's light lies on the pavement", spills.size() == shops.size())
+	var rats := layout.find_children("Rat_*", "Node3D", true, false)
+	check("rats on the kerb (%d)" % rats.size(), rats.size() >= 2)
+	var was := (rats[0] as Node3D).position.z
+	await wait(1.0)
+	check("and they run", not is_equal_approx((rats[0] as Node3D).position.z, was))
+	section("the rain")
+	var rain := evening.get("rain") as RainFall
+	check("no rain before the walk", not rain.active)
+	evening.segment_started.emit("walk")
+	check("it rains on the walk", rain.active)
+	evening.segment_started.emit("metro")
+	check("and stops at the metro", not rain.active)
 	evening.queue_free()

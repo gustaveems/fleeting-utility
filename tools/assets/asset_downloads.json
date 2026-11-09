@@ -3,7 +3,8 @@
     "A_on_your_list_bytes": 427475517,
     "B_code_needs_not_on_list_bytes": 99330515,
     "E_audio_bytes": 8887276,
-    "F_street_bytes": 42161829
+    "F_street_bytes": 42161829,
+    "G_polish_bytes": 119365657
   },
   "A_on_your_list": [
     {
@@ -1974,6 +1975,794 @@
           "file": "Asphalt025B_1K-JPG.zip",
           "bytes": 8487525,
           "url": "https://ambientcg.com/get?file=Asphalt025B_1K-JPG.zip"
+        }
+      ]
+    }
+  ],
+  "G_polish": [
+    {
+      "pack": "street_rat",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/street_rat",
+      "bytes": 3610113,
+      "files": [
+        {
+          "file": "street_rat.gltf",
+          "source_name": "street_rat_1k.gltf",
+          "bytes": 2770,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/street_rat/street_rat_1k.gltf"
+        },
+        {
+          "file": "textures/street_rat_nor_gl_1k.jpg",
+          "bytes": 730495,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_rat/street_rat_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/street_rat_diff_1k.jpg",
+          "bytes": 529505,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_rat/street_rat_diff_1k.jpg"
+        },
+        {
+          "file": "street_rat.bin",
+          "bytes": 1365280,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/street_rat/street_rat.bin"
+        },
+        {
+          "file": "textures/street_rat_arm_1k.jpg",
+          "bytes": 982063,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/street_rat/street_rat_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "trashbag",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/trashbag",
+      "bytes": 1699464,
+      "files": [
+        {
+          "file": "trashbag.gltf",
+          "source_name": "trashbag_1k.gltf",
+          "bytes": 2738,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/trashbag/trashbag_1k.gltf"
+        },
+        {
+          "file": "textures/trashbag_nor_gl_1k.jpg",
+          "bytes": 573449,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/trashbag/trashbag_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/trashbag_diff_1k.jpg",
+          "bytes": 332301,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/trashbag/trashbag_diff_1k.jpg"
+        },
+        {
+          "file": "textures/trashbag_arm_1k.jpg",
+          "bytes": 684660,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/trashbag/trashbag_arm_1k.jpg"
+        },
+        {
+          "file": "trashbag.bin",
+          "bytes": 106316,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/trashbag/trashbag.bin"
+        }
+      ]
+    },
+    {
+      "pack": "can_rusted",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/can_rusted",
+      "bytes": 2113689,
+      "files": [
+        {
+          "file": "can_rusted.gltf",
+          "source_name": "can_rusted_1k.gltf",
+          "bytes": 2990,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/can_rusted/can_rusted_1k.gltf"
+        },
+        {
+          "file": "textures/can_rusted_diff_1k.jpg",
+          "bytes": 739913,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/can_rusted/can_rusted_diff_1k.jpg"
+        },
+        {
+          "file": "textures/can_rusted_nor_gl_1k.jpg",
+          "bytes": 663638,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/can_rusted/can_rusted_nor_gl_1k.jpg"
+        },
+        {
+          "file": "can_rusted.bin",
+          "bytes": 97440,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/can_rusted/can_rusted.bin"
+        },
+        {
+          "file": "textures/can_rusted_arm_1k.jpg",
+          "bytes": 609708,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/can_rusted/can_rusted_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "brass_candleholders",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/brass_candleholders",
+      "bytes": 9502440,
+      "files": [
+        {
+          "file": "brass_candleholders.gltf",
+          "source_name": "brass_candleholders_1k.gltf",
+          "bytes": 14865,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/brass_candleholders/brass_candleholders_1k.gltf"
+        },
+        {
+          "file": "textures/brass_candleholders_03_arm_1k.jpg",
+          "bytes": 866977,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_03_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_03_nor_gl_1k.jpg",
+          "bytes": 773357,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_03_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_flame_diff_1k.jpg",
+          "bytes": 88579,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_flame_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_candles_nor_gl_1k.jpg",
+          "bytes": 175178,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_candles_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_candles_arm_1k.jpg",
+          "bytes": 288769,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_candles_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_02_arm_1k.jpg",
+          "bytes": 753959,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_02_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_01_diff_1k.jpg",
+          "bytes": 942661,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_03_diff_1k.jpg",
+          "bytes": 945596,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_03_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_01_nor_gl_1k.jpg",
+          "bytes": 627197,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_02_nor_gl_1k.jpg",
+          "bytes": 672717,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_02_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_02_diff_1k.jpg",
+          "bytes": 983525,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_02_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_candles_diff_1k.jpg",
+          "bytes": 271273,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_candles_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_candleholders_01_arm_1k.jpg",
+          "bytes": 908699,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_candleholders/brass_candleholders_01_arm_1k.jpg"
+        },
+        {
+          "file": "brass_candleholders.bin",
+          "bytes": 1189088,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/brass_candleholders/brass_candleholders.bin"
+        }
+      ]
+    },
+    {
+      "pack": "brass_goblets",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/brass_goblets",
+      "bytes": 4776478,
+      "files": [
+        {
+          "file": "brass_goblets.gltf",
+          "source_name": "brass_goblets_1k.gltf",
+          "bytes": 7782,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/brass_goblets/brass_goblets_1k.gltf"
+        },
+        {
+          "file": "textures/brass_goblet_03_nor_gl_1k.jpg",
+          "bytes": 340910,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_03_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_01_arm_1k.jpg",
+          "bytes": 548137,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_01_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_01_nor_gl_1k.jpg",
+          "bytes": 465530,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_02_diff_1k.jpg",
+          "bytes": 656888,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_02_diff_1k.jpg"
+        },
+        {
+          "file": "brass_goblets.bin",
+          "bytes": 261728,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/brass_goblets/brass_goblets.bin"
+        },
+        {
+          "file": "textures/brass_goblet_01_diff_1k.jpg",
+          "bytes": 653366,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_03_arm_1k.jpg",
+          "bytes": 355069,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_03_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_02_arm_1k.jpg",
+          "bytes": 544177,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_02_arm_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_02_nor_gl_1k.jpg",
+          "bytes": 409051,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_02_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/brass_goblet_03_diff_1k.jpg",
+          "bytes": 533840,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/brass_goblets/brass_goblet_03_diff_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "side_table_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/side_table_01",
+      "bytes": 505268,
+      "files": [
+        {
+          "file": "side_table_01.gltf",
+          "source_name": "side_table_01_1k.gltf",
+          "bytes": 2700,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/side_table_01/side_table_01_1k.gltf"
+        },
+        {
+          "file": "side_table_01.bin",
+          "bytes": 117784,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/side_table_01/side_table_01.bin"
+        },
+        {
+          "file": "textures/side_table_01_diff_1k.jpg",
+          "bytes": 183315,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/side_table_01/side_table_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/side_table_01_nor_gl_1k.jpg",
+          "bytes": 71744,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/side_table_01/side_table_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/side_table_01_arm_1k.jpg",
+          "bytes": 129725,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/side_table_01/side_table_01_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "Shelf_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/Shelf_01",
+      "bytes": 605448,
+      "files": [
+        {
+          "file": "Shelf_01.gltf",
+          "source_name": "Shelf_01_1k.gltf",
+          "bytes": 2617,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Shelf_01/Shelf_01_1k.gltf"
+        },
+        {
+          "file": "textures/Shelf_01_diff_1k.jpg",
+          "bytes": 153220,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Shelf_01/Shelf_01_diff_1k.jpg"
+        },
+        {
+          "file": "Shelf_01.bin",
+          "bytes": 12676,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/Shelf_01/Shelf_01.bin"
+        },
+        {
+          "file": "textures/Shelf_01_nor_gl_1k.jpg",
+          "bytes": 231393,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Shelf_01/Shelf_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/Shelf_01_arm_1k.jpg",
+          "bytes": 205542,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Shelf_01/Shelf_01_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "drawer_cabinet",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/drawer_cabinet",
+      "bytes": 1143429,
+      "files": [
+        {
+          "file": "drawer_cabinet.gltf",
+          "source_name": "drawer_cabinet_1k.gltf",
+          "bytes": 8031,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/drawer_cabinet/drawer_cabinet_1k.gltf"
+        },
+        {
+          "file": "textures/drawer_cabinet_arm_1k.jpg",
+          "bytes": 124942,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/drawer_cabinet/drawer_cabinet_arm_1k.jpg"
+        },
+        {
+          "file": "textures/drawer_cabinet_nor_gl_1k.jpg",
+          "bytes": 61593,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/drawer_cabinet/drawer_cabinet_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/drawer_cabinet_diff_1k.jpg",
+          "bytes": 150011,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/drawer_cabinet/drawer_cabinet_diff_1k.jpg"
+        },
+        {
+          "file": "drawer_cabinet.bin",
+          "bytes": 798852,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/drawer_cabinet/drawer_cabinet.bin"
+        }
+      ]
+    },
+    {
+      "pack": "boombox",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/boombox",
+      "bytes": 3068296,
+      "files": [
+        {
+          "file": "boombox.gltf",
+          "source_name": "boombox_1k.gltf",
+          "bytes": 4656,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/boombox/boombox_1k.gltf"
+        },
+        {
+          "file": "textures/boombox_nor_gl_1k.jpg",
+          "bytes": 491377,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boombox/boombox_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/boombox_speakers_arm_1k.jpg",
+          "bytes": 717847,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boombox/boombox_speakers_arm_1k.jpg"
+        },
+        {
+          "file": "textures/boombox_diff_1k.jpg",
+          "bytes": 471435,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boombox/boombox_diff_1k.jpg"
+        },
+        {
+          "file": "boombox.bin",
+          "bytes": 328752,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/boombox/boombox.bin"
+        },
+        {
+          "file": "textures/boombox_speakers_diff_1k.jpg",
+          "bytes": 638537,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boombox/boombox_speakers_diff_1k.jpg"
+        },
+        {
+          "file": "textures/boombox_arm_1k.jpg",
+          "bytes": 415692,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/boombox/boombox_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "industrial_wall_lamp",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/industrial_wall_lamp",
+      "bytes": 3778230,
+      "files": [
+        {
+          "file": "industrial_wall_lamp.gltf",
+          "source_name": "industrial_wall_lamp_1k.gltf",
+          "bytes": 5800,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/industrial_wall_lamp/industrial_wall_lamp_1k.gltf"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_emissive_1k.jpg",
+          "bytes": 62349,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_emissive_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_nor_gl_1k.jpg",
+          "bytes": 673018,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_diff_1k.jpg",
+          "bytes": 669629,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_diff_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_arm_1k.jpg",
+          "bytes": 753080,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_arm_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_glass_nor_gl_1k.jpg",
+          "bytes": 585913,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_glass_diff_1k.jpg",
+          "bytes": 316099,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_diff_1k.jpg"
+        },
+        {
+          "file": "textures/industrial_wall_lamp_glass_arm_1k.jpg",
+          "bytes": 570850,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/industrial_wall_lamp/industrial_wall_lamp_glass_arm_1k.jpg"
+        },
+        {
+          "file": "industrial_wall_lamp.bin",
+          "bytes": 141492,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/industrial_wall_lamp/industrial_wall_lamp.bin"
+        }
+      ]
+    },
+    {
+      "pack": "Sofa_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/Sofa_01",
+      "bytes": 517935,
+      "files": [
+        {
+          "file": "Sofa_01.gltf",
+          "source_name": "Sofa_01_1k.gltf",
+          "bytes": 2636,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Sofa_01/Sofa_01_1k.gltf"
+        },
+        {
+          "file": "textures/Sofa_01_diff_1k.jpg",
+          "bytes": 134925,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Sofa_01/Sofa_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/Sofa_01_nor_gl_1k.jpg",
+          "bytes": 154517,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Sofa_01/Sofa_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "Sofa_01.bin",
+          "bytes": 111264,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/Sofa_01/Sofa_01.bin"
+        },
+        {
+          "file": "textures/Sofa_01_arm_1k.jpg",
+          "bytes": 114593,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Sofa_01/Sofa_01_arm_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "Ottoman_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/Ottoman_01",
+      "bytes": 652112,
+      "files": [
+        {
+          "file": "Ottoman_01.gltf",
+          "source_name": "Ottoman_01_1k.gltf",
+          "bytes": 2656,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Ottoman_01/Ottoman_01_1k.gltf"
+        },
+        {
+          "file": "textures/Ottoman_01_arm_1k.jpg",
+          "bytes": 155704,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Ottoman_01/Ottoman_01_arm_1k.jpg"
+        },
+        {
+          "file": "Ottoman_01.bin",
+          "bytes": 115200,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/Ottoman_01/Ottoman_01.bin"
+        },
+        {
+          "file": "textures/Ottoman_01_diff_1k.jpg",
+          "bytes": 141622,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Ottoman_01/Ottoman_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/Ottoman_01_nor_gl_1k.jpg",
+          "bytes": 236930,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Ottoman_01/Ottoman_01_nor_gl_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "coffee_table_round_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/coffee_table_round_01",
+      "bytes": 1563153,
+      "files": [
+        {
+          "file": "coffee_table_round_01.gltf",
+          "source_name": "coffee_table_round_01_1k.gltf",
+          "bytes": 2776,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/coffee_table_round_01/coffee_table_round_01_1k.gltf"
+        },
+        {
+          "file": "textures/coffee_table_round_01_diff_1k.jpg",
+          "bytes": 447037,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/coffee_table_round_01/coffee_table_round_01_diff_1k.jpg"
+        },
+        {
+          "file": "textures/coffee_table_round_01_arm_1k.jpg",
+          "bytes": 721708,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/coffee_table_round_01/coffee_table_round_01_arm_1k.jpg"
+        },
+        {
+          "file": "coffee_table_round_01.bin",
+          "bytes": 131112,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/coffee_table_round_01/coffee_table_round_01.bin"
+        },
+        {
+          "file": "textures/coffee_table_round_01_nor_gl_1k.jpg",
+          "bytes": 260520,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/coffee_table_round_01/coffee_table_round_01_nor_gl_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "potted_plant_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/potted_plant_01",
+      "bytes": 6325139,
+      "files": [
+        {
+          "file": "potted_plant_01.gltf",
+          "source_name": "potted_plant_01_1k.gltf",
+          "bytes": 7969,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/potted_plant_01/potted_plant_01_1k.gltf"
+        },
+        {
+          "file": "textures/potted_plant_01_pot_rough_1k.jpg",
+          "bytes": 173192,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_pot_rough_1k.jpg"
+        },
+        {
+          "file": "textures/potted_plant_01_leaves_nor_gl_1k.jpg",
+          "bytes": 177105,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_leaves_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/potted_plant_01_pot_diff_1k.jpg",
+          "bytes": 204900,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_pot_diff_1k.jpg"
+        },
+        {
+          "file": "potted_plant_01.bin",
+          "bytes": 5345188,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/potted_plant_01/potted_plant_01.bin"
+        },
+        {
+          "file": "textures/potted_plant_01_leaves_rough_1k.jpg",
+          "bytes": 91706,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_leaves_rough_1k.jpg"
+        },
+        {
+          "file": "textures/potted_plant_01_pot_nor_gl_1k.jpg",
+          "bytes": 200349,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_pot_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/potted_plant_01_leaves_diff_1k.jpg",
+          "bytes": 124730,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_01/potted_plant_01_leaves_diff_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "desk_lamp_arm_01",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/desk_lamp_arm_01",
+      "bytes": 2875984,
+      "files": [
+        {
+          "file": "desk_lamp_arm_01.gltf",
+          "source_name": "desk_lamp_arm_01_1k.gltf",
+          "bytes": 4453,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/desk_lamp_arm_01/desk_lamp_arm_01_1k.gltf"
+        },
+        {
+          "file": "textures/desk_lamp_arm_01_nor_gl_1k.jpg",
+          "bytes": 651826,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/desk_lamp_arm_01/desk_lamp_arm_01_nor_gl_1k.jpg"
+        },
+        {
+          "file": "textures/desk_lamp_arm_01_arm_1k.jpg",
+          "bytes": 780379,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/desk_lamp_arm_01/desk_lamp_arm_01_arm_1k.jpg"
+        },
+        {
+          "file": "textures/desk_lamp_arm_01_diff_1k.jpg",
+          "bytes": 702522,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/desk_lamp_arm_01/desk_lamp_arm_01_diff_1k.jpg"
+        },
+        {
+          "file": "desk_lamp_arm_01.bin",
+          "bytes": 736804,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/desk_lamp_arm_01/desk_lamp_arm_01.bin"
+        }
+      ]
+    },
+    {
+      "pack": "pull_chain_light_socket",
+      "source": "Poly Haven (1k glTF, CC0)",
+      "target": "assets/third_party/polyhaven/pull_chain_light_socket",
+      "bytes": 2048497,
+      "files": [
+        {
+          "file": "pull_chain_light_socket.gltf",
+          "source_name": "pull_chain_light_socket_1k.gltf",
+          "bytes": 4348,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/pull_chain_light_socket/pull_chain_light_socket_1k.gltf"
+        },
+        {
+          "file": "textures/pull_chain_light_socket_diff_1k.jpg",
+          "bytes": 458455,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pull_chain_light_socket/pull_chain_light_socket_diff_1k.jpg"
+        },
+        {
+          "file": "textures/pull_chain_light_socket_arm_1k.jpg",
+          "bytes": 729658,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pull_chain_light_socket/pull_chain_light_socket_arm_1k.jpg"
+        },
+        {
+          "file": "pull_chain_light_socket.bin",
+          "bytes": 283524,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/pull_chain_light_socket/pull_chain_light_socket.bin"
+        },
+        {
+          "file": "textures/pull_chain_light_socket_nor_gl_1k.jpg",
+          "bytes": 572512,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pull_chain_light_socket/pull_chain_light_socket_nor_gl_1k.jpg"
+        }
+      ]
+    },
+    {
+      "pack": "Marble012",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Marble012",
+      "bytes": 4672904,
+      "files": [
+        {
+          "file": "Marble012_1K-JPG.zip",
+          "bytes": 4672904,
+          "url": "https://ambientcg.com/get?file=Marble012_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Wood060",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Wood060",
+      "bytes": 10621993,
+      "files": [
+        {
+          "file": "Wood060_1K-JPG.zip",
+          "bytes": 10621993,
+          "url": "https://ambientcg.com/get?file=Wood060_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Carpet012",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Carpet012",
+      "bytes": 10927502,
+      "files": [
+        {
+          "file": "Carpet012_1K-JPG.zip",
+          "bytes": 10927502,
+          "url": "https://ambientcg.com/get?file=Carpet012_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Fabric026",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Fabric026",
+      "bytes": 8021292,
+      "files": [
+        {
+          "file": "Fabric026_1K-JPG.zip",
+          "bytes": 8021292,
+          "url": "https://ambientcg.com/get?file=Fabric026_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Grass004",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Grass004",
+      "bytes": 11003149,
+      "files": [
+        {
+          "file": "Grass004_1K-JPG.zip",
+          "bytes": 11003149,
+          "url": "https://ambientcg.com/get?file=Grass004_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Ground037",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Ground037",
+      "bytes": 10574958,
+      "files": [
+        {
+          "file": "Ground037_1K-JPG.zip",
+          "bytes": 10574958,
+          "url": "https://ambientcg.com/get?file=Ground037_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "PaintedPlaster017",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/PaintedPlaster017",
+      "bytes": 4721132,
+      "files": [
+        {
+          "file": "PaintedPlaster017_1K-JPG.zip",
+          "bytes": 4721132,
+          "url": "https://ambientcg.com/get?file=PaintedPlaster017_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Plaster001",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Plaster001",
+      "bytes": 7414156,
+      "files": [
+        {
+          "file": "Plaster001_1K-JPG.zip",
+          "bytes": 7414156,
+          "url": "https://ambientcg.com/get?file=Plaster001_1K-JPG.zip"
+        }
+      ]
+    },
+    {
+      "pack": "Wallpaper001A",
+      "source": "ambientCG (1K-JPG, CC0)",
+      "target": "assets/third_party/ambientcg/Wallpaper001A",
+      "bytes": 6622896,
+      "files": [
+        {
+          "file": "Wallpaper001A_1K-JPG.zip",
+          "bytes": 6622896,
+          "url": "https://ambientcg.com/get?file=Wallpaper001A_1K-JPG.zip"
         }
       ]
     }

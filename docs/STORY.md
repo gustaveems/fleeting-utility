@@ -122,6 +122,16 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
     in it.
 8. **Promises.** The billboards follow him inside as messages and offers: focus
    upgrades, subscriptions, corporate care. Can he trust them?
+8a. **Paper under the door** (added 2026-11-06). Some mornings a notice comes under the
+    door: the lessor's reminders, inspections and small print, LeaseLink's standing, and
+    the Heritage Collection's flyer with the campaign's shoes on it, so he has seen the
+    shoes in his own hands before he sees them on the friend (beat 15). After the ransack
+    an incident report tells him what was taken was the lessor's to take.
+8b. **The radio** (added 2026-11-06). The boombox he carried up plays one bulletin a day:
+    the city's news, which is the brand's news. The golden colossus is regilded, the
+    drug is enclosed, the Heritage Quarter spreads. It is company, and it eases him a
+    little. After the ransack it doesn't work.
+8c. **LeaseLink.** His implant keeps a log of every call. In the valley it has no signal.
 9. **Devolution.** When the drug wears off, overload rises and he falls into compulsive
    self-soothing in his own captivity. Each relapse erodes his belief in himself.
 10. **Night.** He dreams of the valley and its colossi, 50-foot human figures in stone,
@@ -189,9 +199,9 @@ N9. **The metro home.** The night train: who rides it this late, the carriage's 
 - Whether the campaign's model is ever seen in person (the friend? the protagonist's
   own reflection?).
 
-## Built vs. not yet (2026-10-26)
+## Built vs. not yet (2026-11-06)
 Canon since 2026-10-19: human colossi, the golden corporate colossus.
 
 | Built | Not yet |
 |---|---|
-| Prologue 1–4 (greybox film, the lease, the campaign advert on its billboard); Night Zero; 5; 6; 7 (the friend 7a, the neighbour 7b, metro or park 7c, the painting 7d, the campaign wears his canvas; the status loop: the crowd's rooftop, a sinking standing); 8 (Focus+ Pro, the wall screen, Corporate Care); 9 (compulsion, self-belief); 10 (dreams, stone colossi, forgetting and confession); 11; 12 (the enclosure, the front); 13–22; 16a; 18a | the advert link in 6, 15 and 18; the golden colossus outside the prologue; prologue phases B–D (layout, look, sound) |
+| Prologue 1–4 (the film with its layout, look and sound, the lease, the campaign advert on its billboard); the golden colossus on the skyline from the rooftop (and on the title); Night Zero; 5; 6; 7 (the friend 7a, the neighbour 7b, metro or park 7c, the painting 7d, the campaign wears his canvas; the status loop: the crowd's rooftop, a sinking standing); 8 (Focus+ Pro, the wall screen, Corporate Care, 8a–c); 9 (compulsion, self-belief); 10 (dreams, stone colossi, forgetting and confession); 11; 12 (the enclosure, the front); 13–22; 16a; 18a | the advert link in 6 and 18 (15 is set up by the flyer, 8a) |

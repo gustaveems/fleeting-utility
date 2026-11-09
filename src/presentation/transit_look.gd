@@ -75,7 +75,9 @@ void fragment() {
 		c = mix(c, c * 0.6, low * 0.5);
 		float scratch = step(0.86, noise(vec2(q.x * 30.0, q.y * 2.0))) * step(0.55, noise(q * 0.8));
 		c = mix(c, vec3(0.85), scratch * 0.5);
-		float tag = smoothstep(0.72, 0.76, noise(q * 4.5 + 11.0)) * step(0.62, noise(q * 0.5 + 3.0));
+		// A sprayed stroke: the noise's mid contour, a line that wanders, not a blob.
+		float stroke = smoothstep(0.05, 0.025, abs(noise(q * 3.2 + 11.0) - 0.5));
+		float tag = stroke * step(0.66, noise(q * 0.5 + 3.0));
 		vec3 spray = mix(vec3(0.85, 0.2, 0.55), vec3(0.95, 0.8, 0.2), step(0.5, hash(floor(q * 0.5))));
 		c = mix(c, spray * 0.8, tag * 0.8);
 		rough = mix(0.45, 0.9, dirt * 0.6 + seam);

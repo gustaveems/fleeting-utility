@@ -48,7 +48,6 @@ func wire(ctx: BootstrapContext) -> void:
 
 	# Ticket-14: the day on the HUD, the verdicts and the lease's notice.
 	ctx.day_cycle.day_changed.connect(ctx.core_hud.set_day)
-	ctx.day_cycle.morning.connect(func(day: int): ctx.core_hud.show_line("Day %d." % day))
 	ctx.easel.work_finished.connect(ctx.core_hud.show_line)
 	ctx.easel.works_reclaimed.connect(func(): ctx.core_hud.show_line(Easel.RECLAIM_TEXT))
 

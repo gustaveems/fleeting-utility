@@ -42,6 +42,7 @@ const STATUE_POSITIONS: Array[Vector3] = [
 
 ## The brief's 50 feet, in metres.
 const STATUE_HEIGHT := 15.0
+const LEAF_COUNT := 40000
 ## Real nature (CC0): Quaternius birches with yellow autumn leaves, Poly Haven stones,
 ## stumps, ferns, branches. Missing packs leave the greybox.
 const TREES := "res://assets/third_party/quaternius_trees/"
@@ -118,7 +119,8 @@ func _build_environment() -> void:
 	env.fog_density = 0.011
 	env.fog_sky_affect = 0.5
 	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.0025
+	env.volumetric_fog_density = 0.0045
+	env.volumetric_fog_albedo = Color(0.95, 0.86, 0.72)
 
 	# High saturation is the whole visual brief for the valley.
 	env.adjustment_enabled = true
@@ -145,13 +147,79 @@ func _build_terrain() -> void:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = Color(0.45, 0.26, 0.12)  # autumn leaf-litter brown-orange
 	material.roughness = 0.95
-	if ResourceLoader.exists(GROUND_TEX):
+	var floor_tex := CityKit.surface("Ground037", "Color")
+	if ResourceLoader.exists(floor_tex):
+		material.albedo_texture = load(floor_tex)
+		material.albedo_color = Color(0.68, 0.46, 0.32)  # the moss turned to autumn
+		material.normal_enabled = true
+		material.normal_texture = load(CityKit.surface("Ground037", "NormalGL"))
+		material.uv1_triplanar = true
+		material.uv1_scale = Vector3.ONE * 0.2
+	elif ResourceLoader.exists(GROUND_TEX):
 		material.albedo_texture = load(GROUND_TEX)
 		material.albedo_color = Color(0.8, 0.55, 0.32)  # the dirt warmed to leaf litter
 		material.uv1_triplanar = true
 		material.uv1_scale = Vector3.ONE * 0.25
 	ground.material_override = material
 	add_child(ground)
+	_build_leaf_litter()
+
+
+## The fallen leaves: one MultiMesh of flat gold scraps, clumped, so the floor isn't a
+## single texture (the Zegna reference's path).
+func _build_leaf_litter() -> void:
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.17, 0.1)
+	quad.orientation = PlaneMesh.FACE_Y
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1, 1, 1, 1))
+	ramp.set_color(1, Color(1, 1, 1, 0))
+	ramp.set_offset(0, 0.7)
+	var scrap := GradientTexture2D.new()
+	scrap.gradient = ramp
+	scrap.fill = GradientTexture2D.FILL_RADIAL
+	scrap.fill_from = Vector2(0.5, 0.5)
+	scrap.fill_to = Vector2(1.0, 0.5)
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = scrap
+	m.vertex_color_use_as_albedo = true
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.5
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.roughness = 0.9
+	quad.material = m
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	mm.mesh = quad
+	mm.instance_count = LEAF_COUNT
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 91
+	var clumps := FastNoiseLite.new()
+	clumps.seed = 91
+	clumps.frequency = 0.09
+	var golds: Array[Color] = [
+		Color(0.62, 0.36, 0.1),
+		Color(0.45, 0.22, 0.08),
+		Color(0.55, 0.44, 0.16),
+		Color(0.3, 0.15, 0.07)
+	]
+	var k := 0
+	while k < LEAF_COUNT:
+		var at := Vector3(rng.randf_range(-58, 58), 0.015, rng.randf_range(-58, 58))
+		if clumps.get_noise_2d(at.x, at.z) < -0.12 and rng.randf() < 0.85:
+			continue
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
+			Vector3.ONE * rng.randf_range(0.6, 1.3)
+		)
+		mm.set_instance_transform(k, Transform3D(basis, at))
+		mm.set_instance_color(k, golds[rng.randi() % golds.size()])
+		k += 1
+	var leaves := MultiMeshInstance3D.new()
+	leaves.name = "LeafLitter"
+	leaves.multimesh = mm
+	leaves.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(leaves)
 
 
 func _build_sun() -> void:
@@ -160,6 +228,7 @@ func _build_sun() -> void:
 	sun.light_color = Color(1.0, 0.82, 0.58)
 	sun.light_energy = 1.5
 	sun.shadow_enabled = true
+	sun.light_volumetric_fog_energy = 3.0  # shafts through the birches
 	# Low angle: 14 degrees above the horizon, raking the statues into long shadows.
 	sun.rotation_degrees = Vector3(-14.0, -35.0, 0.0)
 	add_child(sun)

@@ -102,8 +102,18 @@ void fragment() {
 	if (rest.y < ankle) {
 		c = vec3(0.05, 0.045, 0.04);  // shoes
 	}
+	// Drape: long soft folds, tighter at the joints (hips, elbows, knees), and a fine weave;
+	// flat colour on a bare body read as paint (polish pass, 2026-11-06).
+	float fold = sin(rest.y * 34.0 + sin(rest.x * 19.0 + rest.z * 13.0) * 2.4);
+	float joint = smoothstep(0.1, 0.0, abs(rest.y - hip)) + smoothstep(0.07, 0.0, abs(rest.y - 0.5));
+	c *= 0.95 + fold * (0.045 + joint * 0.06);
+	c *= 0.97 + 0.03 * sin(rest.y * 420.0) * sin(rest.x * 420.0);
+	c *= 1.0 - smoothstep(0.03, 0.0, abs(rest.y - hip)) * 0.3;  // the waistband's shadow
 	if (head || hand) {
 		c = skin_color * 0.85;
+	}
+	if (head) {
+		c *= mix(0.68, 1.0, smoothstep(collar, collar + 0.09, rest.y));  // under the jaw
 	}
 	if (head && veiled) {
 		c = vec3(0.035, 0.03, 0.035);  // black gauze drawn tight over the head
@@ -165,6 +175,8 @@ var follow: PlayerMovement
 var carrying: bool = false
 ## A sheer fashion-tech veil over the face (the rich at dinner: their faces a product).
 var veiled: bool = false
+## [top, trousers] for this one figure, over the class's OUTFIT (a crowd isn't a uniform).
+var clothes: Array = []
 ## Which base body: 0 man, 1 woman, −1 picked from where the figure stands (a crowd's mix,
 ## the same every run). Set before add_child.
 var body: int = -1
@@ -429,7 +441,7 @@ func _dress_body() -> void:
 		hair_source = hair_scene.instantiate()
 	for mi in _model.find_children("*", "MeshInstance3D", true, false):
 		(mi as MeshInstance3D).visible = false
-	var outfit: Array = OUTFIT[dress]
+	var outfit: Array = OUTFIT[dress] if clothes.is_empty() else clothes
 	var cloth := ShaderMaterial.new()
 	cloth.shader = _cloth_outfit_shader()
 	cloth.set_shader_parameter("top_color", outfit[0])

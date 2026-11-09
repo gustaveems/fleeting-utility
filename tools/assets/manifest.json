@@ -4,7 +4,7 @@
  "target_root": "assets/third_party",
  "totals": {
   "files_seen": 2209,
-  "to_place": 958,
+  "to_place": 1094,
   "skipped": 1251
  },
  "packs": {
@@ -16,9 +16,9 @@
   "polyhaven": {
    "buffer": 43,
    "model": 43,
-   "orm": 45,
-   "albedo": 47,
-   "normal": 42,
+   "orm": 71,
+   "albedo": 74,
+   "normal": 67,
    "texture": 40
   },
   "quaternius_anim": {
@@ -10236,6 +10236,1446 @@
    "pack": "polyhaven",
    "src": "polyhaven/water_manhole_cover/water_manhole_cover_1k.gltf",
    "dst": "assets/third_party/polyhaven/water_manhole_cover/water_manhole_cover.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Carpet012_1K-JPG/Carpet012_1K-JPG_AmbientOcclusion.jpg",
+   "dst": "assets/third_party/ambientcg/Carpet012/Carpet012_1K-JPG_AmbientOcclusion.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "ao",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Carpet012_1K-JPG/Carpet012_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Carpet012/Carpet012_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Carpet012_1K-JPG/Carpet012_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Carpet012/Carpet012_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Carpet012_1K-JPG/Carpet012_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Carpet012/Carpet012_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Fabric026_1K-JPG/Fabric026_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Fabric026/Fabric026_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Fabric026_1K-JPG/Fabric026_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Fabric026/Fabric026_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Fabric026_1K-JPG/Fabric026_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Fabric026/Fabric026_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Grass004_1K-JPG/Grass004_1K-JPG_AmbientOcclusion.jpg",
+   "dst": "assets/third_party/ambientcg/Grass004/Grass004_1K-JPG_AmbientOcclusion.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "ao",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Grass004_1K-JPG/Grass004_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Grass004/Grass004_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Grass004_1K-JPG/Grass004_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Grass004/Grass004_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Grass004_1K-JPG/Grass004_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Grass004/Grass004_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Ground037_1K-JPG/Ground037_1K-JPG_AmbientOcclusion.jpg",
+   "dst": "assets/third_party/ambientcg/Ground037/Ground037_1K-JPG_AmbientOcclusion.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "ao",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Ground037_1K-JPG/Ground037_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Ground037/Ground037_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Ground037_1K-JPG/Ground037_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Ground037/Ground037_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Ground037_1K-JPG/Ground037_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Ground037/Ground037_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Marble012_1K-JPG/Marble012_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Marble012/Marble012_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Marble012_1K-JPG/Marble012_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Marble012/Marble012_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Marble012_1K-JPG/Marble012_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Marble012/Marble012_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/PaintedPlaster017_1K-JPG/PaintedPlaster017_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/PaintedPlaster017/PaintedPlaster017_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    512
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/PaintedPlaster017_1K-JPG/PaintedPlaster017_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/PaintedPlaster017/PaintedPlaster017_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    512
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/PaintedPlaster017_1K-JPG/PaintedPlaster017_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/PaintedPlaster017/PaintedPlaster017_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    512
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Plaster001_1K-JPG/Plaster001_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Plaster001/Plaster001_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Plaster001_1K-JPG/Plaster001_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Plaster001/Plaster001_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Plaster001_1K-JPG/Plaster001_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Plaster001/Plaster001_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wallpaper001A_1K-JPG/Wallpaper001A_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Wallpaper001A/Wallpaper001A_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wallpaper001A_1K-JPG/Wallpaper001A_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Wallpaper001A/Wallpaper001A_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wallpaper001A_1K-JPG/Wallpaper001A_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Wallpaper001A/Wallpaper001A_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wood060_1K-JPG/Wood060_1K-JPG_AmbientOcclusion.jpg",
+   "dst": "assets/third_party/ambientcg/Wood060/Wood060_1K-JPG_AmbientOcclusion.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "ao",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wood060_1K-JPG/Wood060_1K-JPG_Color.jpg",
+   "dst": "assets/third_party/ambientcg/Wood060/Wood060_1K-JPG_Color.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wood060_1K-JPG/Wood060_1K-JPG_NormalGL.jpg",
+   "dst": "assets/third_party/ambientcg/Wood060/Wood060_1K-JPG_NormalGL.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "name"
+  },
+  {
+   "pack": "ambientcg",
+   "src": "ambientcg/Wood060_1K-JPG/Wood060_1K-JPG_Roughness.jpg",
+   "dst": "assets/third_party/ambientcg/Wood060/Wood060_1K-JPG_Roughness.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "roughness",
+   "role_source": "name"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Ottoman_01/Ottoman_01.bin",
+   "dst": "assets/third_party/polyhaven/Ottoman_01/Ottoman_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Ottoman_01/Ottoman_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/Ottoman_01/Ottoman_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Ottoman_01/textures/Ottoman_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Ottoman_01/textures/Ottoman_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Ottoman_01/textures/Ottoman_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Ottoman_01/textures/Ottoman_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Ottoman_01/textures/Ottoman_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Ottoman_01/textures/Ottoman_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Shelf_01/Shelf_01.bin",
+   "dst": "assets/third_party/polyhaven/Shelf_01/Shelf_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Shelf_01/Shelf_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/Shelf_01/Shelf_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Shelf_01/textures/Shelf_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Shelf_01/textures/Shelf_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Shelf_01/textures/Shelf_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Shelf_01/textures/Shelf_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Shelf_01/textures/Shelf_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Shelf_01/textures/Shelf_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Sofa_01/Sofa_01.bin",
+   "dst": "assets/third_party/polyhaven/Sofa_01/Sofa_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Sofa_01/Sofa_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/Sofa_01/Sofa_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Sofa_01/textures/Sofa_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Sofa_01/textures/Sofa_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Sofa_01/textures/Sofa_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Sofa_01/textures/Sofa_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/Sofa_01/textures/Sofa_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/Sofa_01/textures/Sofa_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/boombox.bin",
+   "dst": "assets/third_party/polyhaven/boombox/boombox.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/boombox_1k.gltf",
+   "dst": "assets/third_party/polyhaven/boombox/boombox.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/textures/boombox_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/boombox/textures/boombox_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/textures/boombox_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/boombox/textures/boombox_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/textures/boombox_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/boombox/textures/boombox_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/textures/boombox_speakers_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/boombox/textures/boombox_speakers_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/boombox/textures/boombox_speakers_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/boombox/textures/boombox_speakers_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/brass_candleholders.bin",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/brass_candleholders.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/brass_candleholders_1k.gltf",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/brass_candleholders.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_02_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_02_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_02_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_02_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_02_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_02_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_03_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_03_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_03_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_03_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_03_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_03_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_candles_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_candles_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_candles_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_candles_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_candles_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_candles_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_candleholders/textures/brass_candleholders_flame_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_candleholders/textures/brass_candleholders_flame_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/brass_goblets.bin",
+   "dst": "assets/third_party/polyhaven/brass_goblets/brass_goblets.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/brass_goblets_1k.gltf",
+   "dst": "assets/third_party/polyhaven/brass_goblets/brass_goblets.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_02_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_02_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_02_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_02_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_02_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_02_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_03_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_03_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_03_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_03_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/brass_goblets/textures/brass_goblet_03_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/brass_goblets/textures/brass_goblet_03_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/can_rusted/can_rusted.bin",
+   "dst": "assets/third_party/polyhaven/can_rusted/can_rusted.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/can_rusted/can_rusted_1k.gltf",
+   "dst": "assets/third_party/polyhaven/can_rusted/can_rusted.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/can_rusted/textures/can_rusted_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/can_rusted/textures/can_rusted_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/can_rusted/textures/can_rusted_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/can_rusted/textures/can_rusted_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/can_rusted/textures/can_rusted_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/can_rusted/textures/can_rusted_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/coffee_table_round_01/coffee_table_round_01.bin",
+   "dst": "assets/third_party/polyhaven/coffee_table_round_01/coffee_table_round_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/coffee_table_round_01/coffee_table_round_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/coffee_table_round_01/coffee_table_round_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/coffee_table_round_01/textures/coffee_table_round_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/coffee_table_round_01/textures/coffee_table_round_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/coffee_table_round_01/textures/coffee_table_round_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/coffee_table_round_01/textures/coffee_table_round_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/coffee_table_round_01/textures/coffee_table_round_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/coffee_table_round_01/textures/coffee_table_round_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/desk_lamp_arm_01/desk_lamp_arm_01.bin",
+   "dst": "assets/third_party/polyhaven/desk_lamp_arm_01/desk_lamp_arm_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/desk_lamp_arm_01/desk_lamp_arm_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/desk_lamp_arm_01/desk_lamp_arm_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/desk_lamp_arm_01/textures/desk_lamp_arm_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/drawer_cabinet/drawer_cabinet.bin",
+   "dst": "assets/third_party/polyhaven/drawer_cabinet/drawer_cabinet.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/drawer_cabinet/drawer_cabinet_1k.gltf",
+   "dst": "assets/third_party/polyhaven/drawer_cabinet/drawer_cabinet.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/drawer_cabinet/textures/drawer_cabinet_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/drawer_cabinet/textures/drawer_cabinet_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/drawer_cabinet/textures/drawer_cabinet_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/drawer_cabinet/textures/drawer_cabinet_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/drawer_cabinet/textures/drawer_cabinet_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/drawer_cabinet/textures/drawer_cabinet_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/industrial_wall_lamp.bin",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/industrial_wall_lamp.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/industrial_wall_lamp_1k.gltf",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/industrial_wall_lamp.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_emissive_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_emissive_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "emissive",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_glass_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/industrial_wall_lamp/textures/industrial_wall_lamp_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/potted_plant_01.bin",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/potted_plant_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/potted_plant_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/potted_plant_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_leaves_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_leaves_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_leaves_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_leaves_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_leaves_rough_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_leaves_rough_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_pot_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_pot_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_pot_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_pot_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/potted_plant_01/textures/potted_plant_01_pot_rough_1k.jpg",
+   "dst": "assets/third_party/polyhaven/potted_plant_01/textures/potted_plant_01_pot_rough_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/pull_chain_light_socket/pull_chain_light_socket.bin",
+   "dst": "assets/third_party/polyhaven/pull_chain_light_socket/pull_chain_light_socket.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/pull_chain_light_socket/pull_chain_light_socket_1k.gltf",
+   "dst": "assets/third_party/polyhaven/pull_chain_light_socket/pull_chain_light_socket.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/pull_chain_light_socket/textures/pull_chain_light_socket_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/side_table_01/side_table_01.bin",
+   "dst": "assets/third_party/polyhaven/side_table_01/side_table_01.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/side_table_01/side_table_01_1k.gltf",
+   "dst": "assets/third_party/polyhaven/side_table_01/side_table_01.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/side_table_01/textures/side_table_01_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/side_table_01/textures/side_table_01_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/side_table_01/textures/side_table_01_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/side_table_01/textures/side_table_01_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/side_table_01/textures/side_table_01_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/side_table_01/textures/side_table_01_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_rat/street_rat.bin",
+   "dst": "assets/third_party/polyhaven/street_rat/street_rat.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_rat/street_rat_1k.gltf",
+   "dst": "assets/third_party/polyhaven/street_rat/street_rat.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_rat/textures/street_rat_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_rat/textures/street_rat_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_rat/textures/street_rat_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_rat/textures/street_rat_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/street_rat/textures/street_rat_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/street_rat/textures/street_rat_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/trashbag/textures/trashbag_arm_1k.jpg",
+   "dst": "assets/third_party/polyhaven/trashbag/textures/trashbag_arm_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "orm",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/trashbag/textures/trashbag_diff_1k.jpg",
+   "dst": "assets/third_party/polyhaven/trashbag/textures/trashbag_diff_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "albedo",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/trashbag/textures/trashbag_nor_gl_1k.jpg",
+   "dst": "assets/third_party/polyhaven/trashbag/textures/trashbag_nor_gl_1k.jpg",
+   "type": "texture",
+   "size": [
+    1024,
+    1024
+   ],
+   "role": "normal",
+   "role_source": "gltf"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/trashbag/trashbag.bin",
+   "dst": "assets/third_party/polyhaven/trashbag/trashbag.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "polyhaven",
+   "src": "polyhaven/trashbag/trashbag_1k.gltf",
+   "dst": "assets/third_party/polyhaven/trashbag/trashbag.gltf",
    "type": "model"
   }
  ],
