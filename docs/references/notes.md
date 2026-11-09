@@ -46,6 +46,8 @@ on why you picked it.
 These are phone photos of painted canvases; they are reference only, never shipped as
 game art (they are copyrighted stills).
 
+Video reference (from the same zip, the MP4 is kept on Alain's PC, not in the repo): YouTube Short `nl6yX0h6da0` (titled "blub"), a dark close-up of a creature moving through water, with a TikTok watermark from @friedrichnische. https://youtube.com/shorts/nl6yX0h6da0 Reference only; the clip's rights stay with its creator.
+
 ## Third-party assets (CC0)
 | Pack | Source | Where | Used for |
 |---|---|---|---|
