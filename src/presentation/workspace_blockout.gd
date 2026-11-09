@@ -32,6 +32,17 @@ const RUG_WEAVE := 0.4
 ## Sun-faded and trodden: the weave's colours, browned and dimmed.
 const RUG_FADE := Color(0.62, 0.5, 0.4)
 const KIT_TEX := "res://assets/third_party/quaternius_downtown/models/"
+## Two of his own paintings, framed and hung on the west wall in the spaces the easel's
+## hooks don't use. They are decor: the morning lease never takes them.
+const PAINTINGS: Array[Dictionary] = [
+	{"texture": "res://assets/paintings/painting_tiger_river.jpg", "z": -1.35},
+	{"texture": "res://assets/paintings/painting_wolves_flowers.jpg", "z": 2.9},
+]
+const PAINTING_WIDTH := 0.62
+const PAINTING_Y := 1.0
+const FRAME_WIDTH := 0.035
+const FRAME_DEPTH := 0.03
+const COLOR_FRAME := Color(0.2, 0.15, 0.1)
 
 const COLOR_BENCH := Color(0.42, 0.33, 0.24)
 const COLOR_WINDOW := Color(0.62, 0.68, 0.74)
@@ -449,6 +460,7 @@ func _furnish() -> void:
 			Vector3(shelf_x, y, -0.8 + k * 0.11),
 			_mat(tint, 0.8)
 		)
+	_hang_paintings(half_x)
 	# The radiator under the window, west of the door.
 	var rad := Vector3(-1.9, 0.0, -half_z + 0.12)
 	var paint := _mat(Color(0.82, 0.8, 0.74), 0.5)
@@ -611,3 +623,59 @@ static func _mat_transparent(color: Color, alpha: float) -> StandardMaterial3D:
 	material.albedo_color.a = alpha
 	material.shadow_to_opacity = true
 	return material
+
+
+func _hang_paintings(half_x: float) -> void:
+	# The wall's inside face; the frame stands proud of it by FRAME_DEPTH.
+	var face_x := -half_x + wall_thickness * 0.5 + FRAME_DEPTH * 0.5
+	for entry in PAINTINGS:
+		var texture := load(entry["texture"]) as Texture2D
+		if texture == null:
+			continue
+		var width := PAINTING_WIDTH
+		var height := width * float(texture.get_height()) / float(texture.get_width())
+		var frame_root := Node3D.new()
+		frame_root.name = "Painting"
+		frame_root.position = Vector3(face_x, PAINTING_Y, float(entry["z"]))
+		# Local +Z faces +X, out of the wall.
+		frame_root.rotation_degrees.y = 90.0
+		add_child(frame_root)
+		var canvas := MeshInstance3D.new()
+		canvas.name = "Canvas"
+		var quad := QuadMesh.new()
+		quad.size = Vector2(width, height)
+		canvas.mesh = quad
+		var canvas_mat := StandardMaterial3D.new()
+		canvas_mat.albedo_texture = texture
+		canvas_mat.roughness = 0.7
+		canvas.material_override = canvas_mat
+		canvas.position = Vector3(0.0, 0.0, FRAME_DEPTH * 0.5)
+		frame_root.add_child(canvas)
+		var frame_mat := _mat(COLOR_FRAME, 0.6)
+		var edges := [
+			[
+				Vector3(width + 2.0 * FRAME_WIDTH, FRAME_WIDTH, FRAME_DEPTH),
+				Vector3(0, height * 0.5 + FRAME_WIDTH * 0.5, 0)
+			],
+			[
+				Vector3(width + 2.0 * FRAME_WIDTH, FRAME_WIDTH, FRAME_DEPTH),
+				Vector3(0, -height * 0.5 - FRAME_WIDTH * 0.5, 0)
+			],
+			[
+				Vector3(FRAME_WIDTH, height, FRAME_DEPTH),
+				Vector3(width * 0.5 + FRAME_WIDTH * 0.5, 0, 0)
+			],
+			[
+				Vector3(FRAME_WIDTH, height, FRAME_DEPTH),
+				Vector3(-width * 0.5 - FRAME_WIDTH * 0.5, 0, 0)
+			],
+		]
+		for i in edges.size():
+			var bar := MeshInstance3D.new()
+			bar.name = "FrameBar%d" % i
+			var box := BoxMesh.new()
+			box.size = edges[i][0]
+			bar.mesh = box
+			bar.material_override = frame_mat
+			bar.position = edges[i][1]
+			frame_root.add_child(bar)

@@ -59,6 +59,13 @@
   },
   "ambientcg": {
    "texture": 7
+  },
+  "quaternius_chars": {
+   "buffer": 8,
+   "model": 8,
+   "albedo": 7,
+   "normal": 5,
+   "orm": 2
   }
  },
  "skipped_by_reason": {
@@ -11641,6 +11648,186 @@
    "src": "polyhaven/trashbag/trashbag_1k.gltf",
    "dst": "assets/third_party/polyhaven/trashbag/trashbag.gltf",
    "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Female_FullBody.bin",
+   "dst": "assets/third_party/quaternius_chars/Superhero_Female_FullBody.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Female_FullBody.gltf",
+   "dst": "assets/third_party/quaternius_chars/Superhero_Female_FullBody.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Male_FullBody.bin",
+   "dst": "assets/third_party/quaternius_chars/Superhero_Male_FullBody.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Male_FullBody.gltf",
+   "dst": "assets/third_party/quaternius_chars/Superhero_Male_FullBody.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Eye_Brown.png",
+   "dst": "assets/third_party/quaternius_chars/T_Eye_Brown.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Eye_Normal.png",
+   "dst": "assets/third_party/quaternius_chars/T_Eye_Normal.png",
+   "type": "normal"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_1_BaseColor.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_1_BaseColor.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_1_Normal.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_1_Normal.png",
+   "type": "normal"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_2_BaseColor.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_2_BaseColor.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_2_Normal.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_2_Normal.png",
+   "type": "normal"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Female_Dark_BaseColor.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Female_Dark_BaseColor.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Female_Normal.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Female_Normal.png",
+   "type": "normal"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Female_Roughness.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Female_Roughness.png",
+   "type": "orm"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Male_Dark.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Male_Dark.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Male_Normal.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Male_Normal.png",
+   "type": "normal"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Superhero_Male_Roughness.png",
+   "dst": "assets/third_party/quaternius_chars/T_Superhero_Male_Roughness.png",
+   "type": "orm"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Beard.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_Beard.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Beard.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_Beard.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Buns.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_Buns.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Buns.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_Buns.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Buzzed.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_Buzzed.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Buzzed.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_Buzzed.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_BuzzedFemale.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_BuzzedFemale.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_BuzzedFemale.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_BuzzedFemale.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Long.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_Long.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_Long.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_Long.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_SimpleParted.bin",
+   "dst": "assets/third_party/quaternius_chars/Hair_SimpleParted.bin",
+   "type": "buffer"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)/Hair_SimpleParted.gltf",
+   "dst": "assets/third_party/quaternius_chars/Hair_SimpleParted.gltf",
+   "type": "model"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_1_BaseColor_png.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_1_BaseColor_png.png",
+   "type": "albedo"
+  },
+  {
+   "pack": "quaternius_chars",
+   "src": "Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/T_Hair_2_BaseColor_png.png",
+   "dst": "assets/third_party/quaternius_chars/T_Hair_2_BaseColor_png.png",
+   "type": "albedo"
   }
  ],
  "skipped": [
