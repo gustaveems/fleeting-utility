@@ -37,6 +37,15 @@ on why you picked it.
 |---|---|---|
 | `sketch_walk_layout.png` | Prologue walk, top-down | Left: the metro line and its path, in front of massive buildings (nothing visible behind them). He descends from the station to the road, walks up it past the rundown buildings on his right, turns right at the corner, and arrives at his apartment complex. Built as `PrologueAvenue.PATH`. |
 
+### Batch 5 (2026-11-09, from Untitled_Message.zip)
+| File | Use | Take from it |
+|---|---|---|
+| `painting_tiger_river.jpg` (painted tiger in a churning river, leaves and yellow-orange flowers) | The protagonist's painting (Easel) | Saturated, loose, alive: the kind of work he makes on the drug. Vivid colour and fast brushwork, nothing like the misty valley |
+| `painting_wolves_flowers.jpg` (two wolf-like animals at a bone pile, pink daisies, dark ground) | The protagonist's painting (Easel) | Warm, earthy, animal and decaying, with the bones as a quiet memento mori. Shows his range beyond the valley |
+
+These are phone photos of painted canvases; they are reference only, never shipped as
+game art (they are copyrighted stills).
+
 ## Third-party assets (CC0)
 | Pack | Source | Where | Used for |
 |---|---|---|---|
